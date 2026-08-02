@@ -1,637 +1,1965 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>💬 聊天助手</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
-body{background:linear-gradient(145deg,#f7f0fc,#e9def0);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
-#app{max-width:480px;width:100%;background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);border-radius:40px;box-shadow:0 20px 60px rgba(100,70,120,0.2),0 0 0 1px rgba(255,255,255,0.5);padding:20px 16px 16px;height:95vh;display:flex;flex-direction:column;overflow:hidden}
-.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(0,0,0,0.05);flex-shrink:0}
-.header h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-right{display:flex;align-items:center;gap:8px}
-.badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:30px;background:#e0e7ff;color:#4338ca}
-.badge.online{background:#dcfce7;color:#166534}
-.badge.offline{background:#fee2e2;color:#991b1b}
-.settings-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:6px 8px;border-radius:30px}
-.settings-btn:hover{background:rgba(0,0,0,0.05)}
-.profile-tag{font-size:12px;color:#6b7280;background:rgba(124,58,237,0.08);padding:2px 12px;border-radius:30px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.profile-tag:hover{background:rgba(124,58,237,0.16)}
-.settings-panel{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:24px;padding:16px 18px;margin:12px 0;display:none;flex-shrink:0;border:1px solid rgba(255,255,255,0.8);max-height:60vh;overflow-y:auto}
-.settings-panel.show{display:block}
-.settings-panel label{font-size:12px;font-weight:600;color:#4b5563;display:block;margin:10px 0 4px}
-.settings-panel label:first-of-type{margin-top:0}
-.settings-panel input{width:100%;padding:10px 14px;border-radius:16px;border:1px solid #e5e7eb;font-size:14px;outline:none;background:#fff}
-.settings-panel input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.1)}
-.settings-panel .hint{font-size:11px;color:#9ca3af;margin-top:4px}
-.toggle-row{display:flex;align-items:center;gap:10px;margin-top:12px}
-.toggle-row label{margin:0;cursor:pointer;font-weight:400}
-.toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#7c3aed}
-.btn-save{margin-top:14px;width:100%;padding:12px;border:none;border-radius:30px;background:#7c3aed;color:#fff;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,0.3)}
-.btn-save:hover{background:#6d28d9}
-.btn-save:active{transform:scale(.97)}
-.btn-secondary{background:#e5e7eb;color:#1f2937;box-shadow:none}
-.btn-secondary:hover{background:#d1d5db}
-.object-list{margin-top:8px}
-.object-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;border-radius:16px;margin-bottom:6px;border:1px solid #e5e7eb;cursor:pointer}
-.object-item:hover{background:#f9fafb}
-.object-item.active{border-color:#7c3aed;background:#ede9fe}
-.object-item .name{font-weight:500;font-size:14px}
-.object-item .info{font-size:11px;color:#6b7280}
-.object-item .del-btn{background:none;border:none;color:#9ca3af;font-size:16px;cursor:pointer;padding:0 4px}
-.object-item .del-btn:hover{color:#ef4444}
-.add-object-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.add-object-row input{flex:1;min-width:80px;padding:8px 12px;border-radius:20px;border:1px solid #e5e7eb;font-size:13px;outline:none}
-.add-object-row input:focus{border-color:#7c3aed}
-.add-object-row .btn{padding:8px 16px;border-radius:30px;border:none;font-weight:600;font-size:13px;cursor:pointer;background:#7c3aed;color:#fff}
-.config-row{display:flex;justify-content:center;gap:12px;margin-top:14px;flex-shrink:0;flex-wrap:wrap}
-.config-group{flex:1;min-width:100px;max-width:160px;display:flex;flex-direction:column;align-items:center;gap:4px}
-.config-group label{font-size:10px;font-weight:600;color:#9ca3af;letter-spacing:.3px;text-transform:uppercase}
-.chip-group{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
-.chip{font-size:11px;padding:4px 12px;border-radius:30px;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer;font-weight:500}
-.chip.active{background:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,0.25)}
-.chip:active{transform:scale(.92)}
-/* 历史区域占据全部剩余空间，滚动 */
-.history-area{flex:1;min-height:0;overflow-y:auto;background:rgba(255,255,255,0.5);border-radius:24px;margin:14px 0 8px;padding:12px 10px;border:1px solid rgba(255,255,255,0.6)}
-.history-empty{color:#b0b0b0;font-size:14px;text-align:center;margin:auto}
-/* 普通消息气泡 */
-.msg-bubble{max-width:85%;padding:10px 16px;border-radius:20px;font-size:14px;line-height:1.5;word-break:break-word;box-shadow:0 2px 6px rgba(0,0,0,0.02)}
-.msg-girl{align-self:flex-start;background:#ede9fe;color:#2e1065;border-bottom-left-radius:6px}
-.msg-guy{align-self:flex-end;background:#d1fae5;color:#064e3b;border-bottom-right-radius:6px}
-.msg-label{font-size:10px;opacity:.5;margin-bottom:2px;font-weight:600}
-/* 建议消息特殊样式 */
-.msg-suggestions{align-self:flex-end;background:#fef9e7;color:#1e1b4b;border:1px solid #f3e8d0;border-radius:18px;padding:12px 16px;max-width:85%;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
-.suggestion-item{padding:6px 0;border-bottom:1px dashed #e5e7eb;cursor:pointer;transition:.1s}
-.suggestion-item:last-child{border-bottom:none}
-.suggestion-item:hover{background:rgba(124,58,237,0.05);border-radius:8px}
-.suggestion-item .s-text{font-weight:500}
-.suggestion-item .s-meta{font-size:11px;color:#8b8b8b;display:flex;gap:8px;margin-top:2px}
-.suggestion-item .s-meta span{background:#f3f4f6;padding:0 8px;border-radius:12px}
-.suggestion-item .copy-hint{float:right;color:#7c3aed;font-size:11px}
-.quick-bar{display:flex;gap:12px;margin:4px 0 8px;flex-shrink:0;flex-wrap:wrap;padding:6px 12px;background:rgba(255,255,255,0.4);border-radius:20px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.5)}
-.quick-item{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px}
-.quick-item .label{font-weight:500;color:#4b5563}
-.quick-item .value{background:#ede9fe;padding:1px 10px;border-radius:30px;font-weight:500;color:#5b21b6;cursor:pointer}
-.quick-item .value:hover{background:#ddd6fe}
-.input-area{display:flex;gap:10px;margin-top:4px;flex-shrink:0;align-items:center;flex-wrap:wrap}
-.input-area input{flex:1;min-width:120px;padding:14px 20px;border-radius:40px;border:1.5px solid #e5e7eb;font-size:15px;outline:none;background:#fff}
-.input-area input:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,0.08)}
-.input-area .btn-group{display:flex;gap:6px;flex-wrap:wrap}
-.btn{padding:12px 20px;border-radius:40px;border:none;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
-.btn:active{transform:scale(.95)}
-.btn-primary{background:#7c3aed;color:#fff;box-shadow:0 4px 14px rgba(124,58,237,0.25)}
-.btn-primary:disabled{opacity:.5;box-shadow:none}
-.btn-outline{background:transparent;color:#6b7280;border:1.5px solid #e5e7eb}
-.btn-outline:hover{background:#f9fafb}
-.btn-image{background:transparent;color:#7c3aed;border:1.5px solid #7c3aed;padding:10px 14px;font-size:20px;line-height:1}
-.btn-image:hover{background:rgba(124,58,237,0.1)}
-.image-preview{display:flex;align-items:center;gap:8px;margin-top:6px;flex-shrink:0}
-.image-preview img{max-width:60px;max-height:60px;border-radius:12px;border:1px solid #e5e7eb}
-.image-preview .remove-img{background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer;padding:0 4px}
-.preset-item{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:#f3f4f6;border-radius:12px;margin-bottom:4px}
-.preset-item .name{font-size:13px;font-weight:500;cursor:pointer;flex:1}
-.preset-item .name:hover{color:#7c3aed}
-.preset-item .del-preset{background:none;border:none;color:#9ca3af;cursor:pointer;padding:0 6px;font-size:14px}
-.preset-item .del-preset:hover{color:#ef4444}
-.add-preset-row{display:flex;gap:6px;margin-top:6px}
-.add-preset-row input{flex:1;padding:6px 12px;border-radius:20px;border:1px solid #e5e7eb;font-size:13px;outline:none}
-.add-preset-row input:focus{border-color:#7c3aed}
-.add-preset-row .btn{padding:6px 14px;border-radius:20px;border:none;font-size:12px;cursor:pointer;background:#7c3aed;color:#fff}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) scale(.9);background:#1f2937;color:#fff;padding:10px 24px;border-radius:40px;font-size:14px;opacity:0;transition:all .25s ease;pointer-events:none;max-width:90%;text-align:center;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
-.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
-.loader{display:inline-block;width:18px;height:18px;border:3px solid #e5e7eb;border-top-color:#7c3aed;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:10px}
-.small-btn{padding:4px 10px;font-size:12px;border-radius:20px}
-.tag{display:inline-flex;align-items:center;gap:4px;background:#ede9fe;padding:2px 10px;border-radius:30px;font-size:12px;color:#5b21b6;cursor:pointer;margin:2px 4px 2px 0;border:1px solid #ddd6fe}
-.tag .del-tag{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:14px;padding:0 2px}
-.tag .del-tag:hover{color:#ef4444}
-.tag:hover{background:#ddd6fe}
-.relation-input-row{display:flex;gap:6px;margin:4px 0 8px}
-.relation-input-row input{flex:1;padding:6px 12px;border-radius:20px;border:1px solid #e5e7eb;font-size:13px;outline:none}
-.relation-input-row input:focus{border-color:#7c3aed}
-.relation-input-row .btn{padding:6px 14px;border-radius:20px;border:none;font-size:12px;cursor:pointer;background:#7c3aed;color:#fff}
-.tags-wrap{display:flex;flex-wrap:wrap;margin-top:4px}
-/* 建议消息删除按钮 */
-.del-suggest-msg{float:right;background:none;border:none;color:#b0b0b0;cursor:pointer;font-size:14px;padding:0 4px}
-.del-suggest-msg:hover{color:#ef4444}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💬 聊天助手</title>
+    <style>
+        :root {
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-200: #e9d5ff;
+            --purple-300: #d8b4fe;
+            --purple-400: #c084fc;
+            --purple-500: #a855f7;
+            --purple-600: #9333ea;
+            --purple-700: #7c3aed;
+            --purple-800: #6d28d9;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-200: #bbf7d0;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --red-50: #fef2f2;
+            --red-100: #fee2e2;
+            --red-700: #b91c1c;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 40px;
+            --shadow-sm: 0 2px 8px rgba(100, 70, 120, 0.06);
+            --shadow-md: 0 8px 24px rgba(100, 70, 120, 0.12);
+            --shadow-lg: 0 16px 48px rgba(100, 70, 120, 0.18);
+            --shadow-glow: 0 0 0 1px rgba(255, 255, 255, 0.6), 0 20px 60px rgba(100, 70, 120, 0.2);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(160deg, #faf5ff 0%, #f0e6f6 30%, #e8dcf0 60%, #f5f0fa 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        #app {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-glow);
+            padding: 18px 14px 12px;
+            height: 96vh;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 30px;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        .badge.online {
+            background: var(--green-100);
+            color: var(--green-800);
+        }
+        .badge.offline {
+            background: var(--red-100);
+            color: var(--red-700);
+        }
+        .settings-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 30px;
+            transition: var(--transition);
+            line-height: 1;
+        }
+        .settings-btn:hover {
+            background: rgba(124, 58, 237, 0.08);
+        }
+        .settings-btn:active {
+            transform: scale(0.9);
+        }
+        .profile-tag {
+            font-size: 11px;
+            color: var(--gray-500);
+            background: rgba(124, 58, 237, 0.07);
+            padding: 3px 10px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            max-width: 150px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .profile-tag:hover {
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        /* ===== 设置面板 ===== */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+            margin: 10px 0;
+            display: none;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            max-height: 55vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-sm);
+        }
+        .settings-panel.show {
+            display: block;
+            animation: fadeSlideIn 0.25s ease;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .settings-panel label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gray-600);
+            display: block;
+            margin: 10px 0 4px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+        .settings-panel label:first-of-type {
+            margin-top: 0;
+        }
+        .settings-panel input {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--gray-200);
+            font-size: 13px;
+            outline: none;
+            background: #fff;
+            transition: var(--transition);
+        }
+        .settings-panel input:focus {
+            border-color: var(--purple-500);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+        }
+        .settings-panel .hint {
+            font-size: 10px;
+            color: var(--gray-400);
+            margin-top: 3px;
+        }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .toggle-row label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+            text-transform: none;
+            font-size: 13px;
+        }
+        .toggle-row input[type=checkbox] {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--purple-600);
+            cursor: pointer;
+        }
+        .btn-save {
+            margin-top: 12px;
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 30px;
+            background: var(--purple-600);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+            transition: var(--transition);
+            letter-spacing: 0.3px;
+        }
+        .btn-save:hover {
+            background: var(--purple-700);
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+        }
+        .btn-save:active {
+            transform: scale(0.96);
+        }
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+            box-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: var(--gray-300);
+            box-shadow: none;
+        }
+
+        /* 对象列表 */
+        .object-list {
+            margin-top: 6px;
+        }
+        .object-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: var(--radius-sm);
+            margin-bottom: 5px;
+            border: 1.5px solid var(--gray-200);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .object-item:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        .object-item.active {
+            border-color: var(--purple-500);
+            background: #faf5ff;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.06);
+        }
+        .object-item .name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--gray-800);
+        }
+        .object-item .info {
+            font-size: 10px;
+            color: var(--gray-500);
+            margin-top: 1px;
+        }
+        .object-item .del-btn {
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            font-size: 15px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+        .object-item .del-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.06);
+        }
+        .add-object-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .add-object-row input {
+            flex: 1;
+            min-width: 70px;
+            padding: 7px 11px;
+            border-radius: 20px;
+            border: 1.5px solid var(--gray-200);
+            font-size: 12px;
+            outline: none;
+        }
+        .add-object-row input:focus {
+            border-color: var(--purple-500);
+        }
+        .add-object-row .btn {
+            padding: 7px 14px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            background: var(--purple-600);
+            color: #fff;
+            transition: var(--transition);
+        }
+        .add-object-row .btn:active {
+            transform: scale(0.92);
+        }
+
+        /* 预设 */
+        .preset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 12px;
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            border: 1px solid var(--gray-200);
+        }
+        .preset-item .name {
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            color: var(--gray-700);
+            transition: var(--transition);
+        }
+        .preset-item .name:hover {
+            color: var(--purple-600);
+        }
+        .preset-item .del-preset {
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 0 6px;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        .preset-item .del-preset:hover {
+            color: #ef4444;
+        }
+        .add-preset-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .add-preset-row input {
+            flex: 1;
+            padding: 6px 11px;
+            border-radius: 20px;
+            border: 1.5px solid var(--gray-200);
+            font-size: 12px;
+            outline: none;
+        }
+        .add-preset-row input:focus {
+            border-color: var(--purple-500);
+        }
+        .add-preset-row .btn {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+            background: var(--purple-600);
+            color: #fff;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        /* 关系标签 */
+        .tags-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: #ede9fe;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            color: #5b21b6;
+            cursor: pointer;
+            border: 1px solid #ddd6fe;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .tag .del-tag {
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0 2px;
+            transition: var(--transition);
+        }
+        .tag .del-tag:hover {
+            color: #ef4444;
+        }
+        .tag:hover {
+            background: #ddd6fe;
+        }
+        .relation-input-row {
+            display: flex;
+            gap: 5px;
+            margin: 4px 0 6px;
+        }
+        .relation-input-row input {
+            flex: 1;
+            padding: 6px 11px;
+            border-radius: 20px;
+            border: 1.5px solid var(--gray-200);
+            font-size: 12px;
+            outline: none;
+        }
+        .relation-input-row input:focus {
+            border-color: var(--purple-500);
+        }
+        .relation-input-row .btn {
+            padding: 6px 13px;
+            border-radius: 20px;
+            border: none;
+            font-size: 11px;
+            cursor: pointer;
+            background: var(--purple-600);
+            color: #fff;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        /* ===== 场景/风格选择 ===== */
+        .config-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .config-group {
+            flex: 1;
+            min-width: 80px;
+            max-width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .config-group label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--gray-400);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .chip-group {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .chip {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 30px;
+            background: var(--gray-100);
+            color: var(--gray-500);
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .chip:hover {
+            background: #ede9fe;
+            color: var(--purple-600);
+        }
+        .chip.active {
+            background: var(--purple-600);
+            color: #fff;
+            border-color: var(--purple-600);
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+            font-weight: 600;
+        }
+        .chip:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== 快捷栏 ===== */
+        .quick-bar {
+            display: flex;
+            gap: 10px;
+            margin: 6px 0;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 16px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+        .quick-item {
+            font-size: 11px;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .quick-item .label {
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 10px;
+        }
+        .quick-item .value {
+            background: #ede9fe;
+            padding: 1px 9px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #5b21b6;
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+        }
+        .quick-item .value:hover {
+            background: #ddd6fe;
+        }
+
+        /* ===== 历史区域（聊天记录） ===== */
+        .history-area {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: var(--radius-lg);
+            margin: 6px 0;
+            padding: 10px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scroll-behavior: smooth;
+        }
+        .history-empty {
+            color: #c4b5d0;
+            font-size: 13px;
+            text-align: center;
+            margin: auto;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .msg-bubble {
+            max-width: 85%;
+            padding: 9px 14px;
+            border-radius: 18px;
+            font-size: 13px;
+            line-height: 1.55;
+            word-break: break-word;
+            box-shadow: var(--shadow-sm);
+            animation: msgIn 0.25s ease;
+            position: relative;
+        }
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .msg-girl {
+            align-self: flex-start;
+            background: #ede9fe;
+            color: #2e1065;
+            border-bottom-left-radius: 6px;
+            border: 1px solid #e9d5ff;
+        }
+        .msg-guy {
+            align-self: flex-end;
+            background: #d1fae5;
+            color: #064e3b;
+            border-bottom-right-radius: 6px;
+            border: 1px solid #bbf7d0;
+        }
+        .msg-label {
+            font-size: 9px;
+            opacity: 0.5;
+            margin-bottom: 2px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* ===== 建议面板（独立于历史） ===== */
+        .suggestions-panel {
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #fffdf5, #fffef9);
+            border: 1.5px solid #f3e8d0;
+            border-radius: var(--radius-lg);
+            padding: 10px 12px;
+            margin: 4px 0;
+            box-shadow: 0 2px 12px rgba(180, 150, 80, 0.08);
+            animation: slideUp 0.3s ease;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestions-panel.show {
+            display: block;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .suggestions-panel .s-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .suggestions-panel .s-title {
+            font-weight: 700;
+            font-size: 12px;
+            color: #8b7355;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.2px;
+        }
+        .suggestions-panel .s-close {
+            background: none;
+            border: none;
+            color: #c4b5a0;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 20px;
+            transition: var(--transition);
+            line-height: 1;
+        }
+        .suggestions-panel .s-close:hover {
+            color: #a08060;
+            background: rgba(0, 0, 0, 0.04);
+        }
+        .suggestion-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: #fff;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 1px solid #f0e8d5;
+            transition: var(--transition);
+            position: relative;
+        }
+        .suggestion-card:last-child {
+            margin-bottom: 0;
+        }
+        .suggestion-card:hover {
+            background: #fffbeb;
+            border-color: #e8d8b0;
+            box-shadow: 0 1px 4px rgba(180, 150, 80, 0.1);
+            transform: translateX(2px);
+        }
+        .suggestion-card:active {
+            transform: scale(0.97);
+            background: #fef9e7;
+        }
+        .suggestion-card .s-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ede9fe;
+            color: #5b21b6;
+            font-weight: 700;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .suggestion-card .s-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .suggestion-card .s-text {
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--gray-800);
+            line-height: 1.4;
+        }
+        .suggestion-card .s-meta {
+            font-size: 10px;
+            color: #a09080;
+            display: flex;
+            gap: 6px;
+            margin-top: 2px;
+            flex-wrap: wrap;
+        }
+        .suggestion-card .s-meta span {
+            background: #fdf6e8;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 9px;
+            white-space: nowrap;
+        }
+        .suggestion-card .s-copy-hint {
+            font-size: 9px;
+            color: var(--purple-500);
+            opacity: 0;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .suggestion-card:hover .s-copy-hint {
+            opacity: 1;
+        }
+        .suggestion-card.copied {
+            background: #f0fdf4 !important;
+            border-color: #bbf7d0 !important;
+        }
+        .suggestion-card.copied .s-num {
+            background: #bbf7d0;
+            color: #166534;
+        }
+        .suggestion-card.copied .s-copy-hint {
+            opacity: 1;
+            color: #15803d;
+        }
+
+        /* ===== 输入区域 ===== */
+        .input-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            flex-shrink: 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-area input {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 16px;
+            border-radius: 40px;
+            border: 1.5px solid var(--gray-200);
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+            transition: var(--transition);
+        }
+        .input-area input:focus {
+            border-color: var(--purple-500);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.06);
+        }
+        .input-area .btn-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .btn {
+            padding: 11px 18px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+            letter-spacing: 0.2px;
+        }
+        .btn:active {
+            transform: scale(0.93);
+        }
+        .btn-primary {
+            background: var(--purple-600);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--purple-700);
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-500);
+            border: 1.5px solid var(--gray-200);
+            padding: 10px 14px;
+            font-size: 12px;
+        }
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        .btn-image {
+            background: transparent;
+            color: var(--purple-600);
+            border: 1.5px solid var(--purple-400);
+            padding: 9px 13px;
+            font-size: 18px;
+            line-height: 1;
+        }
+        .btn-image:hover {
+            background: rgba(124, 58, 237, 0.06);
+            border-color: var(--purple-500);
+        }
+        .image-preview {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            flex-shrink: 0;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            border: 1px solid var(--gray-200);
+        }
+        .image-preview img {
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 10px;
+            border: 1px solid var(--gray-200);
+            object-fit: cover;
+        }
+        .image-preview .remove-img {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+        .image-preview .remove-img:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.85);
+            background: var(--gray-800);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 13px;
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            max-width: 90%;
+            text-align: center;
+            z-index: 999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* ===== Loader ===== */
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid var(--gray-200);
+            border-top-color: var(--purple-600);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .suggestions-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            color: var(--gray-500);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0b5bc;
+        }
+
+        /* ===== 小按钮 ===== */
+        .small-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 20px;
+        }
+
+        hr {
+            margin: 14px 0;
+            border: none;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 400px) {
+            #app {
+                padding: 12px 8px 8px;
+                border-radius: 28px;
+                height: 98vh;
+            }
+            .header h1 {
+                font-size: 17px;
+            }
+            .chip {
+                font-size: 9px;
+                padding: 3px 8px;
+            }
+            .btn {
+                padding: 9px 14px;
+                font-size: 12px;
+            }
+            .input-area input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .suggestions-panel {
+                max-height: 160px;
+                padding: 8px 10px;
+            }
+            .suggestion-card .s-text {
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <div class="header">
-    <h1>💬 聊天助手</h1>
-    <div class="header-right">
-      <span class="profile-tag" id="profileTag">👤 选择对象</span>
-      <span class="badge offline" id="statusBadge">⛔ 未连接</span>
-      <button class="settings-btn" id="settingsToggle">⚙️</button>
+    <div id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>💬 聊天助手</h1>
+            <div class="header-right">
+                <span class="profile-tag" id="profileTag">👤 选择对象</span>
+                <span class="badge offline" id="statusBadge">⛔ 未连接</span>
+                <button class="settings-btn" id="settingsToggle" title="设置">⚙️</button>
+            </div>
+        </div>
+
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+            <label>📦 API 预设</label>
+            <div id="presetList"></div>
+            <div class="add-preset-row">
+                <input type="text" id="newPresetName" placeholder="预设名称">
+                <button class="btn" id="addPresetBtn">💾 保存</button>
+            </div>
+            <label>🔑 API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="sk-...">
+            <label>🌐 API 地址</label>
+            <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
+            <label>🧠 模型名称</label>
+            <input type="text" id="modelInput" placeholder="glm-4-flash / deepseek-chat">
+            <div class="toggle-row">
+                <input type="checkbox" id="useAI" checked>
+                <label for="useAI">启用 AI</label>
+            </div>
+            <button class="btn-save" id="saveSettingsBtn">💾 保存配置到预设</button>
+            <hr>
+            <label>👥 聊天对象</label>
+            <div class="object-list" id="objectList"></div>
+            <div class="add-object-row">
+                <input type="text" id="newObjectName" placeholder="昵称">
+                <button class="btn small-btn" id="addObjectBtn">➕</button>
+            </div>
+            <label>🤝 关系管理</label>
+            <div class="relation-input-row">
+                <input type="text" id="newRelationInput" placeholder="关系">
+                <button class="btn" id="addRelationBtn">➕</button>
+            </div>
+            <div class="tags-wrap" id="relationTags"></div>
+            <label>✏️ 编辑对象</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <input type="text" id="profileName" placeholder="昵称" style="flex:1;min-width:55px;">
+                <input type="number" id="profileAge" placeholder="年龄" style="flex:0.7;min-width:45px;">
+            </div>
+            <input type="text" id="profileHobby" placeholder="爱好/职业">
+            <input type="text" id="profileNote" placeholder="备注">
+            <label style="margin-top:6px;">🤝 与我的关系</label>
+            <input type="text" id="profileRelationship" placeholder="输入或点击标签">
+            <div class="tags-wrap" id="profileRelationTags"></div>
+            <button class="btn-save" id="saveObjectBtn">💾 更新对象</button>
+        </div>
+
+        <!-- 场景/风格选择 -->
+        <div class="config-row">
+            <div class="config-group">
+                <label>🎯 场景</label>
+                <div class="chip-group" id="scenarioGroup">
+                    <button class="chip active" data-value="日常闲聊">闲聊</button>
+                    <button class="chip" data-value="深入交流">深入</button>
+                    <button class="chip" data-value="正式沟通">正式</button>
+                </div>
+            </div>
+            <div class="config-group">
+                <label>🎭 风格</label>
+                <div class="chip-group" id="styleGroup">
+                    <button class="chip" data-value="幽默">幽默</button>
+                    <button class="chip" data-value="直球">直球</button>
+                    <button class="chip active" data-value="话题延伸">延伸</button>
+                    <button class="chip" data-value="开启话题">开启</button>
+                    <button class="chip" data-value="高情商回复">高情商</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷信息栏 -->
+        <div class="quick-bar" id="quickBar">
+            <div class="quick-item"><span class="label">🤝</span><span class="value" id="quickRelation">未设置</span></div>
+            <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">闲聊</span></div>
+        </div>
+
+        <!-- 聊天历史区域 -->
+        <div class="history-area" id="historyArea">
+            <div class="history-empty">👋 添加对象开始</div>
+        </div>
+
+        <!-- 独立建议面板 -->
+        <div class="suggestions-panel" id="suggestionsPanel">
+            <div class="s-header">
+                <span class="s-title">💡 AI 候选回复</span>
+                <button class="s-close" id="closeSuggestionsBtn" title="关闭">✕</button>
+            </div>
+            <div id="suggestionsContent"></div>
+        </div>
+
+        <!-- 图片预览 -->
+        <div class="image-preview" id="imagePreview" style="display:none;">
+            <img id="previewImg" alt="预览">
+            <button class="remove-img" id="removeImgBtn">✕</button>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="输入对方原话...">
+            <div class="btn-group">
+                <button class="btn btn-image" id="imageBtn" title="上传图片">📷</button>
+                <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
+                <button class="btn btn-outline" id="clearHistoryBtn" title="清除记录">🗑️</button>
+            </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;">
     </div>
-  </div>
+    <div class="toast" id="toast"></div>
 
-  <div class="settings-panel" id="settingsPanel">
-    <label>📦 API 预设</label>
-    <div id="presetList"></div>
-    <div class="add-preset-row">
-      <input type="text" id="newPresetName" placeholder="预设名称">
-      <button class="btn" id="addPresetBtn">💾 保存</button>
-    </div>
-    <label>🔑 API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-...">
-    <label>🌐 API 地址</label>
-    <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
-    <label>🧠 模型名称</label>
-    <input type="text" id="modelInput" placeholder="glm-4-flash / deepseek-chat">
-    <div class="toggle-row">
-      <input type="checkbox" id="useAI" checked>
-      <label for="useAI">启用 AI</label>
-    </div>
-    <button class="btn-save" id="saveSettingsBtn">💾 保存配置到预设</button>
-    <hr style="margin:16px 0;border:none;border-top:1px solid #e5e7eb;">
-    <label>👥 聊天对象</label>
-    <div class="object-list" id="objectList"></div>
-    <div class="add-object-row">
-      <input type="text" id="newObjectName" placeholder="昵称">
-      <button class="btn small-btn" id="addObjectBtn">➕</button>
-    </div>
-    <label>🤝 关系管理</label>
-    <div class="relation-input-row">
-      <input type="text" id="newRelationInput" placeholder="关系">
-      <button class="btn" id="addRelationBtn">➕</button>
-    </div>
-    <div class="tags-wrap" id="relationTags"></div>
-    <label>✏️ 编辑对象</label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" id="profileName" placeholder="昵称" style="flex:1;min-width:60px;">
-      <input type="number" id="profileAge" placeholder="年龄" style="flex:.8;min-width:50px;">
-    </div>
-    <input type="text" id="profileHobby" placeholder="爱好/职业">
-    <input type="text" id="profileNote" placeholder="备注">
-    <label style="margin-top:8px;">🤝 与我的关系</label>
-    <input type="text" id="profileRelationship" placeholder="输入或点击标签">
-    <div class="tags-wrap" id="profileRelationTags"></div>
-    <button class="btn-save" id="saveObjectBtn">💾 更新对象</button>
-  </div>
+    <script>
+        // ==================== 核心状态 ====================
+        const state = {
+            objects: [],
+            currentObjectId: null,
+            config: { scenario: '日常闲聊', style: '话题延伸' },
+            isLoading: false,
+            pendingGuyReply: false,
+            apiKey: '',
+            apiUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+            model: 'glm-4-flash',
+            useAI: true,
+            imageBase64: null,
+            presets: [],
+            currentPreset: '',
+            relations: ['朋友', '同事', '恋人', '家人', '客户', '其他'],
+            currentSuggestions: null // { suggestions: [], analysis: '' }
+        };
 
-  <div class="config-row">
-    <div class="config-group">
-      <label>🎯 场景</label>
-      <div class="chip-group" id="scenarioGroup">
-        <button class="chip active" data-value="日常闲聊">闲聊</button>
-        <button class="chip" data-value="深入交流">深入</button>
-        <button class="chip" data-value="正式沟通">正式</button>
-      </div>
-    </div>
-    <div class="config-group">
-      <label>🎭 风格</label>
-      <div class="chip-group" id="styleGroup">
-        <button class="chip" data-value="幽默">幽默</button>
-        <button class="chip" data-value="直球">直球</button>
-        <button class="chip active" data-value="话题延伸">延伸</button>
-        <button class="chip" data-value="开启话题">开启</button>
-        <button class="chip" data-value="高情商回复">高情商</button>
-      </div>
-    </div>
-  </div>
+        const $ = id => document.getElementById(id);
+        const historyArea = $('historyArea'),
+            toastEl = $('toast'),
+            statusBadge = $('statusBadge'),
+            profileTag = $('profileTag');
+        const messageInput = $('messageInput'),
+            sendBtn = $('sendBtn');
+        const settingsPanel = $('settingsPanel'),
+            settingsToggle = $('settingsToggle'),
+            apiKeyInput = $('apiKeyInput'),
+            apiUrlInput = $('apiUrlInput'),
+            modelInput = $('modelInput'),
+            useAICheckbox = $('useAI');
+        const profileName = $('profileName'),
+            profileAge = $('profileAge'),
+            profileHobby = $('profileHobby'),
+            profileNote = $('profileNote'),
+            profileRelationship = $('profileRelationship');
+        const saveSettingsBtn = $('saveSettingsBtn'),
+            saveObjectBtn = $('saveObjectBtn'),
+            clearHistoryBtn = $('clearHistoryBtn'),
+            objectList = $('objectList'),
+            newObjectName = $('newObjectName'),
+            addObjectBtn = $('addObjectBtn');
+        const imageBtn = $('imageBtn'),
+            fileInput = $('fileInput'),
+            imagePreview = $('imagePreview'),
+            previewImg = $('previewImg'),
+            removeImgBtn = $('removeImgBtn');
+        const presetList = $('presetList'),
+            newPresetName = $('newPresetName'),
+            addPresetBtn = $('addPresetBtn');
+        const quickRelation = $('quickRelation'),
+            quickPurpose = $('quickPurpose'),
+            quickBar = $('quickBar');
+        const relationTags = $('relationTags'),
+            profileRelationTags = $('profileRelationTags'),
+            newRelationInput = $('newRelationInput'),
+            addRelationBtn = $('addRelationBtn');
+        const suggestionsPanel = $('suggestionsPanel'),
+            suggestionsContent = $('suggestionsContent'),
+            closeSuggestionsBtn = $('closeSuggestionsBtn');
 
-  <div class="quick-bar" id="quickBar">
-    <div class="quick-item"><span class="label">🤝</span><span class="value" id="quickRelation">未设置</span></div>
-    <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">闲聊</span></div>
-  </div>
+        function getConfig() {
+            const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '日常闲聊';
+            const t = document.querySelector('#styleGroup .chip.active')?.dataset.value || '话题延伸';
+            return { scenario: s, style: t };
+        }
 
-  <!-- 历史区域（聊天框） -->
-  <div class="history-area" id="historyArea"><div class="history-empty">👋 添加对象开始</div></div>
+        function showToast(m, d = 2000) {
+            toastEl.textContent = m;
+            toastEl.classList.add('show');
+            clearTimeout(toastEl._timer);
+            toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), d);
+        }
 
-  <!-- 移除独立的 suggestions-area，建议直接显示在历史中 -->
+        function updateStatusBadge() {
+            const h = state.apiKey && state.apiKey.trim().length > 0;
+            if (state.useAI && h) {
+                statusBadge.textContent = '🤖 AI 在线';
+                statusBadge.className = 'badge online';
+            } else if (!state.useAI) {
+                statusBadge.textContent = '⛔ AI 禁用';
+                statusBadge.className = 'badge offline';
+            } else {
+                statusBadge.textContent = '⚠️ 缺少 Key';
+                statusBadge.className = 'badge offline';
+            }
+        }
 
-  <div class="image-preview" id="imagePreview" style="display:none;">
-    <img id="previewImg" alt="预览">
-    <button class="remove-img" id="removeImgBtn">✕</button>
-  </div>
+        function updateQuickPurposeText() {
+            const config = getConfig();
+            quickPurpose.textContent = config.scenario;
+        }
 
-  <div class="input-area">
-    <input type="text" id="messageInput" placeholder="输入对方原话...">
-    <div class="btn-group">
-      <button class="btn btn-image" id="imageBtn">📷</button>
-      <button class="btn btn-primary" id="sendBtn">🚀</button>
-      <button class="btn btn-outline" id="clearHistoryBtn">🗑️</button>
-    </div>
-  </div>
-  <input type="file" id="fileInput" accept="image/*" style="display:none;">
-</div>
-<div class="toast" id="toast"></div>
+        // ---------- 预设 ----------
+        function renderPresets() {
+            if (state.presets.length === 0) {
+                presetList.innerHTML = '<div style="color:#9ca3af;font-size:12px;padding:4px 0;">暂无预设</div>';
+                return;
+            }
+            let html = '';
+            state.presets.forEach(p => {
+                const active = p.name === state.currentPreset ? '▶️ ' : '';
+                html +=
+                    `<div class="preset-item"><span class="name" data-name="${p.name}">${active}${p.name}</span><button class="del-preset" data-name="${p.name}">✕</button></div>`;
+            });
+            presetList.innerHTML = html;
+            presetList.querySelectorAll('.name').forEach(el => {
+                el.addEventListener('click', function() {
+                    const name = this.dataset.name;
+                    const preset = state.presets.find(p => p.name === name);
+                    if (preset) {
+                        state.apiKey = preset.apiKey;
+                        state.apiUrl = preset.apiUrl;
+                        state.model = preset.model;
+                        state.currentPreset = name;
+                        apiKeyInput.value = preset.apiKey;
+                        apiUrlInput.value = preset.apiUrl;
+                        modelInput.value = preset.model;
+                        saveToStorage();
+                        updateStatusBadge();
+                        showToast(`已切换：${name}`, 1500);
+                        renderPresets();
+                    }
+                });
+            });
+            presetList.querySelectorAll('.del-preset').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const name = this.dataset.name;
+                    if (confirm(`删除预设 "${name}" ？`)) {
+                        state.presets = state.presets.filter(p => p.name !== name);
+                        if (state.currentPreset === name) state.currentPreset = '';
+                        saveToStorage();
+                        renderPresets();
+                        showToast('已删除', 1000);
+                    }
+                });
+            });
+        }
 
-<script>
-// ==================== 核心状态 ====================
-const state={
-  objects:[],
-  currentObjectId:null,
-  config:{scenario:'日常闲聊',style:'话题延伸'},
-  isLoading:!1,
-  pendingGuyReply:!1,
-  apiKey:'',
-  apiUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-  model:'glm-4-flash',
-  useAI:!0,
-  imageBase64:null,
-  presets:[],
-  currentPreset:'',
-  relations:['朋友','同事','恋人','家人','客户','其他']
-};
+        function saveCurrentAsPreset(name) {
+            if (!name.trim()) { showToast('请输入名称', 1000); return; }
+            const key = toAscii(apiKeyInput.value.trim());
+            const url = toAscii(apiUrlInput.value.trim()) || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+            const model = toAscii(modelInput.value.trim()) || 'glm-4-flash';
+            if (!key) { showToast('API Key不能为空', 1000); return; }
+            if (state.presets.some(p => p.name === name.trim()) && !confirm(`覆盖 "${name}" ？`)) return;
+            state.presets = state.presets.filter(p => p.name !== name.trim());
+            state.presets.push({ name: name.trim(), apiKey: key, apiUrl: url, model });
+            state.currentPreset = name.trim();
+            state.apiKey = key;
+            state.apiUrl = url;
+            state.model = model;
+            apiKeyInput.value = key;
+            apiUrlInput.value = url;
+            modelInput.value = model;
+            saveToStorage();
+            renderPresets();
+            updateStatusBadge();
+            showToast(`已保存：${name.trim()}`, 1500);
+        }
 
-const $=id=>document.getElementById(id);
-const historyArea=$('historyArea'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag');
-const messageInput=$('messageInput'),sendBtn=$('sendBtn');
-const settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI');
-const profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),profileRelationship=$('profileRelationship');
-const saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn');
-const imageBtn=$('imageBtn'),fileInput=$('fileInput'),imagePreview=$('imagePreview'),previewImg=$('previewImg'),removeImgBtn=$('removeImgBtn');
-const presetList=$('presetList'),newPresetName=$('newPresetName'),addPresetBtn=$('addPresetBtn');
-const quickRelation=$('quickRelation'),quickPurpose=$('quickPurpose'),quickBar=$('quickBar');
-const relationTags=$('relationTags'),profileRelationTags=$('profileRelationTags'),newRelationInput=$('newRelationInput'),addRelationBtn=$('addRelationBtn');
+        // ---------- 关系 ----------
+        function renderRelations() {
+            let html = '';
+            state.relations.forEach(r => {
+                html +=
+                    `<span class="tag" data-rel="${r}">${r}<button class="del-tag" data-rel="${r}">✕</button></span>`;
+            });
+            relationTags.innerHTML = html;
+            relationTags.querySelectorAll('.tag').forEach(tag => {
+                tag.addEventListener('click', function(e) {
+                    if (e.target.closest('.del-tag')) return;
+                    newRelationInput.value = this.dataset.rel;
+                });
+            });
+            relationTags.querySelectorAll('.del-tag').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const rel = this.dataset.rel;
+                    if (confirm(`删除关系 "${rel}" ？`)) {
+                        state.relations = state.relations.filter(r => r !== rel);
+                        saveToStorage();
+                        renderRelations();
+                        renderProfileRelationTags();
+                        showToast('已删除', 1000);
+                    }
+                });
+            });
+            renderProfileRelationTags();
+        }
 
-function getConfig(){const s=document.querySelector('#scenarioGroup .chip.active')?.dataset.value||'日常闲聊';const t=document.querySelector('#styleGroup .chip.active')?.dataset.value||'话题延伸';return{scenario:s,style:t}}
-function showToast(m,d=2000){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._timer);toastEl._timer=setTimeout(()=>toastEl.classList.remove('show'),d)}
-function updateStatusBadge(){const h=state.apiKey&&state.apiKey.trim().length>0;if(state.useAI&&h){statusBadge.textContent='🤖 AI 在线';statusBadge.className='badge online'}else if(!state.useAI){statusBadge.textContent='⛔ AI 禁用';statusBadge.className='badge offline'}else{statusBadge.textContent='⚠️ 缺少 Key';statusBadge.className='badge offline'}}
+        function renderProfileRelationTags() {
+            let html = '';
+            state.relations.forEach(r => { html += `<span class="tag" data-rel="${r}">${r}</span>`; });
+            profileRelationTags.innerHTML = html;
+            profileRelationTags.querySelectorAll('.tag').forEach(tag => {
+                tag.addEventListener('click', function() { profileRelationship.value = this.dataset.rel; });
+            });
+        }
 
-// ---------- 预设 ----------
-function renderPresets(){
-  if(state.presets.length===0){presetList.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:4px 0;">暂无预设</div>';return}
-  let html='';
-  state.presets.forEach(p=>{const active=p.name===state.currentPreset?'▶️ ':'';html+=`<div class="preset-item"><span class="name" data-name="${p.name}">${active}${p.name}</span><button class="del-preset" data-name="${p.name}">✕</button></div>`});
-  presetList.innerHTML=html;
-  presetList.querySelectorAll('.name').forEach(el=>{el.addEventListener('click',function(){const name=this.dataset.name;const preset=state.presets.find(p=>p.name===name);if(preset){state.apiKey=preset.apiKey;state.apiUrl=preset.apiUrl;state.model=preset.model;state.currentPreset=name;apiKeyInput.value=preset.apiKey;apiUrlInput.value=preset.apiUrl;modelInput.value=preset.model;saveToStorage();updateStatusBadge();showToast(`已切换：${name}`,1500);renderPresets()}})});
-  presetList.querySelectorAll('.del-preset').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const name=this.dataset.name;if(confirm(`删除预设 "${name}" ？`)){state.presets=state.presets.filter(p=>p.name!==name);if(state.currentPreset===name)state.currentPreset='';saveToStorage();renderPresets();showToast('已删除',1000)}})});
-}
-function saveCurrentAsPreset(name){
-  if(!name.trim()){showToast('请输入名称',1000);return}
-  const key=toAscii(apiKeyInput.value.trim());
-  const url=toAscii(apiUrlInput.value.trim())||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-  const model=toAscii(modelInput.value.trim())||'glm-4-flash';
-  if(!key){showToast('API Key不能为空',1000);return}
-  if(state.presets.some(p=>p.name===name.trim())&&!confirm(`覆盖 "${name}" ？`))return;
-  state.presets=state.presets.filter(p=>p.name!==name.trim());
-  state.presets.push({name:name.trim(),apiKey:key,apiUrl:url,model});
-  state.currentPreset=name.trim();
-  state.apiKey=key;state.apiUrl=url;state.model=model;
-  apiKeyInput.value=key;apiUrlInput.value=url;modelInput.value=model;
-  saveToStorage();renderPresets();updateStatusBadge();showToast(`已保存：${name.trim()}`,1500);
-}
+        function addRelation(rel) {
+            rel = rel.trim();
+            if (!rel || state.relations.includes(rel)) return;
+            state.relations.push(rel);
+            saveToStorage();
+            renderRelations();
+            showToast(`已添加：${rel}`, 1000);
+        }
 
-// ---------- 关系 ----------
-function renderRelations(){
-  let html='';state.relations.forEach(r=>{html+=`<span class="tag" data-rel="${r}">${r}<button class="del-tag" data-rel="${r}">✕</button></span>`});
-  relationTags.innerHTML=html;
-  relationTags.querySelectorAll('.tag').forEach(tag=>{tag.addEventListener('click',function(e){if(e.target.closest('.del-tag'))return;newRelationInput.value=this.dataset.rel})});
-  relationTags.querySelectorAll('.del-tag').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const rel=this.dataset.rel;if(confirm(`删除关系 "${rel}" ？`)){state.relations=state.relations.filter(r=>r!==rel);saveToStorage();renderRelations();renderProfileRelationTags();showToast('已删除',1000)}})});
-  renderProfileRelationTags();
-}
-function renderProfileRelationTags(){
-  let html='';state.relations.forEach(r=>{html+=`<span class="tag" data-rel="${r}">${r}</span>`});
-  profileRelationTags.innerHTML=html;
-  profileRelationTags.querySelectorAll('.tag').forEach(tag=>{tag.addEventListener('click',function(){profileRelationship.value=this.dataset.rel})});
-}
-function addRelation(rel){rel=rel.trim();if(!rel||state.relations.includes(rel))return;state.relations.push(rel);saveToStorage();renderRelations();showToast(`已添加：${rel}`,1000)}
+        // ---------- 对象 ----------
+        function getCurrentObject() { return state.objects.find(o => o.id === state.currentObjectId) || null; }
 
-// ---------- 对象 ----------
-function getCurrentObject(){return state.objects.find(o=>o.id===state.currentObjectId)||null}
-function updateProfileTag(){const o=getCurrentObject();profileTag.textContent=o?`👤 ${o.name||'未命名'}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}`:'👤 选择对象'}
-function updateQuickBar(){const o=getCurrentObject();quickRelation.textContent=o?.relationship||'未设置';quickPurpose.textContent='闲聊'}
-function renderObjectList(){
-  if(state.objects.length===0){objectList.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:8px;">暂无对象，请添加</div>';return}
-  let html='';
-  state.objects.forEach(obj=>{const a=obj.id===state.currentObjectId?'active':'';const c=obj.history?obj.history.length:0;html+=`<div class="object-item ${a}" data-id="${obj.id}"><div><div class="name">${obj.name||'未命名'}${obj.age?' ('+obj.age+'岁)':''}</div><div class="info">${obj.hobby||'无备注'} · ${c}条消息</div></div><button class="del-btn" data-id="${obj.id}">✕</button></div>`});
-  objectList.innerHTML=html;
-  objectList.querySelectorAll('.object-item').forEach(item=>{item.addEventListener('click',function(e){if(e.target.closest('.del-btn'))return;switchObject(this.dataset.id)})});
-  objectList.querySelectorAll('.del-btn').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const id=this.dataset.id;if(confirm('删除该对象？'))deleteObject(id)})});
-}
-function switchObject(id){state.currentObjectId=id;loadCurrentObject();renderObjectList();updateProfileTag();updateQuickBar();renderHistory();saveToStorage()}
-function loadCurrentObject(){
-  const o=getCurrentObject();
-  if(o){profileName.value=o.name||'';profileAge.value=o.age||'';profileHobby.value=o.hobby||'';profileNote.value=o.note||'';profileRelationship.value=o.relationship||'';renderHistory();updateProfileTag();updateQuickBar()}
-  else{profileName.value=profileAge.value=profileHobby.value=profileNote.value=profileRelationship.value='';historyArea.innerHTML='<div class="history-empty">👋 添加对象开始</div>';updateProfileTag();updateQuickBar()}
-}
-function addObject(name){if(!name.trim()){showToast('请输入昵称',1000);return}if(state.objects.some(o=>o.name===name.trim())){showToast('已存在',1000);return}const n={id:Date.now().toString(36)+Math.random().toString(36).substr(2,4),name:name.trim(),age:'',hobby:'',note:'',relationship:'',purpose:'闲聊',history:[]};state.objects.push(n);state.currentObjectId=n.id;renderObjectList();loadCurrentObject();saveToStorage();showToast(`已添加：${n.name}`,1500)}
-function deleteObject(id){state.objects=state.objects.filter(o=>o.id!==id);if(state.currentObjectId===id)state.currentObjectId=state.objects.length>0?state.objects[0].id:null;renderObjectList();loadCurrentObject();saveToStorage();showToast('已删除',1000)}
-function saveObjectDetails(){
-  const o=getCurrentObject();if(!o){showToast('请先选择对象',1000);return}
-  o.name=profileName.value.trim()||'未命名';
-  o.age=parseInt(profileAge.value)||'';
-  o.hobby=profileHobby.value.trim();
-  o.note=profileNote.value.trim();
-  const rel=profileRelationship.value.trim();
-  o.relationship=rel||'';
-  if(rel&&!state.relations.includes(rel)){state.relations.push(rel);renderRelations()}
-  o.purpose='闲聊';
-  renderObjectList();updateProfileTag();updateQuickBar();saveToStorage();showToast('已更新',1500)
-}
+        function updateProfileTag() {
+            const o = getCurrentObject();
+            profileTag.textContent = o ? `👤 ${o.name||'未命名'}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}` :
+                '👤 选择对象';
+        }
 
-// ---------- 历史管理 ----------
-function getCurrentHistory(){const o=getCurrentObject();return o?o.history:[]}
-function pushHistory(r,c){const o=getCurrentObject();if(o){o.history.push({role:r,content:c});saveToStorage();renderHistory()}}
-function renderHistory(){
-  const h=getCurrentHistory();
-  if(h.length===0){const o=getCurrentObject();historyArea.innerHTML=`<div class="history-empty">👋 ${o?'开始与 '+o.name+' 的对话':'添加对象开始'}</div>`;return}
-  let html='';
-  h.forEach(msg=>{
-    // 判断是否为建议消息（特殊类型）
-    if(msg.type==='suggestions'){
-      // 渲染建议消息
-      const suggestions = msg.suggestions || [];
-      html+=`<div class="msg-suggestions"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-weight:600;font-size:13px;">💡 候选回复</span><button class="del-suggest-msg" onclick="deleteSuggestionMsg(${h.indexOf(msg)})" title="删除">✕</button></div>`;
-      suggestions.forEach((s,idx)=>{
-        const textEncoded=encodeURIComponent(s.text);
-        html+=`
-          <div class="suggestion-item" onclick="copySuggestion('${textEncoded}')">
-            <div class="s-text">${idx+1}. ${s.text}</div>
-            <div class="s-meta"><span>💡 ${s.reason||'推荐'}</span><span>📈 ${s.expectedEffect||'预期'}</span></div>
-            <div class="copy-hint">👆 点击复制</div>
-          </div>
-        `;
-      });
-      html+=`</div>`;
-    } else {
-      // 普通消息
-      const cls=msg.role==='girl'?'msg-girl':'msg-guy';
-      const label=msg.role==='girl'?'🗣️ 对方':'🧑 我';
-      html+=`<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`;
-    }
-  });
-  historyArea.innerHTML=html;
-  historyArea.scrollTop=historyArea.scrollHeight;
-}
+        function updateQuickBar() {
+            const o = getCurrentObject();
+            quickRelation.textContent = o?.relationship || '未设置';
+            updateQuickPurposeText();
+        }
 
-// 删除建议消息
-function deleteSuggestionMsg(index){
-  const obj=getCurrentObject();
-  if(!obj)return;
-  const history=obj.history;
-  if(index>=0 && index<history.length && history[index].type==='suggestions'){
-    history.splice(index,1);
-    saveToStorage();
-    renderHistory();
-    showToast('已删除候选回复',1000);
-  }
-}
+        function renderObjectList() {
+            if (state.objects.length === 0) {
+                objectList.innerHTML =
+                '<div style="color:#9ca3af;font-size:12px;text-align:center;padding:6px;">暂无对象，请添加</div>';
+                return;
+            }
+            let html = '';
+            state.objects.forEach(obj => {
+                const a = obj.id === state.currentObjectId ? 'active' : '';
+                const c = obj.history ? obj.history.length : 0;
+                html +=
+                    `<div class="object-item ${a}" data-id="${obj.id}"><div><div class="name">${obj.name||'未命名'}${obj.age?' ('+obj.age+'岁)':''}</div><div class="info">${obj.hobby||'无备注'} · ${c}条消息</div></div><button class="del-btn" data-id="${obj.id}">✕</button></div>`;
+            });
+            objectList.innerHTML = html;
+            objectList.querySelectorAll('.object-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('.del-btn')) return;
+                    switchObject(this.dataset.id);
+                });
+            });
+            objectList.querySelectorAll('.del-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.dataset.id;
+                    if (confirm('删除该对象？')) deleteObject(id);
+                });
+            });
+        }
 
-// 复制建议（暴露给内联 onclick）
-function copySuggestion(encodedText){
-  const text=decodeURIComponent(encodedText);
-  if(!text){showToast('内容为空',1000);return}
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>{
-      showToast('✅ 已复制');
-      // 记录为已发送
-      pushHistory('guy', text);
-      // 删除当前建议消息（可选，已复制后自动删除）
-      // 但为了用户能保留参考，这里不自动删除，让用户手动删除
-    }).catch(()=>fallbackCopy(text));
-  }else{fallbackCopy(text);}
-}
+        function switchObject(id) {
+            state.currentObjectId = id;
+            state.currentSuggestions = null; // 切换对象时清空建议面板
+            loadCurrentObject();
+            renderObjectList();
+            updateProfileTag();
+            updateQuickBar();
+            renderHistory();
+            renderSuggestionsPanel();
+            saveToStorage();
+        }
 
-function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}document.body.removeChild(ta)}
+        function loadCurrentObject() {
+            const o = getCurrentObject();
+            if (o) {
+                profileName.value = o.name || '';
+                profileAge.value = o.age || '';
+                profileHobby.value = o.hobby || '';
+                profileNote.value = o.note || '';
+                profileRelationship.value = o.relationship || '';
+                renderHistory();
+                updateProfileTag();
+                updateQuickBar();
+            } else {
+                profileName.value = profileAge.value = profileHobby.value = profileNote.value = profileRelationship.value =
+                    '';
+                historyArea.innerHTML = '<div class="history-empty">👋 添加对象开始</div>';
+                updateProfileTag();
+                updateQuickBar();
+                state.currentSuggestions = null;
+                renderSuggestionsPanel();
+            }
+        }
 
-// ---------- 图片 ----------
-function compressImage(d,m=1024*1024){return new Promise(r=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const c=document.createElement('canvas');let q=.9;const t=(Q)=>{c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);const nd=c.toDataURL('image/jpeg',Q);if(nd.length<m||Q<.2)r(nd);else t(Q-.1)};t(.9)};img.src=d})}
-function handleImageSelect(file){if(!file)return;const reader=new FileReader();reader.onload=async e=>{try{const compressed=await compressImage(e.target.result);state.imageBase64=compressed;previewImg.src=compressed;imagePreview.style.display='flex';showToast('✅ 图片已加载',1000)}catch(err){showToast('❌ 图片处理失败',2000)}};reader.readAsDataURL(file)}
-function clearImage(){state.imageBase64=null;imagePreview.style.display='none';previewImg.src='';fileInput.value=''}
+        function addObject(name) {
+            if (!name.trim()) { showToast('请输入昵称', 1000); return; }
+            if (state.objects.some(o => o.name === name.trim())) { showToast('已存在', 1000); return; }
+            const n = {
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+                name: name.trim(),
+                age: '',
+                hobby: '',
+                note: '',
+                relationship: '',
+                purpose: '闲聊',
+                history: []
+            };
+            state.objects.push(n);
+            state.currentObjectId = n.id;
+            state.currentSuggestions = null;
+            renderObjectList();
+            loadCurrentObject();
+            saveToStorage();
+            showToast(`已添加：${n.name}`, 1500);
+        }
 
-// ---------- API ----------
-function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
-function isStyleOpeningTopic(){return document.querySelector('#styleGroup .chip.active')?.dataset.value==='开启话题'}
+        function deleteObject(id) {
+            state.objects = state.objects.filter(o => o.id !== id);
+            if (state.currentObjectId === id) {
+                state.currentObjectId = state.objects.length > 0 ? state.objects[0].id : null;
+                state.currentSuggestions = null;
+            }
+            renderObjectList();
+            loadCurrentObject();
+            saveToStorage();
+            showToast('已删除', 1000);
+        }
 
-async function regenerateSuggestions(){
-  const obj=getCurrentObject();if(!obj){showToast('请先选择对象',1000);return}
-  const history=obj.history||[];
-  let lastGirlMsg=null;
-  for(let i=history.length-1;i>=0;i--){if(history[i].role==='girl'){lastGirlMsg=history[i];break;}}
-  if(!lastGirlMsg&&!isStyleOpeningTopic()){showToast('暂无对方消息',1500);return}
-  if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){showToast('AI未启用或无Key',1500);return}
-  state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>生成中';
-  const config=getConfig();
-  const relation=obj.relationship||'未设置';
-  const purpose='闲聊';
-  const isOpening=isStyleOpeningTopic();
-  let girlMsg=lastGirlMsg?lastGirlMsg.content:'';
-  if(isOpening&&!girlMsg)girlMsg='请生成几个适合开启新话题的开场白';
-  try{
-    const r=await callAI(girlMsg,history,config,state.imageBase64,relation,purpose,isOpening);
-    if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
-    // 将建议作为特殊消息插入历史
-    const obj2=getCurrentObject();
-    if(obj2){
-      obj2.history.push({
-        type:'suggestions',
-        role:'assistant',
-        suggestions:r.suggestions,
-        analysis:r.analysis
-      });
-      saveToStorage();
-      renderHistory();
-      showToast('💡 已生成候选回复',1000);
-      historyArea.scrollTop=historyArea.scrollHeight;
-    }
-  }catch(err){showToast('❌ '+err.message,4000);}
-  finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
-}
+        function saveObjectDetails() {
+            const o = getCurrentObject();
+            if (!o) { showToast('请先选择对象', 1000); return; }
+            o.name = profileName.value.trim() || '未命名';
+            o.age = parseInt(profileAge.value) || '';
+            o.hobby = profileHobby.value.trim();
+            o.note = profileNote.value.trim();
+            const rel = profileRelationship.value.trim();
+            o.relationship = rel || '';
+            if (rel && !state.relations.includes(rel)) { state.relations.push(rel);
+                renderRelations(); }
+            o.purpose = '闲聊';
+            renderObjectList();
+            updateProfileTag();
+            updateQuickBar();
+            saveToStorage();
+            showToast('已更新', 1500);
+        }
 
-async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
-  const cleanKey=toAscii(state.apiKey).trim();if(!cleanKey)throw new Error('API Key 无效');
-  const cleanUrl=toAscii(state.apiUrl).trim();if(!cleanUrl||!cleanUrl.startsWith('http'))throw new Error('API 地址无效');
-  let cleanModel=toAscii(state.model).trim()||'glm-4-flash';
-  const isDeepSeek=cleanUrl.includes('deepseek.com');
-  if(isDeepSeek&&image&&!cleanModel.includes('vl')){cleanModel='deepseek-vl';showToast('🔄 自动切换视觉模型',1500)}
+        // ---------- 历史管理 ----------
+        function getCurrentHistory() { const o = getCurrentObject(); return o ? o.history : []; }
 
-  const o=getCurrentObject();
-  const profileText=o?`对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}`:'';
+        function pushHistory(r, c) {
+            const o = getCurrentObject();
+            if (o) { o.history.push({ role: r, content: c });
+                saveToStorage();
+                renderHistory(); }
+        }
 
-  let si='';
-  if(c.style==='幽默')si='用轻松幽默口语回应，像朋友聊天，可自嘲调侃。';
-  else if(c.style==='直球')si='直接、自信，简洁，不绕弯子。';
-  else if(c.style==='话题延伸')si='提出开放性问题或分享经历，引导深入。';
-  else if(c.style==='开启话题')si='生成全新话题开场白，自然有趣，让对方易接话。';
-  else if(c.style==='高情商回复')si='高情商回应，注重共情、温和、体面，善于化解尴尬。';
+        function renderHistory() {
+            const h = getCurrentHistory();
+            if (h.length === 0) {
+                const o = getCurrentObject();
+                historyArea.innerHTML = `<div class="history-empty">👋 ${o?'开始与 '+o.name+' 的对话':'添加对象开始'}</div>`;
+                return;
+            }
+            let html = '';
+            h.forEach(msg => {
+                const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
+                const label = msg.role === 'girl' ? '🗣️ 对方' : '🧑 我';
+                html +=
+                    `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${escapeHtml(msg.content)}</div>`;
+            });
+            historyArea.innerHTML = html;
+            historyArea.scrollTop = historyArea.scrollHeight;
+        }
 
-  let sp=`你是一位聊天高手。回答要口语化、有语气词、有情绪。
-${profileText}
-关系：${relation}　目的：${purpose}
-场景：${c.scenario}　风格：${c.style}
-要求：${si}
-绝对禁止书面语、说教、"首先/其次/最后"。
-每条建议像微信原话，不超过25字，带个人风格。
-对方抱怨先共情，分享先回应情绪。
-建议不要全是问句，适当用陈述句和感叹句。`;
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
 
-  if(isOpening){sp+=`\n当前为"开启话题"风格，直接基于对象信息生成3个有趣开场白。`}
-  else{sp+=`\n示例：对方"今天好累"→"累啥，我昨天加班到凌晨，你起码还能喊累（狗头）"`}
-  sp+=`\n输出纯JSON，含"analysis"和"suggestions"(3条，每条有text,reason,expectedEffect)。text要口语化。`;
+        // ---------- 建议面板（独立） ----------
+        function renderSuggestionsPanel() {
+            const s = state.currentSuggestions;
+            if (!s || !s.suggestions || s.suggestions.length === 0) {
+                suggestionsPanel.classList.remove('show');
+                suggestionsContent.innerHTML = '';
+                return;
+            }
+            suggestionsPanel.classList.add('show');
+            let html = '';
+            s.suggestions.forEach((item, idx) => {
+                const textEncoded = encodeURIComponent(item.text);
+                html += `
+                <div class="suggestion-card" data-text="${textEncoded}" data-index="${idx}" onclick="copySuggestionFromPanel(this)">
+                    <div class="s-num">${idx+1}</div>
+                    <div class="s-body">
+                        <div class="s-text">${escapeHtml(item.text)}</div>
+                        <div class="s-meta">
+                            <span>💡 ${escapeHtml(item.reason||'推荐')}</span>
+                            <span>📈 ${escapeHtml(item.expectedEffect||'预期')}</span>
+                        </div>
+                    </div>
+                    <div class="s-copy-hint">👆 复制</div>
+                </div>`;
+            });
+            suggestionsContent.innerHTML = html;
+            // 滚动建议面板到顶部
+            suggestionsPanel.scrollTop = 0;
+        }
 
-  let messages=[{role:'system',content:sp}];
-  let userContent=[{type:'text',text:gm}];
-  if(image)userContent.push({type:'image_url',image_url:{url:image}});
-  messages.push({role:'user',content:userContent});
+        function copySuggestionFromPanel(card) {
+            const encodedText = card.dataset.text;
+            const text = decodeURIComponent(encodedText);
+            if (!text) { showToast('内容为空', 1000); return; }
+            // 复制到剪贴板
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    onSuggestionCopied(card, text);
+                }).catch(() => fallbackCopyPanel(text, card));
+            } else {
+                fallbackCopyPanel(text, card);
+            }
+        }
 
-  const payload={model:cleanModel,messages:messages,temperature:1.0,max_tokens:500};
-  const tryFetch=async (includeFormat)=>{
-    const p={...payload};
-    if(includeFormat&&!isDeepSeek)p.response_format={type:'json_object'};
-    if(isDeepSeek)delete p.response_format;
-    return fetch(cleanUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${cleanKey}`},body:JSON.stringify(p)});
-  };
-  let resp;
-  if(isDeepSeek)resp=await tryFetch(false);
-  else{resp=await tryFetch(true);if(resp.status===400||resp.status===422){console.warn('降级重试...');resp=await tryFetch(false);}}
-  if(!resp.ok){const e=await resp.text();throw new Error(`API请求失败(${resp.status}):${e}`)}
-  const data=await resp.json();
-  const content=data.choices[0].message.content;
-  try{return JSON.parse(content);}
-  catch(e1){const m=content.match(/```json\s*([\s\S]*?)\s*```/);if(m)try{return JSON.parse(m[1])}catch(e2){}
-  const b=content.match(/\{[\s\S]*\}/);if(b)try{return JSON.parse(b[0])}catch(e3){}throw new Error('AI返回格式错误')}
-}
+        function fallbackCopyPanel(t, card) {
+            const ta = document.createElement('textarea');
+            ta.value = t;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                onSuggestionCopied(card, t);
+            } catch (e) {
+                showToast('⚠️ 手动复制', 3000);
+            }
+            document.body.removeChild(ta);
+        }
 
-async function handleSend(){
-  if(state.isLoading)return;
-  if(!getCurrentObject()){showToast('请先添加对象',1500);return}
-  const input=messageInput.value.trim();
-  const isOpening=isStyleOpeningTopic();
-  if(!input&&!state.imageBase64&&!isOpening){showToast('请输入文字或上传图片',1000);return}
-  if(!input&&!state.imageBase64&&isOpening){
-    const finalText='请生成几个适合开启新话题的开场白';
-    if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
-    messageInput.value='';renderHistory();
-    state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';
-    const config=getConfig();
-    const o=getCurrentObject();
-    const relation=o?.relationship||'未设置';
-    try{
-      if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用');
-      const h=getCurrentHistory();
-      const image=state.imageBase64;
-      const r=await callAI(finalText,h,config,image,relation,'闲聊',true);
-      if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回不完整');
-      const obj=getCurrentObject();
-      if(obj){
-        obj.history.push({type:'suggestions',role:'assistant',suggestions:r.suggestions,analysis:r.analysis});
-        saveToStorage();
-        renderHistory();
-        showToast('💡 已生成候选回复',1000);
-        historyArea.scrollTop=historyArea.scrollHeight;
-      }
-    }catch(err){showToast('❌ '+err.message,4000);const o2=getCurrentObject();if(o2&&o2.history.length>0&&o2.history[o2.history.length-1].role==='girl'){o2.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
-    finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
-    return;
-  }
-  const finalText=input||'描述这张图片';
-  if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
-  messageInput.value='';renderHistory();
-  state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';
-  const config=getConfig();
-  const o=getCurrentObject();
-  const relation=o?.relationship||'未设置';
-  try{
-    if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用');
-    const h=getCurrentHistory();
-    const image=state.imageBase64;
-    const r=await callAI(finalText,h,config,image,relation,'闲聊',isOpening);
-    if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回不完整');
-    const obj=getCurrentObject();
-    if(obj){
-      obj.history.push({type:'suggestions',role:'assistant',suggestions:r.suggestions,analysis:r.analysis});
-      saveToStorage();
-      renderHistory();
-      showToast('💡 已生成候选回复',1000);
-      historyArea.scrollTop=historyArea.scrollHeight;
-    }
-  }catch(err){showToast('❌ '+err.message,4000);const o2=getCurrentObject();if(o2&&o2.history.length>0&&o2.history[o2.history.length-1].role==='girl'){o2.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
-  finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
-}
+        function onSuggestionCopied(card, text) {
+            // 标记为已复制
+            card.classList.add('copied');
+            card.querySelector('.s-copy-hint').textContent = '✅ 已复制';
+            // 自动添加到历史作为"我"的回复
+            pushHistory('guy', text);
+            showToast('✅ 已复制并记录', 1200);
+            // 1.5秒后恢复样式
+            setTimeout(() => {
+                card.classList.remove('copied');
+                card.querySelector('.s-copy-hint').textContent = '👆 复制';
+            }, 1800);
+        }
 
-function saveToStorage(){
-  try{
-    const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI,presets:state.presets,currentPreset:state.currentPreset,relations:state.relations};
-    localStorage.setItem('chat_data',JSON.stringify(data));
-  }catch(e){}
-}
+        function closeSuggestionsPanel() {
+            state.currentSuggestions = null;
+            renderSuggestionsPanel();
+            saveToStorage();
+        }
 
-function loadFromStorage(){
-  try{
-    const raw=localStorage.getItem('chat_data');
-    if(raw){
-      const data=JSON.parse(raw);
-      state.objects=data.objects||[];
-      state.currentObjectId=data.currentObjectId||null;
-      state.apiKey=data.apiKey||'';
-      state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-      state.model=data.model||'glm-4-flash';
-      state.useAI=data.useAI!==undefined?data.useAI:!0;
-      state.presets=data.presets||[];
-      state.currentPreset=data.currentPreset||'';
-      state.relations=data.relations||['朋友','同事','恋人','家人','客户','其他'];
-      apiKeyInput.value=state.apiKey;
-      apiUrlInput.value=state.apiUrl;
-      modelInput.value=state.model;
-      useAICheckbox.checked=state.useAI;
-      renderObjectList();
-      loadCurrentObject();
-      updateProfileTag();
-      updateQuickBar();
-      updateStatusBadge();
-      renderPresets();
-      renderRelations();
-      updatePlaceholder();
-      return;
-    }
-  }catch(e){console.warn('Load error',e)}
-  state.objects=[];state.currentObjectId=null;state.presets=[];state.currentPreset='';state.relations=['朋友','同事','恋人','家人','客户','其他'];
-  renderObjectList();loadCurrentObject();updateProfileTag();updateQuickBar();updateStatusBadge();renderPresets();renderRelations();
-  saveToStorage();
-}
+        // ---------- 图片 ----------
+        function compressImage(d, m = 1024 * 1024) {
+            return new Promise(r => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width,
+                        h = img.height;
+                    const c = document.createElement('canvas');
+                    let q = 0.9;
+                    const t = (Q) => {
+                        c.width = w;
+                        c.height = h;
+                        const ctx = c.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const nd = c.toDataURL('image/jpeg', Q);
+                        if (nd.length < m || Q < 0.2) r(nd);
+                        else t(Q - 0.1);
+                    };
+                    t(0.9);
+                };
+                img.src = d;
+            });
+        }
 
-function updatePlaceholder(){
-  const isOpening=isStyleOpeningTopic();
-  messageInput.placeholder=isOpening?'输入话题方向（可选）或留空自动生成':'输入对方原话...';
-}
+        function handleImageSelect(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async e => {
+                try {
+                    const compressed = await compressImage(e.target.result);
+                    state.imageBase64 = compressed;
+                    previewImg.src = compressed;
+                    imagePreview.style.display = 'flex';
+                    showToast('✅ 图片已加载', 1000);
+                } catch (err) {
+                    showToast('❌ 图片处理失败', 2000);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
 
-// ---------- 事件绑定 ----------
-settingsToggle.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
-profileTag.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
-addObjectBtn.addEventListener('click',()=>{addObject(newObjectName.value.trim());newObjectName.value=''});
-newObjectName.addEventListener('keydown',e=>{if(e.key==='Enter'){addObject(newObjectName.value.trim());newObjectName.value=''}});
-saveObjectBtn.addEventListener('click',saveObjectDetails);
-saveSettingsBtn.addEventListener('click',()=>{const name=newPresetName.value.trim()||'默认配置';saveCurrentAsPreset(name)});
-addPresetBtn.addEventListener('click',()=>{const name=newPresetName.value.trim();if(!name){showToast('请输入名称',1000);return}saveCurrentAsPreset(name);newPresetName.value=''});
-clearHistoryBtn.addEventListener('click',()=>{if(confirm('清除所有聊天记录？')){const o=getCurrentObject();if(o){o.history=[];state.pendingGuyReply=!1;renderHistory();saveToStorage();showToast('已清除',1000)}}});
-sendBtn.addEventListener('click',handleSend);
-messageInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleSend()}});
-imageBtn.addEventListener('click',()=>fileInput.click());
-fileInput.addEventListener('change',(e)=>{if(e.target.files.length>0)handleImageSelect(e.target.files[0])});
-removeImgBtn.addEventListener('click',clearImage);
+        function clearImage() {
+            state.imageBase64 = null;
+            imagePreview.style.display = 'none';
+            previewImg.src = '';
+            fileInput.value = '';
+        }
 
-addRelationBtn.addEventListener('click',()=>{addRelation(newRelationInput.value);newRelationInput.value=''});
-newRelationInput.addEventListener('keydown',e=>{if(e.key==='Enter'){addRelation(newRelationInput.value);newRelationInput.value=''}});
+        // ---------- API ----------
+        function toAscii(str) { return str.replace(/[^\x00-\x7F]/g, ''); }
 
-// 场景/风格切换自动重新生成
-document.querySelectorAll('.chip-group').forEach(group=>{
-  group.addEventListener('click',function(e){
-    const chip=e.target.closest('.chip');
-    if(!chip)return;
-    this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    updatePlaceholder();
-    const obj=getCurrentObject();
-    if(!obj){showToast('请先选择对象',1000);return}
-    const history=obj.history||[];
-    const hasGirl=history.some(msg=>msg.role==='girl');
-    const isOpening=isStyleOpeningTopic();
-    if(!hasGirl&&!isOpening){showToast('暂无对方消息',1200);return}
-    regenerateSuggestions();
-  });
-});
+        function isStyleOpeningTopic() {
+            return document.querySelector('#styleGroup .chip.active')?.dataset.value === '开启话题';
+        }
 
-loadFromStorage();
-showToast('💡 建议直接显示在聊天框中',2000);
-</script>
+        async function regenerateSuggestions() {
+            const obj = getCurrentObject();
+            if (!obj) { showToast('请先选择对象', 1000); return; }
+            const history = obj.history || [];
+            let lastGirlMsg = null;
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i].role === 'girl') { lastGirlMsg = history[i]; break; }
+            }
+            if (!lastGirlMsg && !isStyleOpeningTopic()) { showToast('暂无对方消息', 1500); return; }
+            if (!state.useAI || !state.apiKey || state.apiKey.trim().length === 0) { showToast('AI未启用或无Key',
+                1500); return; }
+            state.isLoading = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="loader"></span>生成中';
+            suggestionsPanel.classList.add('show');
+            suggestionsContent.innerHTML =
+                '<div class="suggestions-loader"><span class="loader"></span>AI 正在生成建议...</div>';
+            const config = getConfig();
+            const relation = obj.relationship || '未设置';
+            const purpose = '闲聊';
+            const isOpening = isStyleOpeningTopic();
+            let girlMsg = lastGirlMsg ? lastGirlMsg.content : '';
+            if (isOpening && !girlMsg) girlMsg = '请生成几个适合开启新话题的开场白';
+            try {
+                const r = await callAI(girlMsg, history, config, state.imageBase64, relation, purpose, isOpening);
+                if (!r.analysis || !r.suggestions || r.suggestions.length < 3) throw new Error('AI返回结构不完整');
+                state.currentSuggestions = { suggestions: r.suggestions, analysis: r.analysis };
+                renderSuggestionsPanel();
+                saveToStorage();
+                showToast('💡 已生成候选回复', 1000);
+            } catch (err) {
+                showToast('❌ ' + err.message, 4000);
+                state.currentSuggestions = null;
+                renderSuggestionsPanel();
+            } finally {
+                state.isLoading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '🚀 获取';
+                if (!state.currentSuggestions || !state.currentSuggestions.suggestions) {
+                    suggestionsPanel.classList.remove('show');
+                }
+            }
+        }
+
+        async function callAI(gm, h, c, image, relation, purpose, isOpening = false) {
+            const cleanKey = toAscii(state.apiKey).trim();
+            if (!cleanKey) throw new Error('API Key 无效');
+            const cleanUrl = toAscii(state.apiUrl).trim();
+            if (!cleanUrl || !cleanUrl.startsWith('http')) throw new Error('API 地址无效');
+            let cleanModel = toAscii(state.model).trim() || 'glm-4-flash';
+            const isDeepSeek = cleanUrl.includes('deepseek.com');
+            if (isDeepSeek && image && !cleanModel.includes('vl')) { cleanModel = 'deepseek-vl';
+                showToast('🔄 自动切换视觉模型', 1500); }
+
+            const o = getCurrentObject();
+            const profileText = o ?
+                `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}` :
+                '';
+
+            let si = '';
+            if (c.style === '幽默') si = '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。';
+            else if (c.style === '直球') si = '直接、自信，简洁，不绕弯子。';
+            else if (c.style === '话题延伸') si = '提出开放性问题或分享经历，引导深入。';
+            else if (c.style === '开启话题') si = '生成全新话题开场白，自然有趣，让对方易接话。';
+            else if (c.style === '高情商回复') si = '高情商回应，注重共情、温和、体面，善于化解尴尬。';
+
+            let sp = `你是一位聊天高手。回答要口语化、有语气词、有情绪。
+        ${profileText}
+        关系：${relation}　目的：${purpose}
+        场景：${c.scenario}　风格：${c.style}
+        要求：${si}
+        绝对禁止书面语、说教、"首先/其次/最后"。
+        每条建议像微信原话，不超过25字，带个人风格。
+        对方抱怨先共情，分享先回应情绪。
+        建议不要全是问句，适当用陈述句和感叹句。`;
+
+            if (isOpening) { sp +=
+                `\n当前为"开启话题"风格，直接基于对象信息生成3个有趣开场白。`; } else { sp +=
+                `\n示例：对方"今天好累"→"累啥，我昨天加班到凌晨，你起码还能喊累（狗头）"`; }
+            sp += `\n输出纯JSON，含"analysis"和"suggestions"(3条，每条有text,reason,expectedEffect)。text要口语化。`;
+
+            let messages = [{ role: 'system', content: sp }];
+            let userContent = [{ type: 'text', text: gm }];
+            if (image) userContent.push({ type: 'image_url', image_url: { url: image } });
+            messages.push({ role: 'user', content: userContent });
+
+            const payload = { model: cleanModel, messages: messages, temperature: 1.0, max_tokens: 500 };
+            const tryFetch = async (includeFormat) => {
+                const p = { ...payload };
+                if (includeFormat && !isDeepSeek) p.response_format = { type: 'json_object' };
+                if (isDeepSeek) delete p.response_format;
+                return fetch(cleanUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cleanKey}` },
+                    body: JSON.stringify(p)
+                });
+            };
+            let resp;
+            if (isDeepSeek) resp = await tryFetch(false);
+            else {
+                resp = await tryFetch(true);
+                if (resp.status === 400 || resp.status === 422) { console.warn('降级重试...');
+                    resp = await tryFetch(false); }
+            }
+            if (!resp.ok) { const e = await resp.text(); throw new Error(`API请求失败(${resp.status}):${e}`); }
+            const data = await resp.json();
+            const content = data.choices[0].message.content;
+            try { return JSON.parse(content); } catch (e1) {
+                const m = content.match(/```json\s*([\s\S]*?)\s*```/);
+                if (m) try { return JSON.parse(m[1]); } catch (e2) {}
+                const b = content.match(/\{[\s\S]*\}/);
+                if (b) try { return JSON.parse(b[0]); } catch (e3) {}
+                throw new Error('AI返回格式错误');
+            }
+        }
+
+        async function handleSend() {
+            if (state.isLoading) return;
+            if (!getCurrentObject()) { showToast('请先添加对象', 1500); return; }
+            const input = messageInput.value.trim();
+            const isOpening = isStyleOpeningTopic();
+            if (!input && !state.imageBase64 && !isOpening) { showToast('请输入文字或上传图片', 1000); return; }
+
+            // 确定发送的文本
+            let finalText;
+            if (!input && !state.imageBase64 && isOpening) {
+                finalText = '请生成几个适合开启新话题的开场白';
+            } else {
+                finalText = input || '描述这张图片';
+            }
+
+            // 加入历史
+            if (state.pendingGuyReply) {
+                pushHistory('girl', finalText);
+                state.pendingGuyReply = false;
+            } else {
+                pushHistory('girl', finalText);
+            }
+            messageInput.value = '';
+            renderHistory();
+
+            // 调用AI
+            state.isLoading = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="loader"></span>思考中';
+            suggestionsPanel.classList.add('show');
+            suggestionsContent.innerHTML =
+                '<div class="suggestions-loader"><span class="loader"></span>AI 正在生成建议...</div>';
+
+            const config = getConfig();
+            const o = getCurrentObject();
+            const relation = o?.relationship || '未设置';
+            try {
+                if (!state.useAI || !state.apiKey || state.apiKey.trim().length === 0) throw new Error('AI未启用');
+                const h = getCurrentHistory();
+                const image = state.imageBase64;
+                const r = await callAI(finalText, h, config, image, relation, '闲聊', isOpening);
+                if (!r.analysis || !r.suggestions || r.suggestions.length < 3) throw new Error('AI返回不完整');
+                state.currentSuggestions = { suggestions: r.suggestions, analysis: r.analysis };
+                renderSuggestionsPanel();
+                saveToStorage();
+                showToast('💡 已生成候选回复', 1000);
+            } catch (err) {
+                showToast('❌ ' + err.message, 4000);
+                const o2 = getCurrentObject();
+                if (o2 && o2.history.length > 0 && o2.history[o2.history.length - 1].role === 'girl') {
+                    o2.history.pop();
+                    renderHistory();
+                    saveToStorage();
+                }
+                state.currentSuggestions = null;
+                renderSuggestionsPanel();
+                messageInput.value = input || '';
+            } finally {
+                state.isLoading = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '🚀 获取';
+                if (!state.currentSuggestions || !state.currentSuggestions.suggestions) {
+                    suggestionsPanel.classList.remove('show');
+                }
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                const data = {
+                    objects: state.objects,
+                    currentObjectId: state.currentObjectId,
+                    apiKey: state.apiKey,
+                    apiUrl: state.apiUrl,
+                    model: state.model,
+                    useAI: state.useAI,
+                    presets: state.presets,
+                    currentPreset: state.currentPreset,
+                    relations: state.relations,
+                    currentSuggestions: state.currentSuggestions
+                };
+                localStorage.setItem('chat_data', JSON.stringify(data));
+            } catch (e) {}
+        }
+
+        function loadFromStorage() {
+            try {
+                const raw = localStorage.getItem('chat_data');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    state.objects = data.objects || [];
+                    state.currentObjectId = data.currentObjectId || null;
+                    state.apiKey = data.apiKey || '';
+                    state.apiUrl = data.apiUrl || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+                    state.model = data.model || 'glm-4-flash';
+                    state.useAI = data.useAI !== undefined ? data.useAI : true;
+                    state.presets = data.presets || [];
+                    state.currentPreset = data.currentPreset || '';
+                    state.relations = data.relations || ['朋友', '同事', '恋人', '家人', '客户', '其他'];
+                    state.currentSuggestions = data.currentSuggestions || null;
+                    apiKeyInput.value = state.apiKey;
+                    apiUrlInput.value = state.apiUrl;
+                    modelInput.value = state.model;
+                    useAICheckbox.checked = state.useAI;
+                    renderObjectList();
+                    loadCurrentObject();
+                    updateProfileTag();
+                    updateQuickBar();
+                    updateStatusBadge();
+                    renderPresets();
+                    renderRelations();
+                    renderSuggestionsPanel();
+                    updatePlaceholder();
+                    return;
+                }
+            } catch (e) { console.warn('Load error', e); }
+            state.objects = [];
+            state.currentObjectId = null;
+            state.presets = [];
+            state.currentPreset = '';
+            state.relations = ['朋友', '同事', '恋人', '家人', '客户', '其他'];
+            state.currentSuggestions = null;
+            renderObjectList();
+            loadCurrentObject();
+            updateProfileTag();
+            updateQuickBar();
+            updateStatusBadge();
+            renderPresets();
+            renderRelations();
+            renderSuggestionsPanel();
+            saveToStorage();
+        }
+
+        function updatePlaceholder() {
+            const isOpening = isStyleOpeningTopic();
+            messageInput.placeholder = isOpening ? '输入话题方向（可选）或留空自动生成' : '输入对方原话...';
+        }
+
+        // ---------- 事件绑定 ----------
+        settingsToggle.addEventListener('click', () => settingsPanel.classList.toggle('show'));
+        profileTag.addEventListener('click', () => settingsPanel.classList.toggle('show'));
+        addObjectBtn.addEventListener('click', () => { addObject(newObjectName.value.trim());
+            newObjectName.value = ''; });
+        newObjectName.addEventListener('keydown', e => { if (e.key === 'Enter') { addObject(newObjectName.value
+                .trim());
+                newObjectName.value = ''; } });
+        saveObjectBtn.addEventListener('click', saveObjectDetails);
+        saveSettingsBtn.addEventListener('click', () => { const name = newPresetName.value.trim() || '默认配置';
+            saveCurrentAsPreset(name); });
+        addPresetBtn.addEventListener('click', () => { const name = newPresetName.value.trim(); if (!name) { showToast(
+                '请输入名称', 1000); return; }
+            saveCurrentAsPreset(name);
+            newPresetName.value = ''; });
+        clearHistoryBtn.addEventListener('click', () => {
+            if (confirm('清除所有聊天记录？')) {
+                const o = getCurrentObject();
+                if (o) { o.history = [];
+                    state.pendingGuyReply = false;
+                    state.currentSuggestions = null;
+                    renderHistory();
+                    renderSuggestionsPanel();
+                    saveToStorage();
+                    showToast('已清除', 1000); }
+            }
+        });
+        sendBtn.addEventListener('click', handleSend);
+        messageInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault();
+                handleSend(); } });
+        imageBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleImageSelect(e.target.files[
+            0]); });
+        removeImgBtn.addEventListener('click', clearImage);
+        closeSuggestionsBtn.addEventListener('click', closeSuggestionsPanel);
+
+        addRelationBtn.addEventListener('click', () => { addRelation(newRelationInput.value);
+            newRelationInput.value = ''; });
+        newRelationInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addRelation(newRelationInput
+                .value);
+                newRelationInput.value = ''; } });
+
+        // 场景/风格切换自动重新生成
+        document.querySelectorAll('.chip-group').forEach(group => {
+            group.addEventListener('click', function(e) {
+                const chip = e.target.closest('.chip');
+                if (!chip) return;
+                this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                updatePlaceholder();
+                updateQuickPurposeText();
+                const obj = getCurrentObject();
+                if (!obj) { showToast('请先选择对象', 1000); return; }
+                const history = obj.history || [];
+                const hasGirl = history.some(msg => msg.role === 'girl');
+                const isOpening = isStyleOpeningTopic();
+                if (!hasGirl && !isOpening) { showToast('暂无对方消息', 1200); return; }
+                regenerateSuggestions();
+            });
+        });
+
+        // 暴露全局函数给内联onclick
+        window.copySuggestionFromPanel = copySuggestionFromPanel;
+
+        loadFromStorage();
+        showToast('💡 建议独立显示在聊天框下方', 2000);
+    </script>
 </body>
 </html>
