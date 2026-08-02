@@ -468,6 +468,7 @@ async function regenerateSuggestions(){
   }
 }
 
+// ========== 核心修复：DeepSeek 图片识别兼容 ==========
 async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
   const cleanKey=toAscii(state.apiKey).trim();
   if(!cleanKey)throw new Error('API Key 无效');
@@ -508,16 +509,33 @@ text必须是口语化的原话，reason简短说明为什么这么回，expecte
   if(image)userContent.push({type:'image_url',image_url:{url:image}});
   messages.push({role:'user',content:userContent});
 
-  // ========== 核心修复：自动检测 API 是否支持 response_format ==========
+  // 判断是否为 DeepSeek API
+  const isDeepSeek = cleanUrl.includes('deepseek.com');
+
+  // 构建请求 payload
+  const payload = {
+    model: cleanModel,
+    messages: messages,
+    temperature: 1.0,
+    max_tokens: 500
+  };
+  // DeepSeek 不支持 response_format，其他 API 可尝试添加
+  if (!isDeepSeek) {
+    // 对于非 DeepSeek，先尝试带 response_format，但如果失败会自动降级
+    // 这里我们直接先尝试不带，避免首次失败（因为智谱也支持，但有些版本不支持）
+    // 更稳妥：先尝试带，但通过 tryFetch 处理
+    // 我们使用 tryFetch 逻辑
+  }
+
+  // 自动重试逻辑：先尝试带 response_format，如果返回 400/422 则去掉重试
   const tryFetch = async (includeFormat) => {
-    const payload = {
-      model: cleanModel,
-      messages: messages,
-      temperature: 1.0,
-      max_tokens: 500
-    };
-    if (includeFormat) {
-      payload.response_format = { type: 'json_object' };
+    const p = { ...payload };
+    if (includeFormat && !isDeepSeek) {
+      p.response_format = { type: 'json_object' };
+    }
+    // DeepSeek 无论如何都不加 response_format
+    if (isDeepSeek) {
+      delete p.response_format;
     }
     const resp = await fetch(cleanUrl, {
       method: 'POST',
@@ -525,15 +543,22 @@ text必须是口语化的原话，reason简短说明为什么这么回，expecte
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${cleanKey}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(p)
     });
     return resp;
   };
 
-  let resp = await tryFetch(true);
-  if (resp.status === 400 || resp.status === 422) {
-    console.warn('API 不支持 response_format，自动降级重试...');
+  let resp;
+  if (isDeepSeek) {
+    // DeepSeek 直接发送不带 response_format 的请求
     resp = await tryFetch(false);
+  } else {
+    // 其他 API 先尝试带，不行再降级
+    resp = await tryFetch(true);
+    if (resp.status === 400 || resp.status === 422) {
+      console.warn('API 不支持 response_format，自动降级重试...');
+      resp = await tryFetch(false);
+    }
   }
 
   if (!resp.ok) {
@@ -700,7 +725,7 @@ document.querySelectorAll('.chip-group').forEach(group=>{
 });
 
 loadFromStorage();
-showToast('💡 已支持多种 API，自动适配',2000);
+showToast('💡 DeepSeek 图片识别已优化',2000);
 </script>
 </body>
 </html>
