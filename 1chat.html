@@ -422,29 +422,25 @@ function clearImage(){state.imageBase64=null;imagePreview.style.display='none';p
 // ---------- API ----------
 function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
 
-// ---------- 核心：重新生成（根据当前配置和最新一条对方消息） ----------
+function isStyleOpeningTopic(){return document.querySelector('#styleGroup .chip.active')?.dataset.value==='开启话题'}
+
+// ---------- 核心：重新生成 ----------
 async function regenerateSuggestions(){
   const obj=getCurrentObject();
   if(!obj){showToast('请先选择对象',1000);return}
   const history=obj.history||[];
-  // 从后往前找最后一条 role==='girl' 的消息
   let lastGirlMsg=null;
   for(let i=history.length-1;i>=0;i--){
-    if(history[i].role==='girl'){
-      lastGirlMsg=history[i];
-      break;
-    }
+    if(history[i].role==='girl'){lastGirlMsg=history[i];break;}
   }
-  if(!lastGirlMsg){
+  if(!lastGirlMsg && !isStyleOpeningTopic()){
     showToast('暂无对方消息，无法重新生成',1500);
     return;
   }
-  // 检查AI配置
   if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){
     showToast('AI未启用或无Key',1500);
     return;
   }
-  // 显示加载状态
   state.isLoading=!0;
   sendBtn.disabled=!0;
   sendBtn.innerHTML='<span class="loader"></span>重新生成中';
@@ -453,8 +449,14 @@ async function regenerateSuggestions(){
   const config=getConfig();
   const relation=obj.relationship||'未设置';
   const purpose=obj.purpose||'闲聊';
+  const isOpening=isStyleOpeningTopic();
+  // 如果是开启话题风格，且没有对方原话，使用默认提示
+  let girlMsg = lastGirlMsg ? lastGirlMsg.content : '';
+  if(isOpening && !girlMsg){
+    girlMsg = '请根据当前对象信息，生成几个适合开启新话题的对话开场白';
+  }
   try{
-    const r=await callAI(lastGirlMsg.content, history, config, state.imageBase64, relation, purpose);
+    const r=await callAI(girlMsg, history, config, state.imageBase64, relation, purpose, isOpening);
     if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
     renderSuggestions(r);
     showToast('✅ 已按新配置重新生成',1000);
@@ -468,7 +470,7 @@ async function regenerateSuggestions(){
   }
 }
 
-async function callAI(gm,h,c,image,relation,purpose){
+async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
   const cleanKey=toAscii(state.apiKey).trim();
   if(!cleanKey)throw new Error('API Key 无效');
   const cleanUrl=toAscii(state.apiUrl).trim();
@@ -478,7 +480,7 @@ async function callAI(gm,h,c,image,relation,purpose){
   const o=getCurrentObject();
   const profileText=o?`对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}`:'';
 
-  const sp = `你是一个嘴巴很贱但很真诚的聊天高手。你的回答要像真人说话一样——有语气词（"啊/吧/啦/呗"）、有断句、有情绪。
+  let sp = `你是一个嘴巴很贱但很真诚的聊天高手。你的回答要像真人说话一样——有语气词（"啊/吧/啦/呗"）、有断句、有情绪。
 当前聊天对象信息：${profileText}
 与我的关系：${relation}
 沟通目的：${purpose}
@@ -488,15 +490,19 @@ async function callAI(gm,h,c,image,relation,purpose){
 绝对禁止：书面语、说教、分析体、"首先/其次/最后/综上所述"。
 每条建议必须像微信聊天里的原话，不超过25个字，带点个人风格（自嘲/反问/夸张）。
 如果对方在抱怨，先共情再给建议；如果对方在分享，先回应情绪再延伸话题。
-建议不要全是问句，适当用陈述句和感叹句。
+建议不要全是问句，适当用陈述句和感叹句。`;
 
-示例：
+  if(isOpening){
+    sp += `\n注意：当前是"开启话题"风格，请忽略上方用户输入（如果有），直接基于对象信息生成3个自然、有趣的开场白或话题建议，让对方容易接话。`;
+  } else {
+    sp += `\n示例：
 对方："今天好累啊"
 → 回答1："累啥，我昨天加班到凌晨，你起码还能喊累（狗头）"
 → 回答2："那别聊了，快去躺平，明天再战！"
-→ 回答3："具体累啥？工作还是心累？说出来我帮你骂两句"
+→ 回答3："具体累啥？工作还是心累？说出来我帮你骂两句"`;
+  }
 
-输出纯JSON，包含"analysis"(简短潜台词)和"suggestions"(3条建议，每条有text, reason, expectedEffect)。
+  sp += `\n输出纯JSON，包含"analysis"(简短潜台词)和"suggestions"(3条建议，每条有text, reason, expectedEffect)。
 text必须是口语化的原话，reason简短说明为什么这么回，expectedEffect写对方可能的反应。`;
 
   let messages=[{role:'system',content:sp}];
@@ -531,7 +537,34 @@ async function handleSend(){
   if(state.isLoading)return;
   if(!getCurrentObject()){showToast('请先添加对象',1500);return}
   const input=messageInput.value.trim();
-  if(!input && !state.imageBase64){showToast('请输入文字或上传图片',1000);return}
+  const isOpening=isStyleOpeningTopic();
+  // 开启话题风格时，允许空输入
+  if(!input && !state.imageBase64 && !isOpening){showToast('请输入文字或上传图片',1000);return}
+  if(!input && !state.imageBase64 && isOpening){
+    // 开启话题且无输入，使用默认提示
+    const finalText='请根据当前对象信息，生成几个适合开启新话题的对话开场白';
+    if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
+    messageInput.value='';renderHistory();
+    state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';
+    suggestionsArea.classList.remove('show');
+    const config=getConfig();
+    const o=getCurrentObject();
+    const relation=o?.relationship||'未设置';
+    const purpose='闲聊';
+    try{
+      if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用或无Key');
+      const h=getCurrentHistory();
+      const image=state.imageBase64;
+      const r=await callAI(finalText,h,config,image,relation,purpose,true);
+      if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
+      renderSuggestions(r);
+      showToast('✅ 话题生成完成',1000);
+      suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }catch(err){showToast('❌ '+err.message,4000);const o2=getCurrentObject();if(o2&&o2.history.length>0&&o2.history[o2.history.length-1].role==='girl'){o2.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
+    finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
+    return;
+  }
+  // 正常流程（非开启话题，或开启话题但有输入）
   const finalText=input||'描述一下这张图片';
   if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
   messageInput.value='';renderHistory();
@@ -545,7 +578,7 @@ async function handleSend(){
     if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用或无Key');
     const h=getCurrentHistory();
     const image=state.imageBase64;
-    const r=await callAI(finalText,h,config,image,relation,purpose);
+    const r=await callAI(finalText,h,config,image,relation,purpose,isOpening);
     if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
     renderSuggestions(r);
     showToast('✅ 分析完成',1000);
@@ -586,12 +619,24 @@ function loadFromStorage(){
       updateStatusBadge();
       renderPresets();
       renderRelations();
+      // 监听风格切换，更新输入框占位符
+      updatePlaceholder();
       return;
     }
   }catch(e){console.warn('Load error',e)}
   state.objects=[];state.currentObjectId=null;state.presets=[];state.currentPreset='';state.relations=['朋友','同事','恋人','家人','客户','其他'];
   renderObjectList();loadCurrentObject();updateProfileTag();updateQuickBar();updateStatusBadge();renderPresets();renderRelations();
   saveToStorage();
+}
+
+// ---------- 输入框占位符更新 ----------
+function updatePlaceholder(){
+  const isOpening=isStyleOpeningTopic();
+  if(isOpening){
+    messageInput.placeholder='输入话题方向（可选）或留空自动生成';
+  }else{
+    messageInput.placeholder='输入对方原话...';
+  }
 }
 
 // ---------- 事件绑定 ----------
@@ -626,23 +671,22 @@ document.querySelectorAll('.chip-group').forEach(group=>{
   group.addEventListener('click',function(e){
     const chip=e.target.closest('.chip');
     if(!chip)return;
-    // 切换激活状态
     this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
-    // 检查是否有对象和消息
+    // 更新占位符
+    updatePlaceholder();
     const obj=getCurrentObject();
     if(!obj){showToast('请先选择对象',1000);return}
     const history=obj.history||[];
-    // 检查是否有对方消息
     const hasGirl=history.some(msg=>msg.role==='girl');
-    if(!hasGirl){showToast('暂无对方消息，发送消息后再切换',1200);return}
-    // 自动重新生成
+    const isOpening=isStyleOpeningTopic();
+    if(!hasGirl && !isOpening){showToast('暂无对方消息，发送消息后再切换',1200);return}
     regenerateSuggestions();
   });
 });
 
 loadFromStorage();
-showToast('💡 点击场景/风格自动重新生成',2000);
+showToast('💡 开启话题风格：无需输入原话，自动生成话题',2000);
 </script>
 </body>
 </html>
