@@ -139,7 +139,7 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     <label>🌐 API 地址</label>
     <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
     <label>🧠 模型名称</label>
-    <input type="text" id="modelInput" placeholder="glm-4v-plus / gpt-4o">
+    <input type="text" id="modelInput" placeholder="glm-4-flash / deepseek-chat / gpt-4o">
     <div class="hint">如需识图，请使用支持视觉的模型</div>
     <div class="toggle-row">
       <input type="checkbox" id="useAI" checked>
@@ -177,7 +177,6 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     <button class="btn-save" id="saveObjectBtn" style="margin-top:10px;">💾 更新对象信息</button>
   </div>
 
-  <!-- 配置芯片 -->
   <div class="config-row">
     <div class="config-group">
       <label>🎯 场景</label>
@@ -246,7 +245,7 @@ const state={
   pendingGuyReply:!1,
   apiKey:'',
   apiUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-  model:'glm-4v-plus',
+  model:'glm-4-flash',
   useAI:!0,
   imageBase64:null,
   presets:[],
@@ -275,7 +274,7 @@ function saveCurrentAsPreset(name){
   if(!name.trim()){showToast('请输入预设名称',1000);return}
   const key=toAscii(apiKeyInput.value.trim());
   const url=toAscii(apiUrlInput.value.trim())||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-  const model=toAscii(modelInput.value.trim())||'glm-4v-plus';
+  const model=toAscii(modelInput.value.trim())||'glm-4-flash';
   if(!key){showToast('API Key不能为空',1000);return}
   if(state.presets.some(p=>p.name===name.trim())){
     if(!confirm(`预设 "${name}" 已存在，覆盖吗？`))return;
@@ -450,7 +449,6 @@ async function regenerateSuggestions(){
   const relation=obj.relationship||'未设置';
   const purpose=obj.purpose||'闲聊';
   const isOpening=isStyleOpeningTopic();
-  // 如果是开启话题风格，且没有对方原话，使用默认提示
   let girlMsg = lastGirlMsg ? lastGirlMsg.content : '';
   if(isOpening && !girlMsg){
     girlMsg = '请根据当前对象信息，生成几个适合开启新话题的对话开场白';
@@ -475,7 +473,7 @@ async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
   if(!cleanKey)throw new Error('API Key 无效');
   const cleanUrl=toAscii(state.apiUrl).trim();
   if(!cleanUrl||!cleanUrl.startsWith('http'))throw new Error('API 地址无效');
-  const cleanModel=toAscii(state.model).trim()||'glm-4v-plus';
+  const cleanModel=toAscii(state.model).trim()||'glm-4-flash';
 
   const o=getCurrentObject();
   const profileText=o?`对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}`:'';
@@ -509,27 +507,54 @@ text必须是口语化的原话，reason简短说明为什么这么回，expecte
   let userContent=[{type:'text',text:gm}];
   if(image)userContent.push({type:'image_url',image_url:{url:image}});
   messages.push({role:'user',content:userContent});
-  const payload={model:cleanModel,messages:messages,temperature:1.0,max_tokens:500};
-  try{
-    const resp=await fetch(cleanUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${cleanKey}`},
-      body:JSON.stringify(payload)
-    });
-    if(!resp.ok){const e=await resp.text();throw new Error(`API 请求失败 (${resp.status}): ${e}`)}
-    const data=await resp.json();
-    const content=data.choices[0].message.content;
-    try{return JSON.parse(content)}
-    catch(e1){
-      const m=content.match(/```json\s*([\s\S]*?)\s*```/);
-      if(m){try{return JSON.parse(m[1])}catch(e2){}}
-      const b=content.match(/\{[\s\S]*\}/);
-      if(b){try{return JSON.parse(b[0])}catch(e3){}}
-      throw new Error('AI 返回格式错误');
+
+  // ========== 核心修复：自动检测 API 是否支持 response_format ==========
+  const tryFetch = async (includeFormat) => {
+    const payload = {
+      model: cleanModel,
+      messages: messages,
+      temperature: 1.0,
+      max_tokens: 500
+    };
+    if (includeFormat) {
+      payload.response_format = { type: 'json_object' };
     }
-  }catch(err){
-    if(err.message.includes('Failed to fetch')||err.message.includes('non ISO-8859-1')){throw new Error('检测到非法字符或网络错误，请检查设置。')}
-    throw err;
+    const resp = await fetch(cleanUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cleanKey}`
+      },
+      body: JSON.stringify(payload)
+    });
+    return resp;
+  };
+
+  let resp = await tryFetch(true);
+  if (resp.status === 400 || resp.status === 422) {
+    console.warn('API 不支持 response_format，自动降级重试...');
+    resp = await tryFetch(false);
+  }
+
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(`API 请求失败 (${resp.status}): ${err}`);
+  }
+
+  const data = await resp.json();
+  const content = data.choices[0].message.content;
+  try {
+    return JSON.parse(content);
+  } catch (e1) {
+    const m = content.match(/```json\s*([\s\S]*?)\s*```/);
+    if (m) {
+      try { return JSON.parse(m[1]); } catch (e2) {}
+    }
+    const b = content.match(/\{[\s\S]*\}/);
+    if (b) {
+      try { return JSON.parse(b[0]); } catch (e3) {}
+    }
+    throw new Error('AI 返回格式错误');
   }
 }
 
@@ -538,10 +563,8 @@ async function handleSend(){
   if(!getCurrentObject()){showToast('请先添加对象',1500);return}
   const input=messageInput.value.trim();
   const isOpening=isStyleOpeningTopic();
-  // 开启话题风格时，允许空输入
   if(!input && !state.imageBase64 && !isOpening){showToast('请输入文字或上传图片',1000);return}
   if(!input && !state.imageBase64 && isOpening){
-    // 开启话题且无输入，使用默认提示
     const finalText='请根据当前对象信息，生成几个适合开启新话题的对话开场白';
     if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
     messageInput.value='';renderHistory();
@@ -564,7 +587,6 @@ async function handleSend(){
     finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
     return;
   }
-  // 正常流程（非开启话题，或开启话题但有输入）
   const finalText=input||'描述一下这张图片';
   if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
   messageInput.value='';renderHistory();
@@ -603,7 +625,7 @@ function loadFromStorage(){
       state.currentObjectId=data.currentObjectId||null;
       state.apiKey=data.apiKey||'';
       state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-      state.model=data.model||'glm-4v-plus';
+      state.model=data.model||'glm-4-flash';
       state.useAI=data.useAI!==undefined?data.useAI:!0;
       state.presets=data.presets||[];
       state.currentPreset=data.currentPreset||'';
@@ -619,7 +641,6 @@ function loadFromStorage(){
       updateStatusBadge();
       renderPresets();
       renderRelations();
-      // 监听风格切换，更新输入框占位符
       updatePlaceholder();
       return;
     }
@@ -629,14 +650,9 @@ function loadFromStorage(){
   saveToStorage();
 }
 
-// ---------- 输入框占位符更新 ----------
 function updatePlaceholder(){
   const isOpening=isStyleOpeningTopic();
-  if(isOpening){
-    messageInput.placeholder='输入话题方向（可选）或留空自动生成';
-  }else{
-    messageInput.placeholder='输入对方原话...';
-  }
+  messageInput.placeholder=isOpening?'输入话题方向（可选）或留空自动生成':'输入对方原话...';
 }
 
 // ---------- 事件绑定 ----------
@@ -654,7 +670,6 @@ imageBtn.addEventListener('click',()=>fileInput.click());
 fileInput.addEventListener('change',(e)=>{if(e.target.files.length>0)handleImageSelect(e.target.files[0])});
 removeImgBtn.addEventListener('click',clearImage);
 
-// 关系添加
 addRelationBtn.addEventListener('click',()=>{
   addRelation(newRelationInput.value);
   newRelationInput.value='';
@@ -673,7 +688,6 @@ document.querySelectorAll('.chip-group').forEach(group=>{
     if(!chip)return;
     this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
-    // 更新占位符
     updatePlaceholder();
     const obj=getCurrentObject();
     if(!obj){showToast('请先选择对象',1000);return}
@@ -686,7 +700,7 @@ document.querySelectorAll('.chip-group').forEach(group=>{
 });
 
 loadFromStorage();
-showToast('💡 开启话题风格：无需输入原话，自动生成话题',2000);
+showToast('💡 已支持多种 API，自动适配',2000);
 </script>
 </body>
 </html>
