@@ -154,7 +154,6 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
       <button class="btn small-btn" id="addObjectBtn">➕ 添加</button>
     </div>
 
-    <!-- ========== 关系管理 ========== -->
     <label style="margin-top:14px;">🤝 关系管理</label>
     <div class="relation-input-row">
       <input type="text" id="newRelationInput" placeholder="输入关系，如：室友">
@@ -202,7 +201,7 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
   <div class="quick-bar" id="quickBar">
     <div class="quick-item">
       <span class="label">🤝</span>
-      <span class="value" id="quickRelation">朋友</span>
+      <span class="value" id="quickRelation">未设置</span>
     </div>
     <div class="quick-item">
       <span class="label">🎯</span>
@@ -252,7 +251,7 @@ const state={
   imageBase64:null,
   presets:[],
   currentPreset:'',
-  relations:['朋友','同事','恋人','家人','客户','其他'] // 默认关系
+  relations:['朋友','同事','恋人','家人','客户','其他']
 };
 
 const $=id=>document.getElementById(id);
@@ -294,13 +293,11 @@ function saveCurrentAsPreset(name){
 
 // ---------- 关系管理 ----------
 function renderRelations(){
-  // 渲染全局关系标签
   let html='';
   state.relations.forEach(r=>{
     html+=`<span class="tag" data-rel="${r}">${r}<button class="del-tag" data-rel="${r}">✕</button></span>`;
   });
   relationTags.innerHTML=html;
-  // 绑定点击事件：点击标签填入输入框
   relationTags.querySelectorAll('.tag').forEach(tag=>{
     tag.addEventListener('click',function(e){
       if(e.target.closest('.del-tag'))return;
@@ -308,7 +305,6 @@ function renderRelations(){
       newRelationInput.value=rel;
     });
   });
-  // 删除事件
   relationTags.querySelectorAll('.del-tag').forEach(btn=>{
     btn.addEventListener('click',function(e){
       e.stopPropagation();
@@ -322,12 +318,10 @@ function renderRelations(){
       }
     });
   });
-  // 同时更新对象编辑区的关系标签
   renderProfileRelationTags();
 }
 
 function renderProfileRelationTags(){
-  // 渲染当前对象编辑区的快捷标签
   let html='';
   state.relations.forEach(r=>{
     html+=`<span class="tag" data-rel="${r}">${r}</span>`;
@@ -399,14 +393,11 @@ function saveObjectDetails(){
   o.note=profileNote.value.trim();
   const rel=profileRelationship.value.trim();
   o.relationship=rel||'';
-  // 如果关系不在全局列表中，自动添加
   if(rel && !state.relations.includes(rel)){
     state.relations.push(rel);
     renderRelations();
   }
-  // 目的暂时保留固定选项，也可以扩展，但暂不修改
-  // 这里保留之前的purpose，默认闲聊
-  o.purpose='闲聊'; // 可扩展，暂固定
+  o.purpose='闲聊';
   renderObjectList();
   updateProfileTag();
   updateQuickBar();
@@ -430,6 +421,52 @@ function clearImage(){state.imageBase64=null;imagePreview.style.display='none';p
 
 // ---------- API ----------
 function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
+
+// ---------- 核心：重新生成（根据当前配置和最新一条对方消息） ----------
+async function regenerateSuggestions(){
+  const obj=getCurrentObject();
+  if(!obj){showToast('请先选择对象',1000);return}
+  const history=obj.history||[];
+  // 从后往前找最后一条 role==='girl' 的消息
+  let lastGirlMsg=null;
+  for(let i=history.length-1;i>=0;i--){
+    if(history[i].role==='girl'){
+      lastGirlMsg=history[i];
+      break;
+    }
+  }
+  if(!lastGirlMsg){
+    showToast('暂无对方消息，无法重新生成',1500);
+    return;
+  }
+  // 检查AI配置
+  if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){
+    showToast('AI未启用或无Key',1500);
+    return;
+  }
+  // 显示加载状态
+  state.isLoading=!0;
+  sendBtn.disabled=!0;
+  sendBtn.innerHTML='<span class="loader"></span>重新生成中';
+  suggestionsArea.classList.remove('show');
+
+  const config=getConfig();
+  const relation=obj.relationship||'未设置';
+  const purpose=obj.purpose||'闲聊';
+  try{
+    const r=await callAI(lastGirlMsg.content, history, config, state.imageBase64, relation, purpose);
+    if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
+    renderSuggestions(r);
+    showToast('✅ 已按新配置重新生成',1000);
+    suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){
+    showToast('❌ '+err.message,4000);
+  }finally{
+    state.isLoading=!1;
+    sendBtn.disabled=!1;
+    sendBtn.innerHTML='🚀 获取';
+  }
+}
 
 async function callAI(gm,h,c,image,relation,purpose){
   const cleanKey=toAscii(state.apiKey).trim();
@@ -503,7 +540,7 @@ async function handleSend(){
   const config=getConfig();
   const o=getCurrentObject();
   const relation=o?.relationship||'未设置';
-  const purpose='闲聊'; // 暂时固定，可后续扩展
+  const purpose='闲聊';
   try{
     if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用或无Key');
     const h=getCurrentHistory();
@@ -566,7 +603,6 @@ saveObjectBtn.addEventListener('click',saveObjectDetails);
 saveSettingsBtn.addEventListener('click',()=>{const name=newPresetName.value.trim()||'默认配置';saveCurrentAsPreset(name)});
 addPresetBtn.addEventListener('click',()=>{const name=newPresetName.value.trim();if(!name){showToast('请输入预设名称',1000);return}saveCurrentAsPreset(name);newPresetName.value=''});
 clearHistoryBtn.addEventListener('click',clearCurrentHistory);
-document.querySelectorAll('.chip-group').forEach(group=>{group.addEventListener('click',function(e){const chip=e.target.closest('.chip');if(!chip)return;this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');if(getCurrentObject()&&getCurrentHistory().length>0){showToast('配置已切换，重新发送生效',1200)}})});
 sendBtn.addEventListener('click',handleSend);
 messageInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleSend()}});
 imageBtn.addEventListener('click',()=>fileInput.click());
@@ -585,8 +621,28 @@ newRelationInput.addEventListener('keydown',e=>{
   }
 });
 
+// ---------- 场景/风格点击自动重新生成 ----------
+document.querySelectorAll('.chip-group').forEach(group=>{
+  group.addEventListener('click',function(e){
+    const chip=e.target.closest('.chip');
+    if(!chip)return;
+    // 切换激活状态
+    this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    // 检查是否有对象和消息
+    const obj=getCurrentObject();
+    if(!obj){showToast('请先选择对象',1000);return}
+    const history=obj.history||[];
+    // 检查是否有对方消息
+    const hasGirl=history.some(msg=>msg.role==='girl');
+    if(!hasGirl){showToast('暂无对方消息，发送消息后再切换',1200);return}
+    // 自动重新生成
+    regenerateSuggestions();
+  });
+});
+
 loadFromStorage();
-showToast('💡 关系可自由输入，保存后自动添加到列表',2000);
+showToast('💡 点击场景/风格自动重新生成',2000);
 </script>
 </body>
 </html>
