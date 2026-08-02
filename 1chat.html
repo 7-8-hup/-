@@ -67,13 +67,11 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 .suggestion-meta{font-size:12px;color:#8b8b8b;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
 .suggestion-meta span{background:#f5f3f0;padding:2px 12px;border-radius:20px}
 .badge-copy{font-size:11px;color:#7c3aed;font-weight:600;float:right}
-/* ---------- 快捷选择栏 ---------- */
-.quick-bar{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px;flex-shrink:0}
-.quick-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.quick-label{font-size:10px;font-weight:600;color:#9ca3af;margin-right:4px;letter-spacing:.3px;text-transform:uppercase}
-.quick-chip{font-size:11px;padding:3px 12px;border-radius:30px;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer;transition:all .15s;font-weight:500}
-.quick-chip.active{background:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,0.25)}
-.quick-chip:active{transform:scale(.92)}
+.quick-bar{display:flex;gap:12px;margin:4px 0 8px;flex-shrink:0;flex-wrap:wrap;padding:6px 12px;background:rgba(255,255,255,0.4);border-radius:20px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.5)}
+.quick-item{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px}
+.quick-item .label{font-weight:500;color:#4b5563}
+.quick-item .value{background:#ede9fe;padding:1px 10px;border-radius:30px;font-weight:500;color:#5b21b6;cursor:pointer}
+.quick-item .value:hover{background:#ddd6fe}
 .input-area{display:flex;gap:10px;margin-top:6px;flex-shrink:0;align-items:center;flex-wrap:wrap}
 .input-area input{flex:1;min-width:120px;padding:14px 20px;border-radius:40px;border:1.5px solid #e5e7eb;font-size:15px;outline:none;background:#fff;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
 .input-area input:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,0.08)}
@@ -106,6 +104,15 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:10px}
 .small-btn{padding:4px 10px;font-size:12px;border-radius:20px}
+.tag{display:inline-flex;align-items:center;gap:4px;background:#ede9fe;padding:2px 10px;border-radius:30px;font-size:12px;color:#5b21b6;cursor:pointer;margin:2px 4px 2px 0;border:1px solid #ddd6fe}
+.tag .del-tag{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:14px;padding:0 2px}
+.tag .del-tag:hover{color:#ef4444}
+.tag:hover{background:#ddd6fe}
+.relation-input-row{display:flex;gap:6px;margin:4px 0 8px}
+.relation-input-row input{flex:1;padding:6px 12px;border-radius:20px;border:1px solid #e5e7eb;font-size:13px;outline:none}
+.relation-input-row input:focus{border-color:#7c3aed}
+.relation-input-row .btn{padding:6px 14px;border-radius:20px;border:none;font-size:12px;cursor:pointer;background:#7c3aed;color:#fff}
+.tags-wrap{display:flex;flex-wrap:wrap;margin-top:4px}
 </style>
 </head>
 <body>
@@ -146,6 +153,16 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
       <input type="text" id="newObjectName" placeholder="昵称" style="flex:1;">
       <button class="btn small-btn" id="addObjectBtn">➕ 添加</button>
     </div>
+
+    <!-- ========== 关系管理 ========== -->
+    <label style="margin-top:14px;">🤝 关系管理</label>
+    <div class="relation-input-row">
+      <input type="text" id="newRelationInput" placeholder="输入关系，如：室友">
+      <button class="btn" id="addRelationBtn">➕ 添加</button>
+    </div>
+    <div class="tags-wrap" id="relationTags"></div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:4px;">点击标签快速填入，点击 ✕ 删除</div>
+
     <label style="margin-top:14px;">✏️ 编辑当前对象</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <input type="text" id="profileName" placeholder="昵称" style="flex:1;min-width:60px;">
@@ -153,7 +170,12 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     </div>
     <input type="text" id="profileHobby" placeholder="爱好/职业（可选）">
     <input type="text" id="profileNote" placeholder="其他备注（可选）">
-    <button class="btn-save" id="saveObjectBtn" style="margin-top:8px;">💾 更新对象信息</button>
+    <label style="margin-top:8px;">🤝 与我的关系</label>
+    <div style="display:flex;gap:6px;">
+      <input type="text" id="profileRelationship" placeholder="输入或点击下方标签" style="flex:1;">
+    </div>
+    <div class="tags-wrap" id="profileRelationTags"></div>
+    <button class="btn-save" id="saveObjectBtn" style="margin-top:10px;">💾 更新对象信息</button>
   </div>
 
   <!-- 配置芯片 -->
@@ -177,25 +199,14 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     </div>
   </div>
 
-  <!-- ========== 新增快捷选择栏 ========== -->
-  <div class="quick-bar">
-    <div class="quick-row">
-      <span class="quick-label">🤝 关系</span>
-      <button class="quick-chip active" data-group="relation" data-value="朋友">朋友</button>
-      <button class="quick-chip" data-group="relation" data-value="同事">同事</button>
-      <button class="quick-chip" data-group="relation" data-value="恋人">恋人</button>
-      <button class="quick-chip" data-group="relation" data-value="家人">家人</button>
-      <button class="quick-chip" data-group="relation" data-value="客户">客户</button>
-      <button class="quick-chip" data-group="relation" data-value="其他">其他</button>
+  <div class="quick-bar" id="quickBar">
+    <div class="quick-item">
+      <span class="label">🤝</span>
+      <span class="value" id="quickRelation">朋友</span>
     </div>
-    <div class="quick-row">
-      <span class="quick-label">🎯 目的</span>
-      <button class="quick-chip active" data-group="purpose" data-value="闲聊">闲聊</button>
-      <button class="quick-chip" data-group="purpose" data-value="说服">说服</button>
-      <button class="quick-chip" data-group="purpose" data-value="安慰">安慰</button>
-      <button class="quick-chip" data-group="purpose" data-value="请教">请教</button>
-      <button class="quick-chip" data-group="purpose" data-value="协商">协商</button>
-      <button class="quick-chip" data-group="purpose" data-value="其他">其他</button>
+    <div class="quick-item">
+      <span class="label">🎯</span>
+      <span class="value" id="quickPurpose">闲聊</span>
     </div>
   </div>
 
@@ -232,7 +243,6 @@ const state={
   objects:[],
   currentObjectId:null,
   config:{scenario:'日常闲聊',style:'话题延伸'},
-  quick:{relation:'朋友',purpose:'闲聊'},
   isLoading:!1,
   pendingGuyReply:!1,
   apiKey:'',
@@ -241,14 +251,14 @@ const state={
   useAI:!0,
   imageBase64:null,
   presets:[],
-  currentPreset:''
+  currentPreset:'',
+  relations:['朋友','同事','恋人','家人','客户','其他'] // 默认关系
 };
 
 const $=id=>document.getElementById(id);
-const historyArea=$('historyArea'),suggestionsArea=$('suggestionsArea'),analysisText=$('analysisText'),suggestionList=$('suggestionList'),messageInput=$('messageInput'),sendBtn=$('sendBtn'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag'),settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI'),profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn'),imageBtn=$('imageBtn'),fileInput=$('fileInput'),imagePreview=$('imagePreview'),previewImg=$('previewImg'),removeImgBtn=$('removeImgBtn'),presetList=$('presetList'),newPresetName=$('newPresetName'),addPresetBtn=$('addPresetBtn');
+const historyArea=$('historyArea'),suggestionsArea=$('suggestionsArea'),analysisText=$('analysisText'),suggestionList=$('suggestionList'),messageInput=$('messageInput'),sendBtn=$('sendBtn'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag'),settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI'),profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),profileRelationship=$('profileRelationship'),saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn'),imageBtn=$('imageBtn'),fileInput=$('fileInput'),imagePreview=$('imagePreview'),previewImg=$('previewImg'),removeImgBtn=$('removeImgBtn'),presetList=$('presetList'),newPresetName=$('newPresetName'),addPresetBtn=$('addPresetBtn'),quickRelation=$('quickRelation'),quickPurpose=$('quickPurpose'),quickBar=$('quickBar'),relationTags=$('relationTags'),profileRelationTags=$('profileRelationTags'),newRelationInput=$('newRelationInput'),addRelationBtn=$('addRelationBtn');
 
 function getConfig(){const s=document.querySelector('#scenarioGroup .chip.active')?.dataset.value||'日常闲聊';const t=document.querySelector('#styleGroup .chip.active')?.dataset.value||'话题延伸';return{scenario:s,style:t}}
-function getQuick(){const r=document.querySelector('.quick-chip[data-group="relation"].active')?.dataset.value||'朋友';const p=document.querySelector('.quick-chip[data-group="purpose"].active')?.dataset.value||'闲聊';return{relation:r,purpose:p}}
 function showToast(m,d=2000){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._timer);toastEl._timer=setTimeout(()=>toastEl.classList.remove('show'),d)}
 function updateStatusBadge(){const h=state.apiKey&&state.apiKey.trim().length>0;if(state.useAI&&h){statusBadge.textContent='🤖 AI 在线';statusBadge.className='badge online'}else if(!state.useAI){statusBadge.textContent='⛔ AI 禁用';statusBadge.className='badge offline'}else{statusBadge.textContent='⚠️ 缺少 Key';statusBadge.className='badge offline'}}
 
@@ -282,15 +292,127 @@ function saveCurrentAsPreset(name){
   showToast(`预设 "${name.trim()}" 已保存`,1500);
 }
 
+// ---------- 关系管理 ----------
+function renderRelations(){
+  // 渲染全局关系标签
+  let html='';
+  state.relations.forEach(r=>{
+    html+=`<span class="tag" data-rel="${r}">${r}<button class="del-tag" data-rel="${r}">✕</button></span>`;
+  });
+  relationTags.innerHTML=html;
+  // 绑定点击事件：点击标签填入输入框
+  relationTags.querySelectorAll('.tag').forEach(tag=>{
+    tag.addEventListener('click',function(e){
+      if(e.target.closest('.del-tag'))return;
+      const rel=this.dataset.rel;
+      newRelationInput.value=rel;
+    });
+  });
+  // 删除事件
+  relationTags.querySelectorAll('.del-tag').forEach(btn=>{
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      const rel=this.dataset.rel;
+      if(confirm(`删除关系 "${rel}" ？`)){
+        state.relations=state.relations.filter(r=>r!==rel);
+        saveToStorage();
+        renderRelations();
+        renderProfileRelationTags();
+        showToast('已删除',1000);
+      }
+    });
+  });
+  // 同时更新对象编辑区的关系标签
+  renderProfileRelationTags();
+}
+
+function renderProfileRelationTags(){
+  // 渲染当前对象编辑区的快捷标签
+  let html='';
+  state.relations.forEach(r=>{
+    html+=`<span class="tag" data-rel="${r}">${r}</span>`;
+  });
+  profileRelationTags.innerHTML=html;
+  profileRelationTags.querySelectorAll('.tag').forEach(tag=>{
+    tag.addEventListener('click',function(){
+      profileRelationship.value=this.dataset.rel;
+    });
+  });
+}
+
+function addRelation(rel){
+  rel=rel.trim();
+  if(!rel){showToast('请输入关系名称',1000);return}
+  if(state.relations.includes(rel)){showToast('已存在',1000);return}
+  state.relations.push(rel);
+  saveToStorage();
+  renderRelations();
+  showToast(`已添加关系：${rel}`,1000);
+}
+
 // ---------- 对象管理 ----------
 function getCurrentObject(){return state.objects.find(o=>o.id===state.currentObjectId)||null}
 function updateProfileTag(){const o=getCurrentObject();if(o){profileTag.textContent=`👤 ${o.name||'未命名'}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}`}else{profileTag.textContent='👤 选择对象'}}
+function updateQuickBar(){
+  const o=getCurrentObject();
+  if(o){
+    quickRelation.textContent=o.relationship||'未设置';
+    quickPurpose.textContent=o.purpose||'闲聊';
+  }else{
+    quickRelation.textContent='-';
+    quickPurpose.textContent='-';
+  }
+}
+quickBar.addEventListener('click',()=>{
+  if(!getCurrentObject()){showToast('请先选择对象',1000);return}
+  settingsPanel.classList.toggle('show');
+});
+
 function renderObjectList(){if(state.objects.length===0){objectList.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:8px;">暂无对象，请添加</div>';return}let html='';state.objects.forEach(obj=>{const a=obj.id===state.currentObjectId?'active':'';const c=obj.history?obj.history.length:0;html+=`<div class="object-item ${a}" data-id="${obj.id}"><div><div class="name">${obj.name||'未命名'}${obj.age?' ('+obj.age+'岁)':''}</div><div class="info">${obj.hobby||'无备注'} · ${c}条消息</div></div><div><button class="del-btn" data-id="${obj.id}" title="删除对象">✕</button></div></div>`});objectList.innerHTML=html;objectList.querySelectorAll('.object-item').forEach(item=>{item.addEventListener('click',function(e){if(e.target.closest('.del-btn'))return;const id=this.dataset.id;switchObject(id)})});objectList.querySelectorAll('.del-btn').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const id=this.dataset.id;if(confirm('确定删除该对象及其所有聊天记录吗？'))deleteObject(id)})})}
-function switchObject(id){state.currentObjectId=id;loadCurrentObject();renderObjectList();updateProfileTag();renderHistory();suggestionsArea.classList.remove('show');showToast(`切换到 ${getCurrentObject()?.name||'对象'}`,1200);saveToStorage()}
-function loadCurrentObject(){const o=getCurrentObject();if(o){profileName.value=o.name||'';profileAge.value=o.age||'';profileHobby.value=o.hobby||'';profileNote.value=o.note||'';renderHistory();updateProfileTag()}else{profileName.value='';profileAge.value='';profileHobby.value='';profileNote.value='';historyArea.innerHTML='<div class="history-empty">👋 添加一个对象开始聊天</div>';updateProfileTag()}}
-function addObject(name){if(!name.trim()){showToast('请输入昵称',1000);return}if(state.objects.some(o=>o.name===name.trim())){showToast('已存在同名对象',1000);return}const n={id:Date.now().toString(36)+Math.random().toString(36).substr(2,4),name:name.trim(),age:'',hobby:'',note:'',history:[]};state.objects.push(n);state.currentObjectId=n.id;renderObjectList();loadCurrentObject();saveToStorage();showToast(`已添加对象：${n.name}`,1500)}
+function switchObject(id){state.currentObjectId=id;loadCurrentObject();renderObjectList();updateProfileTag();updateQuickBar();renderHistory();suggestionsArea.classList.remove('show');showToast(`切换到 ${getCurrentObject()?.name||'对象'}`,1200);saveToStorage()}
+function loadCurrentObject(){
+  const o=getCurrentObject();
+  if(o){
+    profileName.value=o.name||'';
+    profileAge.value=o.age||'';
+    profileHobby.value=o.hobby||'';
+    profileNote.value=o.note||'';
+    profileRelationship.value=o.relationship||'';
+    renderHistory();
+    updateProfileTag();
+    updateQuickBar();
+  }else{
+    profileName.value='';profileAge.value='';profileHobby.value='';profileNote.value='';profileRelationship.value='';
+    historyArea.innerHTML='<div class="history-empty">👋 添加一个对象开始聊天</div>';
+    updateProfileTag();
+    updateQuickBar();
+  }
+}
+function addObject(name){if(!name.trim()){showToast('请输入昵称',1000);return}if(state.objects.some(o=>o.name===name.trim())){showToast('已存在同名对象',1000);return}const n={id:Date.now().toString(36)+Math.random().toString(36).substr(2,4),name:name.trim(),age:'',hobby:'',note:'',relationship:'',purpose:'闲聊',history:[]};state.objects.push(n);state.currentObjectId=n.id;renderObjectList();loadCurrentObject();saveToStorage();showToast(`已添加对象：${n.name}`,1500)}
 function deleteObject(id){state.objects=state.objects.filter(o=>o.id!==id);if(state.currentObjectId===id){state.currentObjectId=state.objects.length>0?state.objects[0].id:null}renderObjectList();loadCurrentObject();saveToStorage();showToast('已删除',1000)}
-function saveObjectDetails(){const o=getCurrentObject();if(!o){showToast('请先选择一个对象',1000);return}o.name=profileName.value.trim()||'未命名';o.age=parseInt(profileAge.value)||'';o.hobby=profileHobby.value.trim();o.note=profileNote.value.trim();renderObjectList();updateProfileTag();saveToStorage();showToast('对象信息已更新',1500)}
+function saveObjectDetails(){
+  const o=getCurrentObject();
+  if(!o){showToast('请先选择一个对象',1000);return}
+  o.name=profileName.value.trim()||'未命名';
+  o.age=parseInt(profileAge.value)||'';
+  o.hobby=profileHobby.value.trim();
+  o.note=profileNote.value.trim();
+  const rel=profileRelationship.value.trim();
+  o.relationship=rel||'';
+  // 如果关系不在全局列表中，自动添加
+  if(rel && !state.relations.includes(rel)){
+    state.relations.push(rel);
+    renderRelations();
+  }
+  // 目的暂时保留固定选项，也可以扩展，但暂不修改
+  // 这里保留之前的purpose，默认闲聊
+  o.purpose='闲聊'; // 可扩展，暂固定
+  renderObjectList();
+  updateProfileTag();
+  updateQuickBar();
+  saveToStorage();
+  showToast('对象信息已更新',1500);
+}
 
 function getCurrentHistory(){const o=getCurrentObject();return o?o.history:[]}
 function pushHistory(r,c){const o=getCurrentObject();if(o){o.history.push({role:r,content:c});saveToStorage();renderHistory()}}
@@ -309,7 +431,7 @@ function clearImage(){state.imageBase64=null;imagePreview.style.display='none';p
 // ---------- API ----------
 function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
 
-async function callAI(gm,h,c,image,quick){
+async function callAI(gm,h,c,image,relation,purpose){
   const cleanKey=toAscii(state.apiKey).trim();
   if(!cleanKey)throw new Error('API Key 无效');
   const cleanUrl=toAscii(state.apiUrl).trim();
@@ -318,19 +440,27 @@ async function callAI(gm,h,c,image,quick){
 
   const o=getCurrentObject();
   const profileText=o?`对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}`:'';
-  const relation=quick.relation||'朋友';
-  const purpose=quick.purpose||'闲聊';
-  let styleDesc='';
-  if(c.style==='幽默'){styleDesc='用轻松幽默的方式，像朋友闲聊。'}
-  else if(c.style==='直球'){styleDesc='简洁直接，不绕弯子。'}
-  else if(c.style==='话题延伸'){styleDesc='提出开放问题或分享相关经历，引导对话深入。'}
-  else if(c.style==='开启话题'){styleDesc='抛出全新、有趣的话题开场。'}
 
-  const sp=`你是一位沟通顾问。${profileText}
-当前关系：${relation}，沟通目的：${purpose}。
-场景：${c.scenario}，风格：${c.style}。
-要求：输出纯JSON，包含"analysis"(简短的潜台词或状态分析)和"suggestions"(3条建议，每条有text, reason, expectedEffect)。
-每条建议15~30字，绝对口语化，像真人对话，不要书面语，不要"首先/其次/综上所述"。${image?'附有图片，请结合图片内容给出回复建议。':''}`;
+  const sp = `你是一个嘴巴很贱但很真诚的聊天高手。你的回答要像真人说话一样——有语气词（"啊/吧/啦/呗"）、有断句、有情绪。
+当前聊天对象信息：${profileText}
+与我的关系：${relation}
+沟通目的：${purpose}
+场景：${c.scenario}
+风格：${c.style}
+
+绝对禁止：书面语、说教、分析体、"首先/其次/最后/综上所述"。
+每条建议必须像微信聊天里的原话，不超过25个字，带点个人风格（自嘲/反问/夸张）。
+如果对方在抱怨，先共情再给建议；如果对方在分享，先回应情绪再延伸话题。
+建议不要全是问句，适当用陈述句和感叹句。
+
+示例：
+对方："今天好累啊"
+→ 回答1："累啥，我昨天加班到凌晨，你起码还能喊累（狗头）"
+→ 回答2："那别聊了，快去躺平，明天再战！"
+→ 回答3："具体累啥？工作还是心累？说出来我帮你骂两句"
+
+输出纯JSON，包含"analysis"(简短潜台词)和"suggestions"(3条建议，每条有text, reason, expectedEffect)。
+text必须是口语化的原话，reason简短说明为什么这么回，expectedEffect写对方可能的反应。`;
 
   let messages=[{role:'system',content:sp}];
   let userContent=[{type:'text',text:gm}];
@@ -371,23 +501,25 @@ async function handleSend(){
   state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';
   suggestionsArea.classList.remove('show');
   const config=getConfig();
-  const quick=getQuick();
+  const o=getCurrentObject();
+  const relation=o?.relationship||'未设置';
+  const purpose='闲聊'; // 暂时固定，可后续扩展
   try{
     if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用或无Key');
     const h=getCurrentHistory();
     const image=state.imageBase64;
-    const r=await callAI(finalText,h,config,image,quick);
+    const r=await callAI(finalText,h,config,image,relation,purpose);
     if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
     renderSuggestions(r);
     showToast('✅ 分析完成',1000);
     suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }catch(err){showToast('❌ '+err.message,4000);const o=getCurrentObject();if(o&&o.history.length>0&&o.history[o.history.length-1].role==='girl'){o.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
+  }catch(err){showToast('❌ '+err.message,4000);const o2=getCurrentObject();if(o2&&o2.history.length>0&&o2.history[o2.history.length-1].role==='girl'){o2.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
   finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
 }
 
 function saveToStorage(){
   try{
-    const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI,presets:state.presets,currentPreset:state.currentPreset};
+    const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI,presets:state.presets,currentPreset:state.currentPreset,relations:state.relations};
     localStorage.setItem('chat_data',JSON.stringify(data));
   }catch(e){}
 }
@@ -405,6 +537,7 @@ function loadFromStorage(){
       state.useAI=data.useAI!==undefined?data.useAI:!0;
       state.presets=data.presets||[];
       state.currentPreset=data.currentPreset||'';
+      state.relations=data.relations||['朋友','同事','恋人','家人','客户','其他'];
       apiKeyInput.value=state.apiKey;
       apiUrlInput.value=state.apiUrl;
       modelInput.value=state.model;
@@ -412,27 +545,19 @@ function loadFromStorage(){
       renderObjectList();
       loadCurrentObject();
       updateProfileTag();
+      updateQuickBar();
       updateStatusBadge();
       renderPresets();
+      renderRelations();
       return;
     }
   }catch(e){console.warn('Load error',e)}
-  state.objects=[];state.currentObjectId=null;state.presets=[];state.currentPreset='';
-  renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();renderPresets();
+  state.objects=[];state.currentObjectId=null;state.presets=[];state.currentPreset='';state.relations=['朋友','同事','恋人','家人','客户','其他'];
+  renderObjectList();loadCurrentObject();updateProfileTag();updateQuickBar();updateStatusBadge();renderPresets();renderRelations();
   saveToStorage();
 }
 
-// ---------- 快捷选择事件绑定 ----------
-document.querySelectorAll('.quick-chip').forEach(chip=>{
-  chip.addEventListener('click',function(){
-    const group=this.dataset.group;
-    document.querySelectorAll(`.quick-chip[data-group="${group}"]`).forEach(c=>c.classList.remove('active'));
-    this.classList.add('active');
-    showToast(`${group==='relation'?'关系':'目的'}：${this.dataset.value}`,1000);
-  });
-});
-
-// ---------- 常规事件 ----------
+// ---------- 事件绑定 ----------
 settingsToggle.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
 profileTag.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
 addObjectBtn.addEventListener('click',()=>{addObject(newObjectName.value.trim());newObjectName.value=''});
@@ -448,8 +573,20 @@ imageBtn.addEventListener('click',()=>fileInput.click());
 fileInput.addEventListener('change',(e)=>{if(e.target.files.length>0)handleImageSelect(e.target.files[0])});
 removeImgBtn.addEventListener('click',clearImage);
 
+// 关系添加
+addRelationBtn.addEventListener('click',()=>{
+  addRelation(newRelationInput.value);
+  newRelationInput.value='';
+});
+newRelationInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    addRelation(newRelationInput.value);
+    newRelationInput.value='';
+  }
+});
+
 loadFromStorage();
-showToast('💡 选择关系和目的，AI 更懂你',2000);
+showToast('💡 关系可自由输入，保存后自动添加到列表',2000);
 </script>
 </body>
 </html>
