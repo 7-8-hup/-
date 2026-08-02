@@ -10,15 +10,15 @@
     #app { max-width: 480px; width: 100%; background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 40px; box-shadow: 0 20px 60px rgba(100,70,120,0.2), 0 0 0 1px rgba(255,255,255,0.5); padding: 20px 16px 24px; height: 95vh; display: flex; flex-direction: column; overflow: hidden; }
     .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
     .header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .badge { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 30px; background: #e0e7ff; color: #4338ca; }
     .badge.online { background: #dcfce7; color: #166534; }
     .badge.offline { background: #fee2e2; color: #991b1b; }
     .settings-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 6px 8px; border-radius: 30px; transition: background 0.15s; }
     .settings-btn:hover { background: rgba(0,0,0,0.05); }
-    .profile-tag { font-size: 12px; color: #6b7280; background: rgba(124,58,237,0.08); padding: 2px 12px; border-radius: 30px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.15s; }
+    .profile-tag { font-size: 12px; color: #6b7280; background: rgba(124,58,237,0.08); padding: 2px 12px; border-radius: 30px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.15s; max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .profile-tag:hover { background: rgba(124,58,237,0.16); }
-    .settings-panel { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 24px; padding: 16px 18px; margin: 12px 0; display: none; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+    .settings-panel { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 24px; padding: 16px 18px; margin: 12px 0; display: none; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 8px 20px rgba(0,0,0,0.04); max-height: 60vh; overflow-y: auto; }
     .settings-panel.show { display: block; }
     .settings-panel label { font-size: 12px; font-weight: 600; color: #4b5563; display: block; margin: 10px 0 4px; }
     .settings-panel label:first-of-type { margin-top: 0; }
@@ -31,6 +31,25 @@
     .btn-save { margin-top: 14px; width: 100%; padding: 12px; border: none; border-radius: 30px; background: #7c3aed; color: white; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
     .btn-save:hover { background: #6d28d9; transform: scale(1.01); }
     .btn-save:active { transform: scale(0.97); }
+    .btn-secondary { background: #e5e7eb; color: #1f2937; box-shadow: none; }
+    .btn-secondary:hover { background: #d1d5db; transform: none; }
+    .btn-danger { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: #dc2626; }
+
+    /* 对象管理 */
+    .object-list { margin-top: 8px; }
+    .object-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: white; border-radius: 16px; margin-bottom: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.15s; }
+    .object-item:hover { background: #f9fafb; }
+    .object-item.active { border-color: #7c3aed; background: #ede9fe; }
+    .object-item .name { font-weight: 500; font-size: 14px; }
+    .object-item .info { font-size: 11px; color: #6b7280; }
+    .object-item .del-btn { background: none; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 0 4px; }
+    .object-item .del-btn:hover { color: #ef4444; }
+    .add-object-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .add-object-row input { flex: 1; min-width: 80px; padding: 8px 12px; border-radius: 20px; border: 1px solid #e5e7eb; font-size: 13px; outline: none; }
+    .add-object-row input:focus { border-color: #7c3aed; }
+    .add-object-row .btn { padding: 8px 16px; border-radius: 30px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; background: #7c3aed; color: white; }
+
     .config-row { display: flex; justify-content: space-between; gap: 6px; margin-top: 14px; flex-shrink: 0; flex-wrap: wrap; }
     .config-group { flex: 1; min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .config-group label { font-size: 10px; font-weight: 600; color: #9ca3af; letter-spacing: 0.3px; text-transform: uppercase; }
@@ -38,12 +57,14 @@
     .chip { font-size: 11px; padding: 4px 12px; border-radius: 30px; background: #f3f4f6; color: #6b7280; border: none; cursor: pointer; transition: all 0.15s; font-weight: 500; }
     .chip.active { background: #7c3aed; color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,0.25); }
     .chip:active { transform: scale(0.92); }
+
     .history-area { flex: 1; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 24px; margin: 14px 0 12px; padding: 12px 10px; overflow-y: auto; min-height: 100px; max-height: 45vh; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.6); }
     .history-empty { color: #b0b0b0; font-size: 14px; text-align: center; margin: auto; }
     .msg-bubble { max-width: 85%; padding: 10px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; word-break: break-word; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
     .msg-girl { align-self: flex-start; background: #ede9fe; color: #2e1065; border-bottom-left-radius: 6px; }
     .msg-guy { align-self: flex-end; background: #d1fae5; color: #064e3b; border-bottom-right-radius: 6px; }
     .msg-label { font-size: 10px; opacity: 0.5; margin-bottom: 2px; font-weight: 600; }
+
     .suggestions-area { flex-shrink: 0; background: rgba(255,247,235,0.8); backdrop-filter: blur(8px); border-radius: 24px; padding: 16px 14px; margin: 6px 0 10px; border-left: 5px solid #f59e0b; max-height: 50vh; overflow-y: auto; display: none; }
     .suggestions-area.show { display: block; }
     .analysis-text { font-size: 13px; font-weight: 500; color: #78350f; background: rgba(245,158,11,0.12); padding: 6px 16px; border-radius: 30px; display: inline-block; margin-bottom: 12px; }
@@ -53,6 +74,7 @@
     .suggestion-meta { font-size: 12px; color: #8b8b8b; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
     .suggestion-meta span { background: #f5f3f0; padding: 2px 12px; border-radius: 20px; }
     .badge-copy { font-size: 11px; color: #7c3aed; font-weight: 600; float: right; }
+
     .input-area { display: flex; gap: 10px; margin-top: 8px; flex-shrink: 0; align-items: center; flex-wrap: wrap; }
     .input-area input { flex: 1; min-width: 120px; padding: 14px 20px; border-radius: 40px; border: 1.5px solid #e5e7eb; font-size: 15px; outline: none; background: white; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .input-area input:focus { border-color: #7c3aed; box-shadow: 0 0 0 4px rgba(124,58,237,0.08); }
@@ -70,6 +92,7 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    .small-btn { padding: 4px 10px; font-size: 12px; border-radius: 20px; }
   </style>
 </head>
 <body>
@@ -77,13 +100,14 @@
     <div class="header">
       <h1>💬 聊天军师</h1>
       <div class="header-right">
-        <span class="profile-tag" id="profileTag">👤 小雅 · 23岁</span>
+        <span class="profile-tag" id="profileTag">👤 选择对象</span>
         <span class="badge offline" id="statusBadge">⛔ 未连接</span>
         <button class="settings-btn" id="settingsToggle">⚙️</button>
       </div>
     </div>
 
     <div class="settings-panel" id="settingsPanel">
+      <!-- API 设置 -->
       <label>🔑 API Key</label>
       <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
       <label>🌐 API 地址</label>
@@ -92,19 +116,33 @@
       <label>🧠 模型名称</label>
       <input type="text" id="modelInput" placeholder="glm-4-flash / gpt-3.5-turbo">
 
-      <label style="margin-top:14px;">👤 当前对象画像</label>
+      <div class="toggle-row">
+        <input type="checkbox" id="useAI" checked>
+        <label for="useAI">启用 AI（取消则强制报错）</label>
+      </div>
+
+      <hr style="margin: 16px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+      <!-- 对象管理 -->
+      <label style="margin-top:0;">👥 聊天对象</label>
+      <div class="object-list" id="objectList"></div>
+
+      <div class="add-object-row">
+        <input type="text" id="newObjectName" placeholder="昵称" style="flex:1;">
+        <button class="btn small-btn" id="addObjectBtn">➕ 添加</button>
+      </div>
+
+      <!-- 当前对象详情编辑（在切换时自动填充） -->
+      <label style="margin-top:14px;">✏️ 编辑当前对象</label>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <input type="text" id="profileName" placeholder="昵称" style="flex:1; min-width:60px;">
         <input type="number" id="profileAge" placeholder="年龄" style="flex:0.8; min-width:50px;">
       </div>
       <input type="text" id="profileHobby" placeholder="爱好（如摄影、健身）">
       <input type="text" id="profileNote" placeholder="其他备注（如性格特点）">
+      <button class="btn-save" id="saveObjectBtn" style="margin-top:8px;">💾 更新对象信息</button>
 
-      <div class="toggle-row">
-        <input type="checkbox" id="useAI" checked>
-        <label for="useAI">启用 AI（取消则强制报错）</label>
-      </div>
-      <button class="btn-save" id="saveSettingsBtn">💾 保存设置</button>
+      <button class="btn-save btn-secondary" id="saveSettingsBtn" style="margin-top:14px;">💾 保存所有设置</button>
     </div>
 
     <div class="config-row">
@@ -134,7 +172,7 @@
     </div>
 
     <div class="history-area" id="historyArea">
-      <div class="history-empty">👋 输入女生的话，AI 帮你分析</div>
+      <div class="history-empty">👋 选择或添加一个对象开始聊天</div>
     </div>
 
     <div class="suggestions-area" id="suggestionsArea">
@@ -146,7 +184,7 @@
       <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
       <div class="btn-group">
         <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
-        <button class="btn btn-outline" id="clearHistoryBtn" title="清除历史">🗑️</button>
+        <button class="btn btn-outline" id="clearHistoryBtn" title="清除当前对象聊天记录">🗑️</button>
       </div>
     </div>
   </div>
@@ -155,17 +193,18 @@
   <script>
     // ========== 核心状态 ==========
     const state = {
-      history: [],
+      objects: [],              // [{ id, name, age, hobby, note, history: [{role, content}] }]
+      currentObjectId: null,
       config: { scenario: '暧昧', style: '暖男', safety: 'yellow' },
       isLoading: false,
       pendingGuyReply: false,
       apiKey: '',
       apiUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
       model: 'glm-4-flash',
-      useAI: true,
-      profile: { name: '小雅', age: 23, hobby: '摄影', note: '' }
+      useAI: true
     };
 
+    // DOM 引用
     const $ = id => document.getElementById(id);
     const historyArea = $('historyArea');
     const suggestionsArea = $('suggestionsArea');
@@ -187,9 +226,13 @@
     const profileHobby = $('profileHobby');
     const profileNote = $('profileNote');
     const saveSettingsBtn = $('saveSettingsBtn');
+    const saveObjectBtn = $('saveObjectBtn');
     const clearHistoryBtn = $('clearHistoryBtn');
+    const objectList = $('objectList');
+    const newObjectName = $('newObjectName');
+    const addObjectBtn = $('addObjectBtn');
 
-    // ========== 辅助 ==========
+    // ========== 辅助函数 ==========
     function getConfig() {
       const scenario = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '暧昧';
       const style = document.querySelector('#styleGroup .chip.active')?.dataset.value || '暖男';
@@ -218,27 +261,211 @@
       }
     }
 
-    function updateProfileTag() {
-      const p = state.profile;
-      profileTag.textContent = `👤 ${p.name || '未命名'} · ${p.age || '?'}岁${p.hobby ? ' · ' + p.hobby : ''}`;
+    // ========== 对象管理 ==========
+    function getCurrentObject() {
+      return state.objects.find(o => o.id === state.currentObjectId) || null;
     }
 
-    function renderHistory() {
-      if (state.history.length === 0) {
-        historyArea.innerHTML = `<div class="history-empty">👋 输入女生的话，AI 帮你分析</div>`;
+    function updateProfileTag() {
+      const obj = getCurrentObject();
+      if (obj) {
+        profileTag.textContent = `👤 ${obj.name || '未命名'} · ${obj.age || '?'}岁${obj.hobby ? ' · ' + obj.hobby : ''}`;
+      } else {
+        profileTag.textContent = '👤 选择对象';
+      }
+    }
+
+    function renderObjectList() {
+      if (state.objects.length === 0) {
+        objectList.innerHTML = '<div style="color:#9ca3af; font-size:13px; text-align:center; padding:8px;">暂无对象，请添加</div>';
         return;
       }
       let html = '';
-      state.history.forEach(msg => {
+      state.objects.forEach(obj => {
+        const active = obj.id === state.currentObjectId ? 'active' : '';
+        const historyCount = obj.history ? obj.history.length : 0;
+        html += `
+          <div class="object-item ${active}" data-id="${obj.id}">
+            <div>
+              <div class="name">${obj.name || '未命名'} (${obj.age || '?'}岁)</div>
+              <div class="info">${obj.hobby || '无爱好'} · ${historyCount}条消息</div>
+            </div>
+            <div>
+              <button class="del-btn" data-id="${obj.id}" title="删除对象">✕</button>
+            </div>
+          </div>
+        `;
+      });
+      objectList.innerHTML = html;
+
+      // 点击切换对象
+      objectList.querySelectorAll('.object-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          if (e.target.closest('.del-btn')) return;
+          const id = this.dataset.id;
+          switchObject(id);
+        });
+      });
+
+      // 删除按钮
+      objectList.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const id = this.dataset.id;
+          if (confirm('确定删除该对象及其所有聊天记录吗？')) {
+            deleteObject(id);
+          }
+        });
+      });
+    }
+
+    function switchObject(id) {
+      // 保存当前对象的历史
+      saveCurrentObject();
+      state.currentObjectId = id;
+      // 加载新对象数据到界面
+      loadCurrentObject();
+      renderObjectList();
+      updateProfileTag();
+      renderHistory();
+      suggestionsArea.classList.remove('show');
+      showToast(`切换到 ${getCurrentObject()?.name || '对象'}`, 1200);
+      // 保存到 localStorage
+      saveToStorage();
+    }
+
+    function saveCurrentObject() {
+      const obj = getCurrentObject();
+      if (obj) {
+        // 从界面读取当前 history (已经维护在 state 中，实际上 state.history 已经弃用，我们用 obj.history)
+        // 但由于我们的渲染和操作都直接修改 obj.history，所以无需额外操作。
+        // 但为了安全，我们确保 obj.history 是最新的。
+        // 实际上我们一直在操作 obj.history，所以没问题。
+      }
+    }
+
+    function loadCurrentObject() {
+      const obj = getCurrentObject();
+      if (obj) {
+        // 填充编辑表单
+        profileName.value = obj.name || '';
+        profileAge.value = obj.age || '';
+        profileHobby.value = obj.hobby || '';
+        profileNote.value = obj.note || '';
+        // 更新历史显示
+        renderHistory();
+        updateProfileTag();
+      } else {
+        // 清空表单
+        profileName.value = '';
+        profileAge.value = '';
+        profileHobby.value = '';
+        profileNote.value = '';
+        historyArea.innerHTML = `<div class="history-empty">👋 选择或添加一个对象开始聊天</div>`;
+        updateProfileTag();
+      }
+    }
+
+    function addObject(name) {
+      if (!name.trim()) { showToast('请输入昵称', 1000); return; }
+      // 检查重名
+      if (state.objects.some(o => o.name === name.trim())) {
+        showToast('已存在同名对象', 1000);
+        return;
+      }
+      const newObj = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
+        name: name.trim(),
+        age: '',
+        hobby: '',
+        note: '',
+        history: []
+      };
+      state.objects.push(newObj);
+      state.currentObjectId = newObj.id;
+      renderObjectList();
+      loadCurrentObject();
+      saveToStorage();
+      showToast(`已添加对象：${newObj.name}`, 1500);
+    }
+
+    function deleteObject(id) {
+      state.objects = state.objects.filter(o => o.id !== id);
+      if (state.currentObjectId === id) {
+        state.currentObjectId = state.objects.length > 0 ? state.objects[0].id : null;
+      }
+      renderObjectList();
+      loadCurrentObject();
+      saveToStorage();
+      showToast('已删除', 1000);
+    }
+
+    function saveObjectDetails() {
+      const obj = getCurrentObject();
+      if (!obj) { showToast('请先选择一个对象', 1000); return; }
+      obj.name = profileName.value.trim() || '未命名';
+      obj.age = parseInt(profileAge.value) || 0;
+      obj.hobby = profileHobby.value.trim();
+      obj.note = profileNote.value.trim();
+      renderObjectList();
+      updateProfileTag();
+      saveToStorage();
+      showToast('对象信息已更新', 1500);
+    }
+
+    // ========== 历史记录操作 ==========
+    function getCurrentHistory() {
+      const obj = getCurrentObject();
+      return obj ? obj.history : [];
+    }
+
+    function setCurrentHistory(newHistory) {
+      const obj = getCurrentObject();
+      if (obj) {
+        obj.history = newHistory;
+        saveToStorage();
+      }
+    }
+
+    function pushHistory(role, content) {
+      const obj = getCurrentObject();
+      if (obj) {
+        obj.history.push({ role, content });
+        saveToStorage();
+        renderHistory();
+      }
+    }
+
+    function renderHistory() {
+      const history = getCurrentHistory();
+      if (history.length === 0) {
+        historyArea.innerHTML = `<div class="history-empty">👋 开始与 ${getCurrentObject()?.name || '对象'} 的对话</div>`;
+        return;
+      }
+      let html = '';
+      history.forEach(msg => {
         const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
         const label = msg.role === 'girl' ? '👩 她' : '🧑 我';
         html += `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`;
       });
       historyArea.innerHTML = html;
       historyArea.scrollTop = historyArea.scrollHeight;
-      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
     }
 
+    function clearCurrentHistory() {
+      if (!getCurrentObject()) { showToast('请先选择对象', 1000); return; }
+      if (confirm('确定清除当前对象的聊天记录吗？')) {
+        const obj = getCurrentObject();
+        obj.history = [];
+        state.pendingGuyReply = false;
+        renderHistory();
+        suggestionsArea.classList.remove('show');
+        saveToStorage();
+        showToast('🗑️ 已清除', 1000);
+      }
+    }
+
+    // ========== 渲染建议 ==========
     function renderSuggestions(response) {
       if (!response || !response.suggestions || response.suggestions.length === 0) {
         suggestionsArea.classList.remove('show');
@@ -274,13 +501,12 @@
       } else {
         fallbackCopy(text);
       }
-      state.history.push({ role: 'guy', content: text });
+      // 添加男方回复
+      pushHistory('guy', text);
       state.pendingGuyReply = true;
-      renderHistory();
       suggestionsArea.classList.remove('show');
       messageInput.focus();
       showToast('📨 已记录，等女生回复后继续', 1500);
-      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
     }
 
     function fallbackCopy(text) {
@@ -292,12 +518,12 @@
       document.body.removeChild(ta);
     }
 
-    // ========== AI 调用（修复格式错误） ==========
+    // ========== AI 调用 ==========
     async function callAI(girlMessage, history, config) {
-      const profile = state.profile;
-      const profileText = `她叫${profile.name || '未命名'}，${profile.age || '?'}岁，喜欢${profile.hobby || '未知'}。${profile.note || ''}`;
+      const obj = getCurrentObject();
+      const profileText = obj ? `她叫${obj.name || '未命名'}，${obj.age || '?'}岁，喜欢${obj.hobby || '未知'}。${obj.note || ''}` : '';
 
-      const systemPrompt = `你是一位资深情感沟通顾问。当前对象信息：${profileText}。
+      const systemPrompt = `你是一位资深情感沟通顾问。当前对象信息：${profileText}
 根据用户选择的【场景(${config.scenario})】、【风格(${config.style})】、【安全等级(${config.safety})】生成回复建议。
 规则：
 1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。
@@ -334,44 +560,37 @@
       const data = await response.json();
       const content = data.choices[0].message.content;
 
-      // 智能解析 JSON（支持直接JSON、代码块、或花括号包裹）
       try {
-        // 尝试直接解析
         return JSON.parse(content);
       } catch (e1) {
-        // 尝试提取 ```json ... ``` 代码块
         const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
-          try {
-            return JSON.parse(jsonMatch[1]);
-          } catch (e2) {}
+          try { return JSON.parse(jsonMatch[1]); } catch (e2) {}
         }
-        // 尝试提取第一个完整的花括号对象
         const braceMatch = content.match(/\{[\s\S]*\}/);
         if (braceMatch) {
-          try {
-            return JSON.parse(braceMatch[0]);
-          } catch (e3) {}
+          try { return JSON.parse(braceMatch[0]); } catch (e3) {}
         }
-        throw new Error('AI 返回内容无法解析为JSON，请检查AI响应');
+        throw new Error('AI 返回内容无法解析为JSON');
       }
     }
 
     // ========== 主逻辑 ==========
     async function handleSend() {
       if (state.isLoading) return;
+      if (!getCurrentObject()) { showToast('请先选择或添加一个对象', 1500); return; }
       const input = messageInput.value.trim();
       if (!input) { showToast('请输入女生的话', 1000); return; }
 
+      // 如果是pending回复状态，则此次输入为女生的新消息
       if (state.pendingGuyReply) {
-        state.history.push({ role: 'girl', content: input });
+        pushHistory('girl', input);
         state.pendingGuyReply = false;
       } else {
-        state.history.push({ role: 'girl', content: input });
+        pushHistory('girl', input);
       }
       messageInput.value = '';
       renderHistory();
-      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
 
       state.isLoading = true;
       sendBtn.disabled = true;
@@ -384,7 +603,8 @@
         if (!state.useAI || !state.apiKey || state.apiKey.trim().length === 0) {
           throw new Error('AI 未启用或未填写 API Key');
         }
-        const response = await callAI(input, state.history, config);
+        const history = getCurrentHistory();
+        const response = await callAI(input, history, config);
         if (!response.analysis || !response.suggestions || response.suggestions.length < 3) {
           throw new Error('AI 返回结构不完整');
         }
@@ -393,9 +613,13 @@
         suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } catch (err) {
         showToast('❌ ' + err.message, 4000);
-        // 回滚历史
-        state.history.pop();
-        renderHistory();
+        // 回滚：移除刚刚添加的 girl 消息
+        const obj = getCurrentObject();
+        if (obj && obj.history.length > 0 && obj.history[obj.history.length-1].role === 'girl') {
+          obj.history.pop();
+          renderHistory();
+          saveToStorage();
+        }
         messageInput.value = input;
       } finally {
         state.isLoading = false;
@@ -404,33 +628,116 @@
       }
     }
 
-    // ========== 存储与初始化 ==========
+    // ========== 存储 ==========
+    function saveToStorage() {
+      try {
+        const data = {
+          objects: state.objects,
+          currentObjectId: state.currentObjectId,
+          apiKey: state.apiKey,
+          apiUrl: state.apiUrl,
+          model: state.model,
+          useAI: state.useAI
+        };
+        localStorage.setItem('chat_data', JSON.stringify(data));
+      } catch (e) {}
+    }
+
     function loadFromStorage() {
       try {
-        const h = localStorage.getItem('chat_history');
-        if (h) { state.history = JSON.parse(h); renderHistory(); }
-        const key = localStorage.getItem('api_key');
-        if (key) { state.apiKey = key; apiKeyInput.value = key; }
-        const url = localStorage.getItem('api_url');
-        if (url) { state.apiUrl = url; apiUrlInput.value = url; }
-        const model = localStorage.getItem('model');
-        if (model) { state.model = model; modelInput.value = model; }
-        const use = localStorage.getItem('use_ai');
-        if (use !== null) { state.useAI = use === 'true'; useAICheckbox.checked = state.useAI; }
+        const raw = localStorage.getItem('chat_data');
+        if (raw) {
+          const data = JSON.parse(raw);
+          state.objects = data.objects || [];
+          state.currentObjectId = data.currentObjectId || null;
+          state.apiKey = data.apiKey || '';
+          state.apiUrl = data.apiUrl || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+          state.model = data.model || 'glm-4-flash';
+          state.useAI = data.useAI !== undefined ? data.useAI : true;
+          apiKeyInput.value = state.apiKey;
+          apiUrlInput.value = state.apiUrl;
+          modelInput.value = state.model;
+          useAICheckbox.checked = state.useAI;
 
-        const p = localStorage.getItem('profile');
-        if (p) {
-          const parsed = JSON.parse(p);
-          state.profile = { ...state.profile, ...parsed };
+          // 迁移旧数据（单对象）
+          const oldHistory = localStorage.getItem('chat_history');
+          const oldProfile = localStorage.getItem('profile');
+          if (oldHistory || oldProfile) {
+            if (state.objects.length === 0) {
+              const name = oldProfile ? JSON.parse(oldProfile).name || '小雅' : '小雅';
+              const age = oldProfile ? JSON.parse(oldProfile).age || 23 : 23;
+              const hobby = oldProfile ? JSON.parse(oldProfile).hobby || '' : '';
+              const note = oldProfile ? JSON.parse(oldProfile).note || '' : '';
+              const history = oldHistory ? JSON.parse(oldHistory) : [];
+              const newObj = {
+                id: Date.now().toString(36),
+                name: name,
+                age: age,
+                hobby: hobby,
+                note: note,
+                history: history
+              };
+              state.objects = [newObj];
+              state.currentObjectId = newObj.id;
+              // 清理旧存储
+              localStorage.removeItem('chat_history');
+              localStorage.removeItem('profile');
+              // 重新保存
+              saveToStorage();
+            }
+          }
+
+          renderObjectList();
+          loadCurrentObject();
+          updateProfileTag();
+          updateStatusBadge();
+          return;
         }
-        profileName.value = state.profile.name || '';
-        profileAge.value = state.profile.age || '';
-        profileHobby.value = state.profile.hobby || '';
-        profileNote.value = state.profile.note || '';
+      } catch (e) { console.warn('Load storage error', e); }
+
+      // 如果没有数据，创建默认对象
+      if (state.objects.length === 0) {
+        const defaultObj = {
+          id: Date.now().toString(36),
+          name: '小雅',
+          age: 23,
+          hobby: '摄影',
+          note: '',
+          history: []
+        };
+        state.objects = [defaultObj];
+        state.currentObjectId = defaultObj.id;
+        saveToStorage();
+        renderObjectList();
+        loadCurrentObject();
         updateProfileTag();
-      } catch (e) {}
+      }
       updateStatusBadge();
     }
+
+    // ========== 事件绑定 ==========
+    settingsToggle.addEventListener('click', () => {
+      settingsPanel.classList.toggle('show');
+    });
+
+    profileTag.addEventListener('click', () => {
+      settingsPanel.classList.toggle('show');
+    });
+
+    addObjectBtn.addEventListener('click', () => {
+      const name = newObjectName.value.trim();
+      addObject(name);
+      newObjectName.value = '';
+    });
+
+    newObjectName.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addObject(newObjectName.value.trim());
+        newObjectName.value = '';
+      }
+    });
+
+    saveObjectBtn.addEventListener('click', saveObjectDetails);
 
     saveSettingsBtn.addEventListener('click', () => {
       const key = apiKeyInput.value.trim();
@@ -440,38 +747,13 @@
       state.apiUrl = url || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
       state.model = model || 'glm-4-flash';
       state.useAI = useAICheckbox.checked;
-
-      const name = profileName.value.trim() || '未命名';
-      const age = parseInt(profileAge.value) || 0;
-      const hobby = profileHobby.value.trim();
-      const note = profileNote.value.trim();
-      state.profile = { name, age, hobby, note };
-      updateProfileTag();
-
-      localStorage.setItem('api_key', key);
-      localStorage.setItem('api_url', state.apiUrl);
-      localStorage.setItem('model', state.model);
-      localStorage.setItem('use_ai', String(state.useAI));
-      localStorage.setItem('profile', JSON.stringify(state.profile));
-
+      saveToStorage();
       updateStatusBadge();
       showToast('✅ 设置已保存', 1500);
       settingsPanel.classList.remove('show');
     });
 
-    profileTag.addEventListener('click', () => settingsPanel.classList.toggle('show'));
-    settingsToggle.addEventListener('click', () => settingsPanel.classList.toggle('show'));
-
-    clearHistoryBtn.addEventListener('click', () => {
-      if (confirm('清除所有聊天记录？')) {
-        state.history = [];
-        state.pendingGuyReply = false;
-        renderHistory();
-        suggestionsArea.classList.remove('show');
-        localStorage.removeItem('chat_history');
-        showToast('🗑️ 已清除', 1000);
-      }
-    });
+    clearHistoryBtn.addEventListener('click', clearCurrentHistory);
 
     document.querySelectorAll('.chip-group').forEach(group => {
       group.addEventListener('click', function(e) {
@@ -479,7 +761,9 @@
         if (!chip) return;
         this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
-        if (state.history.length > 0) showToast('配置已切换，重新发送生效', 1200);
+        if (getCurrentObject() && getCurrentHistory().length > 0) {
+          showToast('配置已切换，重新发送生效', 1200);
+        }
       });
     });
 
@@ -488,8 +772,9 @@
       if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
     });
 
+    // ========== 启动 ==========
     loadFromStorage();
-    showToast('💡 已修复JSON解析，请重试', 2000);
+    showToast('💡 可添加多个聊天对象，数据自动保存', 2000);
   </script>
 </body>
 </html>
