@@ -100,10 +100,10 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 
   <div class="settings-panel" id="settingsPanel">
     <label>🔑 API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
+    <input type="password" id="apiKeyInput" placeholder="仅允许英文、数字、- _ .">
     <label>🌐 API 地址</label>
     <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
-    <div class="hint">兼容 OpenAI Chat Completion 格式</div>
+    <div class="hint">必须为纯英文网址</div>
     <label>🧠 模型名称</label>
     <input type="text" id="modelInput" placeholder="glm-4-flash / gpt-3.5-turbo">
     <div class="toggle-row">
@@ -195,25 +195,87 @@ function renderSuggestions(r){if(!r||!r.suggestions||r.suggestions.length===0){s
 function copyAndSelect(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t))}else{fallbackCopy(t)}pushHistory('guy',t);state.pendingGuyReply=!0;suggestionsArea.classList.remove('show');messageInput.focus();showToast('📨 已记录，等女生回复后继续',1500)}
 function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}document.body.removeChild(ta)}
 
-async function callAI(gm,h,c){const o=getCurrentObject();const pt=o?`她叫${o.name||'未命名'}，${o.age||'?'}岁，喜欢${o.hobby||'未知'}。${o.note||''}`:'';let si='';if(c.style==='幽默'){si='用轻松幽默的方式回应，可以调侃、自嘲，但不要过度玩梗。'}else if(c.style==='直球'){si='直接、自信、简洁，表达明确意图，带轻微强势感。'}else if(c.style==='话题延伸'){si='不要直接回答或评价，而是提出开放性问题、分享相关经历，自然地把话题引向更深更广的方向。每条建议都应是一个引导对方继续说话的问句或话题引子。'}else if(c.style==='开启话题'){si='生成一个与当前聊天内容无关、但有趣且自然的新话题开场白，用于打破沉默或开启全新对话。可以结合对象的年龄、爱好等信息，但不受当前消息内容限制。每条建议应是一个完整的开场语句，让对方容易接话。'}const sp=`你是一位资深情感沟通顾问。当前对象信息：${pt}\n根据用户选择的【场景(${c.scenario})】和【风格(${c.style})】生成回复建议。\n风格要求：${si}\n规则：\n1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。\n2. 每条建议 15~30 字，口语化。\n3. 务必结合对象的年龄、爱好等信息，让回复更有针对性。\n4. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;const uc=JSON.stringify({girl_message:gm,history:h.slice(-10),config:c});const payload={model:state.model||'glm-4-flash',messages:[{role:'system',content:sp},{role:'user',content:uc}],temperature:.9,max_tokens:800};const resp=await fetch(state.apiUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${state.apiKey}`},body:JSON.stringify(payload)});if(!resp.ok){const e=await resp.text();throw new Error(`API 请求失败 (${resp.status}): ${e}`)}const data=await resp.json();const content=data.choices[0].message.content;try{return JSON.parse(content)}catch(e1){const m=content.match(/```json\s*([\s\S]*?)\s*```/);if(m){try{return JSON.parse(m[1])}catch(e2){}}const b=content.match(/\{[\s\S]*\}/);if(b){try{return JSON.parse(b[0])}catch(e3){}}throw new Error('AI 返回内容无法解析为JSON')}}
+// ========== 强制 ASCII 过滤器 ==========
+function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
+
+async function callAI(gm,h,c){
+  // 强制清洗所有可能包含非ASCII的字段
+  const cleanKey=toAscii(state.apiKey).trim();
+  if(!cleanKey){throw new Error('API Key 无效，请重新输入纯英文的 Key。')}
+  const cleanUrl=toAscii(state.apiUrl).trim();
+  if(!cleanUrl||!cleanUrl.startsWith('http')){throw new Error('API 地址无效，请检查并重新输入。')}
+  const cleanModel=toAscii(state.model).trim()||'glm-4-flash';
+
+  const o=getCurrentObject();
+  const pt=o?`她叫${o.name||'未命名'}，${o.age||'?'}岁，喜欢${o.hobby||'未知'}。${o.note||''}`:'';
+  let si='';
+  if(c.style==='幽默'){si='用轻松幽默的方式回应，可以调侃、自嘲，但不要过度玩梗。'}
+  else if(c.style==='直球'){si='直接、自信、简洁，表达明确意图，带轻微强势感。'}
+  else if(c.style==='话题延伸'){si='不要直接回答或评价，而是提出开放性问题、分享相关经历，自然地把话题引向更深更广的方向。每条建议都应是一个引导对方继续说话的问句或话题引子。'}
+  else if(c.style==='开启话题'){si='生成一个与当前聊天内容无关、但有趣且自然的新话题开场白，用于打破沉默或开启全新对话。可以结合对象的年龄、爱好等信息，但不受当前消息内容限制。每条建议应是一个完整的开场语句，让对方容易接话。'}
+  const sp=`你是一位资深情感沟通顾问。当前对象信息：${pt}\n根据用户选择的【场景(${c.scenario})】和【风格(${c.style})】生成回复建议。\n风格要求：${si}\n规则：\n1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。\n2. 每条建议 15~30 字，口语化。\n3. 务必结合对象的年龄、爱好等信息，让回复更有针对性。\n4. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;
+  const uc=JSON.stringify({girl_message:gm,history:h.slice(-10),config:c});
+  const payload={model:cleanModel,messages:[{role:'system',content:sp},{role:'user',content:uc}],temperature:.9,max_tokens:800};
+  try{
+    const resp=await fetch(cleanUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${cleanKey}`},
+      body:JSON.stringify(payload)
+    });
+    if(!resp.ok){const e=await resp.text();throw new Error(`API 请求失败 (${resp.status}): ${e}`)}
+    const data=await resp.json();
+    const content=data.choices[0].message.content;
+    try{return JSON.parse(content)}
+    catch(e1){
+      const m=content.match(/```json\s*([\s\S]*?)\s*```/);
+      if(m){try{return JSON.parse(m[1])}catch(e2){}}
+      const b=content.match(/\{[\s\S]*\}/);
+      if(b){try{return JSON.parse(b[0])}catch(e3){}}
+      throw new Error('AI 返回内容无法解析为JSON');
+    }
+  }catch(err){
+    if(err.message.includes('Failed to fetch')||err.message.includes('String contains non ISO-8859-1')){throw new Error('检测到非法字符，请检查 API Key 和地址是否为纯英文。')}
+    throw err;
+  }
+}
 
 async function handleSend(){if(state.isLoading)return;if(!getCurrentObject()){showToast('请先添加一个对象',1500);return}const input=messageInput.value.trim();if(!input){showToast('请输入女生的话',1000);return}if(state.pendingGuyReply){pushHistory('girl',input);state.pendingGuyReply=!1}else{pushHistory('girl',input)}messageInput.value='';renderHistory();state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';suggestionsArea.classList.remove('show');const config=getConfig();try{if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){throw new Error('AI 未启用或未填写 API Key')}const h=getCurrentHistory();const r=await callAI(input,h,config);if(!r.analysis||!r.suggestions||r.suggestions.length<3){throw new Error('AI 返回结构不完整')}renderSuggestions(r);showToast('✅ AI 分析完成',1000);suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(err){showToast('❌ '+err.message,4000);const o=getCurrentObject();if(o&&o.history.length>0&&o.history[o.history.length-1].role==='girl'){o.history.pop();renderHistory();saveToStorage()}messageInput.value=input}finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}}
 
 function saveToStorage(){try{const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI};localStorage.setItem('chat_data',JSON.stringify(data))}catch(e){}}
 function loadFromStorage(){try{const raw=localStorage.getItem('chat_data');if(raw){const data=JSON.parse(raw);state.objects=data.objects||[];state.currentObjectId=data.currentObjectId||null;state.apiKey=data.apiKey||'';state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=data.model||'glm-4-flash';state.useAI=data.useAI!==undefined?data.useAI:!0;apiKeyInput.value=state.apiKey;apiUrlInput.value=state.apiUrl;modelInput.value=state.model;useAICheckbox.checked=state.useAI;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();return}}catch(e){console.warn('Load error',e)}state.objects=[];state.currentObjectId=null;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();saveToStorage()}
 
+// ========== 事件绑定 ==========
 settingsToggle.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
 profileTag.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
 addObjectBtn.addEventListener('click',()=>{addObject(newObjectName.value.trim());newObjectName.value=''});
 newObjectName.addEventListener('keydown',e=>{if(e.key==='Enter'){addObject(newObjectName.value.trim());newObjectName.value=''}});
 saveObjectBtn.addEventListener('click',saveObjectDetails);
-saveSettingsBtn.addEventListener('click',()=>{state.apiKey=apiKeyInput.value.trim();state.apiUrl=apiUrlInput.value.trim()||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=modelInput.value.trim()||'glm-4-flash';state.useAI=useAICheckbox.checked;saveToStorage();updateStatusBadge();showToast('✅ 所有设置已保存',1500);settingsPanel.classList.remove('show')});
+
+saveSettingsBtn.addEventListener('click',()=>{
+  // 清洗所有输入
+  const key=toAscii(apiKeyInput.value.trim());
+  const url=toAscii(apiUrlInput.value.trim());
+  const model=toAscii(modelInput.value.trim());
+  state.apiKey=key;
+  state.apiUrl=url||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+  state.model=model||'glm-4-flash';
+  state.useAI=useAICheckbox.checked;
+  // 回填清洗后的值，以便用户看到
+  apiKeyInput.value=key;
+  apiUrlInput.value=state.apiUrl;
+  modelInput.value=state.model;
+  saveToStorage();
+  updateStatusBadge();
+  showToast('✅ 设置已保存（已自动过滤非法字符）',2000);
+  settingsPanel.classList.remove('show');
+});
+
 clearHistoryBtn.addEventListener('click',clearCurrentHistory);
 document.querySelectorAll('.chip-group').forEach(group=>{group.addEventListener('click',function(e){const chip=e.target.closest('.chip');if(!chip)return;this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');if(getCurrentObject()&&getCurrentHistory().length>0){showToast('配置已切换，重新发送生效',1200)}})});
 sendBtn.addEventListener('click',handleSend);
 messageInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleSend()}});
 loadFromStorage();
-showToast('💡 新增「开启话题」风格',2000);
+showToast('💡 已强制过滤API设置中的非英文字符',2000);
 </script>
 </body>
 </html>
