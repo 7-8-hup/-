@@ -52,14 +52,13 @@ body{background:linear-gradient(145deg,#f7f0fc,#e9def0);min-height:100vh;display
 .chip{font-size:11px;padding:4px 12px;border-radius:30px;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer;font-weight:500}
 .chip.active{background:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,0.25)}
 .chip:active{transform:scale(.92)}
-/* ===== 修复滚动：history-area 可收缩并滚动 ===== */
+/* ===== 滚动修复 ===== */
 .history-area{flex:1;min-height:0;overflow-y:auto;background:rgba(255,255,255,0.5);border-radius:24px;margin:14px 0 12px;padding:12px 10px;border:1px solid rgba(255,255,255,0.6)}
 .history-empty{color:#b0b0b0;font-size:14px;text-align:center;margin:auto}
 .msg-bubble{max-width:85%;padding:10px 16px;border-radius:20px;font-size:14px;line-height:1.5;word-break:break-word;box-shadow:0 2px 6px rgba(0,0,0,0.02)}
 .msg-girl{align-self:flex-start;background:#ede9fe;color:#2e1065;border-bottom-left-radius:6px}
 .msg-guy{align-self:flex-end;background:#d1fae5;color:#064e3b;border-bottom-right-radius:6px}
 .msg-label{font-size:10px;opacity:.5;margin-bottom:2px;font-weight:600}
-/* ===== 修复滚动：suggestions-area 固定最大高度 ===== */
 .suggestions-area{flex-shrink:0;max-height:50vh;overflow-y:auto;background:rgba(255,247,235,0.8);border-radius:24px;padding:16px 14px;margin:6px 0 10px;border-left:5px solid #f59e0b;display:none}
 .suggestions-area.show{display:block}
 .analysis-text{font-size:13px;font-weight:500;color:#78350f;background:rgba(245,158,11,0.12);padding:6px 16px;border-radius:30px;display:inline-block;margin-bottom:12px}
@@ -341,28 +340,33 @@ function renderHistory(){
 }
 function clearCurrentHistory(){if(!getCurrentObject()){showToast('请先选择对象',1000);return}if(confirm('清除聊天记录？')){const o=getCurrentObject();o.history=[];state.pendingGuyReply=!1;renderHistory();suggestionsArea.classList.remove('show');saveToStorage();showToast('已清除',1000)}}
 
-// ---------- 渲染建议（内联onclick，无报错） ----------
+// ========== 渲染建议（稳定版） ==========
 function renderSuggestions(r){
-  if(!r||!r.suggestions||r.suggestions.length===0){suggestionsArea.classList.remove('show');return}
+  if(!r||!r.suggestions||r.suggestions.length===0){
+    suggestionsArea.classList.remove('show');
+    return;
+  }
   suggestionsArea.classList.add('show');
-  analysisText.textContent='🔍 '+r.analysis;
+  analysisText.textContent='🔍 '+(r.analysis||'分析结果');
   let html='';
   r.suggestions.forEach((s,idx)=>{
-    const textEncoded=encodeURIComponent(s.text);
+    const textEncoded=encodeURIComponent(s.text||'');
     html+=`
       <div class="suggestion-card">
         <button class="del-suggestion" onclick="this.parentElement.remove();if(document.querySelectorAll('.suggestion-card').length===0)document.getElementById('suggestionsArea').classList.remove('show');">✕</button>
-        <div class="suggestion-text" onclick="copyAndSelect(decodeURIComponent('${textEncoded}'))">${s.id||'💡'}. ${s.text}</div>
+        <div class="suggestion-text" onclick="copyAndSelect(decodeURIComponent('${textEncoded}'))">${s.id||'💡'}. ${s.text||'（空）'}</div>
         <div class="suggestion-meta"><span>💡 ${s.reason||'推荐'}</span><span>📈 ${s.expectedEffect||'预期'}</span></div>
         <div class="badge-copy">👆 点击复制</div>
       </div>
     `;
   });
   suggestionList.innerHTML=html;
+  suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 // 复制函数（全局暴露给内联onclick）
 function copyAndSelect(t){
+  if(!t){showToast('⚠️ 内容为空',1000);return}
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t));
   }else{fallbackCopy(t);}
@@ -594,7 +598,7 @@ document.querySelectorAll('.chip-group').forEach(group=>{
 });
 
 loadFromStorage();
-showToast('💡 完整修复版',2000);
+showToast('💡 完整稳定版',2000);
 </script>
 </body>
 </html>
