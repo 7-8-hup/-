@@ -77,6 +77,11 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 .btn-primary:disabled{opacity:.5;box-shadow:none}
 .btn-outline{background:transparent;color:#6b7280;border:1.5px solid #e5e7eb}
 .btn-outline:hover{background:#f9fafb}
+.btn-image{background:transparent;color:#7c3aed;border:1.5px solid #7c3aed;padding:10px 14px;font-size:20px;line-height:1}
+.btn-image:hover{background:rgba(124,58,237,0.1)}
+.image-preview{display:flex;align-items:center;gap:8px;margin-top:6px;flex-shrink:0}
+.image-preview img{max-width:60px;max-height:60px;border-radius:12px;border:1px solid #e5e7eb}
+.image-preview .remove-img{background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer;padding:0 4px}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) scale(.9);background:#1f2937;color:#fff;padding:10px 24px;border-radius:40px;font-size:14px;opacity:0;transition:all .25s ease;pointer-events:none;max-width:90%;text-align:center;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
 .toast.show{opacity:1;transform:translateX(-50%) scale(1)}
 .loader{display:inline-block;width:18px;height:18px;border:3px solid #e5e7eb;border-top-color:#7c3aed;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
@@ -105,7 +110,8 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
     <div class="hint">必须为纯英文网址</div>
     <label>🧠 模型名称</label>
-    <input type="text" id="modelInput" placeholder="glm-4-flash / gpt-3.5-turbo">
+    <input type="text" id="modelInput" placeholder="glm-4v-plus / gpt-4o">
+    <div class="hint">如需识图，请使用支持视觉的模型</div>
     <div class="toggle-row">
       <input type="checkbox" id="useAI" checked>
       <label for="useAI">启用 AI</label>
@@ -157,21 +163,32 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
     <div id="suggestionList"></div>
   </div>
 
+  <!-- 图片预览 -->
+  <div class="image-preview" id="imagePreview" style="display:none;">
+    <img id="previewImg" alt="图片预览">
+    <button class="remove-img" id="removeImgBtn">✕</button>
+  </div>
+
   <div class="input-area">
     <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
     <div class="btn-group">
+      <button class="btn btn-image" id="imageBtn" title="上传图片">📷</button>
       <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
       <button class="btn btn-outline" id="clearHistoryBtn" title="清除当前对象聊天记录">🗑️</button>
     </div>
   </div>
+
+  <!-- 隐藏的 file input -->
+  <input type="file" id="fileInput" accept="image/*" style="display:none;">
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ========== 核心状态 ==========
-const state={objects:[],currentObjectId:null,config:{scenario:'暧昧',style:'话题延伸'},isLoading:!1,pendingGuyReply:!1,apiKey:'',apiUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',model:'glm-4-flash',useAI:!0};
+const state={objects:[],currentObjectId:null,config:{scenario:'暧昧',style:'话题延伸'},isLoading:!1,pendingGuyReply:!1,apiKey:'',apiUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',model:'glm-4v-plus',useAI:!0,imageBase64:null};
+
 const $=id=>document.getElementById(id);
-const historyArea=$('historyArea'),suggestionsArea=$('suggestionsArea'),analysisText=$('analysisText'),suggestionList=$('suggestionList'),messageInput=$('messageInput'),sendBtn=$('sendBtn'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag'),settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI'),profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn');
+const historyArea=$('historyArea'),suggestionsArea=$('suggestionsArea'),analysisText=$('analysisText'),suggestionList=$('suggestionList'),messageInput=$('messageInput'),sendBtn=$('sendBtn'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag'),settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI'),profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn'),imageBtn=$('imageBtn'),fileInput=$('fileInput'),imagePreview=$('imagePreview'),previewImg=$('previewImg'),removeImgBtn=$('removeImgBtn');
 
 function getConfig(){const s=document.querySelector('#scenarioGroup .chip.active')?.dataset.value||'暧昧';const t=document.querySelector('#styleGroup .chip.active')?.dataset.value||'话题延伸';return{scenario:s,style:t}}
 function showToast(m,d=2000){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._timer);toastEl._timer=setTimeout(()=>toastEl.classList.remove('show'),d)}
@@ -195,27 +212,83 @@ function renderSuggestions(r){if(!r||!r.suggestions||r.suggestions.length===0){s
 function copyAndSelect(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t))}else{fallbackCopy(t)}pushHistory('guy',t);state.pendingGuyReply=!0;suggestionsArea.classList.remove('show');messageInput.focus();showToast('📨 已记录，等女生回复后继续',1500)}
 function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}document.body.removeChild(ta)}
 
-// ========== 强制 ASCII 过滤器 ==========
+// ========== 图片处理 ==========
+function compressImage(dataUrl, maxSize=1024*1024){
+  return new Promise((resolve)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      const canvas=document.createElement('canvas');
+      let quality=0.9;
+      let compressed=dataUrl;
+      const tryCompress=(q)=>{
+        canvas.width=w;canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        const newData=canvas.toDataURL('image/jpeg',q);
+        if(newData.length<maxSize || q<0.2){
+          resolve(newData);
+        }else{
+          tryCompress(q-0.1);
+        }
+      };
+      tryCompress(0.9);
+    };
+    img.src=dataUrl;
+  });
+}
+
+function handleImageSelect(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    try{
+      const compressed=await compressImage(e.target.result);
+      state.imageBase64=compressed;
+      previewImg.src=compressed;
+      imagePreview.style.display='flex';
+      showToast('✅ 图片已加载',1000);
+    }catch(err){showToast('❌ 图片处理失败',2000)}
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(){
+  state.imageBase64=null;
+  imagePreview.style.display='none';
+  previewImg.src='';
+  fileInput.value='';
+}
+
+// ========== 强制 ASCII ==========
 function toAscii(str){return str.replace(/[^\x00-\x7F]/g,'')}
 
-async function callAI(gm,h,c){
-  // 强制清洗所有可能包含非ASCII的字段
+async function callAI(gm,h,c,image){
   const cleanKey=toAscii(state.apiKey).trim();
-  if(!cleanKey){throw new Error('API Key 无效，请重新输入纯英文的 Key。')}
+  if(!cleanKey)throw new Error('API Key 无效');
   const cleanUrl=toAscii(state.apiUrl).trim();
-  if(!cleanUrl||!cleanUrl.startsWith('http')){throw new Error('API 地址无效，请检查并重新输入。')}
-  const cleanModel=toAscii(state.model).trim()||'glm-4-flash';
+  if(!cleanUrl||!cleanUrl.startsWith('http'))throw new Error('API 地址无效');
+  const cleanModel=toAscii(state.model).trim()||'glm-4v-plus';
 
   const o=getCurrentObject();
   const pt=o?`她叫${o.name||'未命名'}，${o.age||'?'}岁，喜欢${o.hobby||'未知'}。${o.note||''}`:'';
   let si='';
-  if(c.style==='幽默'){si='用轻松幽默的方式回应，可以调侃、自嘲，但不要过度玩梗。'}
-  else if(c.style==='直球'){si='直接、自信、简洁，表达明确意图，带轻微强势感。'}
-  else if(c.style==='话题延伸'){si='不要直接回答或评价，而是提出开放性问题、分享相关经历，自然地把话题引向更深更广的方向。每条建议都应是一个引导对方继续说话的问句或话题引子。'}
-  else if(c.style==='开启话题'){si='生成一个与当前聊天内容无关、但有趣且自然的新话题开场白，用于打破沉默或开启全新对话。可以结合对象的年龄、爱好等信息，但不受当前消息内容限制。每条建议应是一个完整的开场语句，让对方容易接话。'}
-  const sp=`你是一位资深情感沟通顾问。当前对象信息：${pt}\n根据用户选择的【场景(${c.scenario})】和【风格(${c.style})】生成回复建议。\n风格要求：${si}\n规则：\n1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。\n2. 每条建议 15~30 字，口语化。\n3. 务必结合对象的年龄、爱好等信息，让回复更有针对性。\n4. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;
-  const uc=JSON.stringify({girl_message:gm,history:h.slice(-10),config:c});
-  const payload={model:cleanModel,messages:[{role:'system',content:sp},{role:'user',content:uc}],temperature:.9,max_tokens:800};
+  if(c.style==='幽默'){si='用轻松幽默的口语回应，像朋友聊天。'}
+  else if(c.style==='直球'){si='直接、自信，简洁，像真人对话。'}
+  else if(c.style==='话题延伸'){si='提出开放性问题或分享经历，引导继续聊。'}
+  else if(c.style==='开启话题'){si='生成一个全新话题开场白，自然有趣。'}
+  const sp=`你是一位情感沟通顾问。当前对象：${pt}\n场景：${c.scenario}，风格：${c.style}。\n要求：输出纯JSON，包含"analysis"(简短潜台词)和"suggestions"(3条建议，每条有text, reason, expectedEffect)。每条15~30字，绝对口语化，像真人聊天，不要书面语，不要"首先/其次/综上所述"。${image?'附有图片，结合图片内容给出回复建议。':''}`;
+  const uc=JSON.stringify({girl_message:gm,history:h.slice(-10),config:c,has_image:!!image});
+
+  let messages=[{role:'system',content:sp}];
+  // 用户消息
+  let userContent=[{type:'text',text:gm}];
+  if(image){
+    userContent.push({type:'image_url',image_url:{url:image}});
+  }
+  messages.push({role:'user',content:userContent});
+
+  const payload={model:cleanModel,messages:messages,temperature:1.0,max_tokens:500};
   try{
     const resp=await fetch(cleanUrl,{
       method:'POST',
@@ -231,18 +304,45 @@ async function callAI(gm,h,c){
       if(m){try{return JSON.parse(m[1])}catch(e2){}}
       const b=content.match(/\{[\s\S]*\}/);
       if(b){try{return JSON.parse(b[0])}catch(e3){}}
-      throw new Error('AI 返回内容无法解析为JSON');
+      throw new Error('AI 返回格式错误');
     }
   }catch(err){
-    if(err.message.includes('Failed to fetch')||err.message.includes('String contains non ISO-8859-1')){throw new Error('检测到非法字符，请检查 API Key 和地址是否为纯英文。')}
+    if(err.message.includes('Failed to fetch')||err.message.includes('non ISO-8859-1')){throw new Error('检测到非法字符或网络错误，请检查设置。')}
     throw err;
   }
 }
 
-async function handleSend(){if(state.isLoading)return;if(!getCurrentObject()){showToast('请先添加一个对象',1500);return}const input=messageInput.value.trim();if(!input){showToast('请输入女生的话',1000);return}if(state.pendingGuyReply){pushHistory('girl',input);state.pendingGuyReply=!1}else{pushHistory('girl',input)}messageInput.value='';renderHistory();state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';suggestionsArea.classList.remove('show');const config=getConfig();try{if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){throw new Error('AI 未启用或未填写 API Key')}const h=getCurrentHistory();const r=await callAI(input,h,config);if(!r.analysis||!r.suggestions||r.suggestions.length<3){throw new Error('AI 返回结构不完整')}renderSuggestions(r);showToast('✅ AI 分析完成',1000);suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(err){showToast('❌ '+err.message,4000);const o=getCurrentObject();if(o&&o.history.length>0&&o.history[o.history.length-1].role==='girl'){o.history.pop();renderHistory();saveToStorage()}messageInput.value=input}finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}}
+async function handleSend(){
+  if(state.isLoading)return;
+  if(!getCurrentObject()){showToast('请先添加对象',1500);return}
+  const input=messageInput.value.trim();
+  if(!input && !state.imageBase64){showToast('请输入文字或上传图片',1000);return}
+  if(!input && state.imageBase64){messageInput.value='[图片]';}
+  const finalText=input||'描述一下这张图片';
+  if(state.pendingGuyReply){pushHistory('girl',finalText);state.pendingGuyReply=!1}else{pushHistory('girl',finalText)}
+  messageInput.value='';
+  renderHistory();
+
+  state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';
+  suggestionsArea.classList.remove('show');
+  const config=getConfig();
+  try{
+    if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0)throw new Error('AI未启用或无Key');
+    const h=getCurrentHistory();
+    const image=state.imageBase64;
+    const r=await callAI(finalText,h,config,image);
+    if(!r.analysis||!r.suggestions||r.suggestions.length<3)throw new Error('AI返回结构不完整');
+    renderSuggestions(r);
+    showToast('✅ 分析完成',1000);
+    suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'});
+    // 清除图片（可选）
+    // clearImage();
+  }catch(err){showToast('❌ '+err.message,4000);const o=getCurrentObject();if(o&&o.history.length>0&&o.history[o.history.length-1].role==='girl'){o.history.pop();renderHistory();saveToStorage()}messageInput.value=input||''}
+  finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}
+}
 
 function saveToStorage(){try{const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI};localStorage.setItem('chat_data',JSON.stringify(data))}catch(e){}}
-function loadFromStorage(){try{const raw=localStorage.getItem('chat_data');if(raw){const data=JSON.parse(raw);state.objects=data.objects||[];state.currentObjectId=data.currentObjectId||null;state.apiKey=data.apiKey||'';state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=data.model||'glm-4-flash';state.useAI=data.useAI!==undefined?data.useAI:!0;apiKeyInput.value=state.apiKey;apiUrlInput.value=state.apiUrl;modelInput.value=state.model;useAICheckbox.checked=state.useAI;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();return}}catch(e){console.warn('Load error',e)}state.objects=[];state.currentObjectId=null;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();saveToStorage()}
+function loadFromStorage(){try{const raw=localStorage.getItem('chat_data');if(raw){const data=JSON.parse(raw);state.objects=data.objects||[];state.currentObjectId=data.currentObjectId||null;state.apiKey=data.apiKey||'';state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=data.model||'glm-4v-plus';state.useAI=data.useAI!==undefined?data.useAI:!0;apiKeyInput.value=state.apiKey;apiUrlInput.value=state.apiUrl;modelInput.value=state.model;useAICheckbox.checked=state.useAI;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();return}}catch(e){console.warn('Load error',e)}state.objects=[];state.currentObjectId=null;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();saveToStorage()}
 
 // ========== 事件绑定 ==========
 settingsToggle.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
@@ -252,30 +352,29 @@ newObjectName.addEventListener('keydown',e=>{if(e.key==='Enter'){addObject(newOb
 saveObjectBtn.addEventListener('click',saveObjectDetails);
 
 saveSettingsBtn.addEventListener('click',()=>{
-  // 清洗所有输入
   const key=toAscii(apiKeyInput.value.trim());
   const url=toAscii(apiUrlInput.value.trim());
   const model=toAscii(modelInput.value.trim());
-  state.apiKey=key;
-  state.apiUrl=url||'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-  state.model=model||'glm-4-flash';
+  state.apiKey=key;state.apiUrl=url||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=model||'glm-4v-plus';
+  apiKeyInput.value=key;apiUrlInput.value=state.apiUrl;modelInput.value=state.model;
   state.useAI=useAICheckbox.checked;
-  // 回填清洗后的值，以便用户看到
-  apiKeyInput.value=key;
-  apiUrlInput.value=state.apiUrl;
-  modelInput.value=state.model;
-  saveToStorage();
-  updateStatusBadge();
-  showToast('✅ 设置已保存（已自动过滤非法字符）',2000);
-  settingsPanel.classList.remove('show');
+  saveToStorage();updateStatusBadge();showToast('✅ 设置已保存',1500);settingsPanel.classList.remove('show');
 });
 
 clearHistoryBtn.addEventListener('click',clearCurrentHistory);
 document.querySelectorAll('.chip-group').forEach(group=>{group.addEventListener('click',function(e){const chip=e.target.closest('.chip');if(!chip)return;this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');if(getCurrentObject()&&getCurrentHistory().length>0){showToast('配置已切换，重新发送生效',1200)}})});
 sendBtn.addEventListener('click',handleSend);
 messageInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleSend()}});
+
+// 图片按钮
+imageBtn.addEventListener('click',()=>fileInput.click());
+fileInput.addEventListener('change',(e)=>{
+  if(e.target.files.length>0)handleImageSelect(e.target.files[0]);
+});
+removeImgBtn.addEventListener('click',clearImage);
+
 loadFromStorage();
-showToast('💡 已强制过滤API设置中的非英文字符',2000);
+showToast('💡 新增识图功能，可上传图片让AI分析',2000);
 </script>
 </body>
 </html>
