@@ -67,7 +67,7 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 .suggestion-meta{font-size:12px;color:#8b8b8b;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
 .suggestion-meta span{background:#f5f3f0;padding:2px 12px;border-radius:20px}
 .badge-copy{font-size:11px;color:#7c3aed;font-weight:600;float:right}
-.suggestion-card .del-suggestion{position:absolute;top:8px;right:10px;background:none;border:none;color:#b0b0b0;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s}
+.suggestion-card .del-suggestion{position:absolute;top:8px;right:10px;background:none;border:none;color:#b0b0b0;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s;z-index:5}
 .suggestion-card .del-suggestion:hover{color:#ef4444}
 .quick-bar{display:flex;gap:12px;margin:4px 0 8px;flex-shrink:0;flex-wrap:wrap;padding:6px 12px;background:rgba(255,255,255,0.4);border-radius:20px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.5)}
 .quick-item{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px}
@@ -412,7 +412,7 @@ function pushHistory(r,c){const o=getCurrentObject();if(o){o.history.push({role:
 function renderHistory(){const h=getCurrentHistory();if(h.length===0){const o=getCurrentObject();historyArea.innerHTML=`<div class="history-empty">👋 ${o?'开始与 '+o.name+' 的对话':'添加一个对象开始聊天'}</div>`;return}let html='';h.forEach(msg=>{const cls=msg.role==='girl'?'msg-girl':'msg-guy';const label=msg.role==='girl'?'🗣️ 对方':'🧑 我';html+=`<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`});historyArea.innerHTML=html;historyArea.scrollTop=historyArea.scrollHeight}
 function clearCurrentHistory(){if(!getCurrentObject()){showToast('请先选择对象',1000);return}if(confirm('确定清除当前对象的聊天记录吗？')){const o=getCurrentObject();o.history=[];state.pendingGuyReply=!1;renderHistory();suggestionsArea.classList.remove('show');saveToStorage();showToast('🗑️ 已清除',1000)}}
 
-// ========== 修改：建议卡片增加删除按钮 ==========
+// ========== 修复后的 renderSuggestions（包含 data-text） ==========
 function renderSuggestions(r){
   if(!r||!r.suggestions||r.suggestions.length===0){
     suggestionsArea.classList.remove('show');
@@ -422,8 +422,9 @@ function renderSuggestions(r){
   analysisText.textContent='🔍 '+r.analysis;
   let html='';
   r.suggestions.forEach((s,index)=>{
+    const encodedText = encodeURIComponent(s.text);
     html+=`
-      <div class="suggestion-card" data-index="${index}">
+      <div class="suggestion-card" data-index="${index}" data-text="${encodedText}">
         <button class="del-suggestion" data-index="${index}" title="删除此建议">✕</button>
         <div class="suggestion-text">${s.id||'💡'}. ${s.text}</div>
         <div class="suggestion-meta">
@@ -436,31 +437,32 @@ function renderSuggestions(r){
   });
   suggestionList.innerHTML=html;
 
-  // 绑定复制事件（点击卡片主体复制）
-  document.querySelectorAll('.suggestion-card').forEach(card=>{
-    card.addEventListener('click',function(e){
-      if(e.target.closest('.del-suggestion')) return;
-      const text=decodeURIComponent(this.dataset.text);
-      copyAndSelect(text);
-    });
-    // 存储文本到 dataset
-    const text=r.suggestions[parseInt(this.dataset.index)].text;
-    this.dataset.text=encodeURIComponent(text);
-  });
-
-  // 绑定删除事件
-  document.querySelectorAll('.del-suggestion').forEach(btn=>{
-    btn.addEventListener('click',function(e){
+  // 使用事件委托处理点击（删除/复制）
+  // 先移除旧监听避免重复绑定
+  suggestionList.removeEventListener('click', suggestionList._clickHandler);
+  const clickHandler = function(e) {
+    const delBtn = e.target.closest('.del-suggestion');
+    if (delBtn) {
       e.stopPropagation();
-      const card=this.closest('.suggestion-card');
-      if(card){
+      const card = delBtn.closest('.suggestion-card');
+      if (card) {
         card.remove();
-        if(document.querySelectorAll('.suggestion-card').length===0){
+        if (document.querySelectorAll('.suggestion-card').length === 0) {
           suggestionsArea.classList.remove('show');
         }
       }
-    });
-  });
+      return;
+    }
+    const card = e.target.closest('.suggestion-card');
+    if (card) {
+      const text = decodeURIComponent(card.dataset.text);
+      if (text) {
+        copyAndSelect(text);
+      }
+    }
+  };
+  suggestionList._clickHandler = clickHandler;
+  suggestionList.addEventListener('click', clickHandler);
 }
 
 function copyAndSelect(t){
@@ -804,7 +806,7 @@ document.querySelectorAll('.chip-group').forEach(group=>{
 });
 
 loadFromStorage();
-showToast('💡 新增「高情商回复」风格',2000);
+showToast('💡 修复删除按钮错误',2000);
 </script>
 </body>
 </html>
