@@ -1,780 +1,219 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>💬 聊天军师</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
-    body { background: linear-gradient(145deg, #f7f0fc 0%, #e9def0 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 16px; }
-    #app { max-width: 480px; width: 100%; background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 40px; box-shadow: 0 20px 60px rgba(100,70,120,0.2), 0 0 0 1px rgba(255,255,255,0.5); padding: 20px 16px 24px; height: 95vh; display: flex; flex-direction: column; overflow: hidden; }
-    .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
-    .header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .badge { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 30px; background: #e0e7ff; color: #4338ca; }
-    .badge.online { background: #dcfce7; color: #166534; }
-    .badge.offline { background: #fee2e2; color: #991b1b; }
-    .settings-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 6px 8px; border-radius: 30px; transition: background 0.15s; }
-    .settings-btn:hover { background: rgba(0,0,0,0.05); }
-    .profile-tag { font-size: 12px; color: #6b7280; background: rgba(124,58,237,0.08); padding: 2px 12px; border-radius: 30px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.15s; max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .profile-tag:hover { background: rgba(124,58,237,0.16); }
-    .settings-panel { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius: 24px; padding: 16px 18px; margin: 12px 0; display: none; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 8px 20px rgba(0,0,0,0.04); max-height: 60vh; overflow-y: auto; }
-    .settings-panel.show { display: block; }
-    .settings-panel label { font-size: 12px; font-weight: 600; color: #4b5563; display: block; margin: 10px 0 4px; }
-    .settings-panel label:first-of-type { margin-top: 0; }
-    .settings-panel input, .settings-panel select { width: 100%; padding: 10px 14px; border-radius: 16px; border: 1px solid #e5e7eb; font-size: 14px; outline: none; background: white; transition: border 0.15s; }
-    .settings-panel input:focus, .settings-panel select:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
-    .settings-panel .hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
-    .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-    .toggle-row label { margin: 0; cursor: pointer; font-weight: 400; }
-    .toggle-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #7c3aed; }
-    .btn-save { margin-top: 14px; width: 100%; padding: 12px; border: none; border-radius: 30px; background: #7c3aed; color: white; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
-    .btn-save:hover { background: #6d28d9; transform: scale(1.01); }
-    .btn-save:active { transform: scale(0.97); }
-    .btn-secondary { background: #e5e7eb; color: #1f2937; box-shadow: none; }
-    .btn-secondary:hover { background: #d1d5db; transform: none; }
-    .btn-danger { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
-    .btn-danger:hover { background: #dc2626; }
-
-    /* 对象管理 */
-    .object-list { margin-top: 8px; }
-    .object-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: white; border-radius: 16px; margin-bottom: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.15s; }
-    .object-item:hover { background: #f9fafb; }
-    .object-item.active { border-color: #7c3aed; background: #ede9fe; }
-    .object-item .name { font-weight: 500; font-size: 14px; }
-    .object-item .info { font-size: 11px; color: #6b7280; }
-    .object-item .del-btn { background: none; border: none; color: #9ca3af; font-size: 16px; cursor: pointer; padding: 0 4px; }
-    .object-item .del-btn:hover { color: #ef4444; }
-    .add-object-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .add-object-row input { flex: 1; min-width: 80px; padding: 8px 12px; border-radius: 20px; border: 1px solid #e5e7eb; font-size: 13px; outline: none; }
-    .add-object-row input:focus { border-color: #7c3aed; }
-    .add-object-row .btn { padding: 8px 16px; border-radius: 30px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; background: #7c3aed; color: white; }
-
-    .config-row { display: flex; justify-content: space-between; gap: 6px; margin-top: 14px; flex-shrink: 0; flex-wrap: wrap; }
-    .config-group { flex: 1; min-width: 70px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .config-group label { font-size: 10px; font-weight: 600; color: #9ca3af; letter-spacing: 0.3px; text-transform: uppercase; }
-    .chip-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-    .chip { font-size: 11px; padding: 4px 12px; border-radius: 30px; background: #f3f4f6; color: #6b7280; border: none; cursor: pointer; transition: all 0.15s; font-weight: 500; }
-    .chip.active { background: #7c3aed; color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,0.25); }
-    .chip:active { transform: scale(0.92); }
-
-    .history-area { flex: 1; background: rgba(255,255,255,0.5); backdrop-filter: blur(4px); border-radius: 24px; margin: 14px 0 12px; padding: 12px 10px; overflow-y: auto; min-height: 100px; max-height: 45vh; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.6); }
-    .history-empty { color: #b0b0b0; font-size: 14px; text-align: center; margin: auto; }
-    .msg-bubble { max-width: 85%; padding: 10px 16px; border-radius: 20px; font-size: 14px; line-height: 1.5; word-break: break-word; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-    .msg-girl { align-self: flex-start; background: #ede9fe; color: #2e1065; border-bottom-left-radius: 6px; }
-    .msg-guy { align-self: flex-end; background: #d1fae5; color: #064e3b; border-bottom-right-radius: 6px; }
-    .msg-label { font-size: 10px; opacity: 0.5; margin-bottom: 2px; font-weight: 600; }
-
-    .suggestions-area { flex-shrink: 0; background: rgba(255,247,235,0.8); backdrop-filter: blur(8px); border-radius: 24px; padding: 16px 14px; margin: 6px 0 10px; border-left: 5px solid #f59e0b; max-height: 50vh; overflow-y: auto; display: none; }
-    .suggestions-area.show { display: block; }
-    .analysis-text { font-size: 13px; font-weight: 500; color: #78350f; background: rgba(245,158,11,0.12); padding: 6px 16px; border-radius: 30px; display: inline-block; margin-bottom: 12px; }
-    .suggestion-card { background: white; border-radius: 18px; padding: 12px 16px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f3e8d0; cursor: pointer; transition: all 0.15s; }
-    .suggestion-card:active { transform: scale(0.97); background: #fcf9f2; }
-    .suggestion-text { font-size: 15px; font-weight: 600; color: #1e1b4b; }
-    .suggestion-meta { font-size: 12px; color: #8b8b8b; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .suggestion-meta span { background: #f5f3f0; padding: 2px 12px; border-radius: 20px; }
-    .badge-copy { font-size: 11px; color: #7c3aed; font-weight: 600; float: right; }
-
-    .input-area { display: flex; gap: 10px; margin-top: 8px; flex-shrink: 0; align-items: center; flex-wrap: wrap; }
-    .input-area input { flex: 1; min-width: 120px; padding: 14px 20px; border-radius: 40px; border: 1.5px solid #e5e7eb; font-size: 15px; outline: none; background: white; transition: all 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    .input-area input:focus { border-color: #7c3aed; box-shadow: 0 0 0 4px rgba(124,58,237,0.08); }
-    .input-area .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn { padding: 12px 20px; border-radius: 40px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-    .btn:active { transform: scale(0.95); }
-    .btn-primary { background: #7c3aed; color: white; box-shadow: 0 4px 14px rgba(124,58,237,0.25); }
-    .btn-primary:disabled { opacity: 0.5; box-shadow: none; }
-    .btn-outline { background: transparent; color: #6b7280; border: 1.5px solid #e5e7eb; }
-    .btn-outline:hover { background: #f9fafb; }
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) scale(0.9); background: #1f2937; color: #fff; padding: 10px 24px; border-radius: 40px; font-size: 14px; opacity: 0; transition: all 0.25s ease; pointer-events: none; max-width: 90%; text-align: center; z-index: 999; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
-    .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-    .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid #e5e7eb; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-    .small-btn { padding: 4px 10px; font-size: 12px; border-radius: 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💬 聊天军师</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif}
+body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+#app{max-width:480px;width:100%;background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:40px;box-shadow:0 20px 60px rgba(100,70,120,0.2),0 0 0 1px rgba(255,255,255,0.5);padding:20px 16px 24px;height:95vh;display:flex;flex-direction:column;overflow:hidden}
+.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid rgba(0,0,0,0.05);flex-shrink:0}
+.header h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:30px;background:#e0e7ff;color:#4338ca}
+.badge.online{background:#dcfce7;color:#166534}
+.badge.offline{background:#fee2e2;color:#991b1b}
+.settings-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:6px 8px;border-radius:30px;transition:background .15s}
+.settings-btn:hover{background:rgba(0,0,0,0.05)}
+.profile-tag{font-size:12px;color:#6b7280;background:rgba(124,58,237,0.08);padding:2px 12px;border-radius:30px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;transition:.15s;max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.profile-tag:hover{background:rgba(124,58,237,0.16)}
+.settings-panel{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:24px;padding:16px 18px;margin:12px 0;display:none;flex-shrink:0;border:1px solid rgba(255,255,255,0.8);box-shadow:0 8px 20px rgba(0,0,0,0.04);max-height:60vh;overflow-y:auto}
+.settings-panel.show{display:block}
+.settings-panel label{font-size:12px;font-weight:600;color:#4b5563;display:block;margin:10px 0 4px}
+.settings-panel label:first-of-type{margin-top:0}
+.settings-panel input,.settings-panel select{width:100%;padding:10px 14px;border-radius:16px;border:1px solid #e5e7eb;font-size:14px;outline:none;background:#fff;transition:border .15s}
+.settings-panel input:focus,.settings-panel select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.1)}
+.settings-panel .hint{font-size:11px;color:#9ca3af;margin-top:4px}
+.toggle-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.toggle-row label{margin:0;cursor:pointer;font-weight:400}
+.toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#7c3aed}
+.btn-save{margin-top:14px;width:100%;padding:12px;border:none;border-radius:30px;background:#7c3aed;color:#fff;font-weight:600;font-size:15px;cursor:pointer;transition:all .15s;box-shadow:0 4px 12px rgba(124,58,237,0.3)}
+.btn-save:hover{background:#6d28d9;transform:scale(1.01)}
+.btn-save:active{transform:scale(.97)}
+.btn-secondary{background:#e5e7eb;color:#1f2937;box-shadow:none}
+.btn-secondary:hover{background:#d1d5db;transform:none}
+.object-list{margin-top:8px}
+.object-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;border-radius:16px;margin-bottom:6px;border:1px solid #e5e7eb;cursor:pointer;transition:.15s}
+.object-item:hover{background:#f9fafb}
+.object-item.active{border-color:#7c3aed;background:#ede9fe}
+.object-item .name{font-weight:500;font-size:14px}
+.object-item .info{font-size:11px;color:#6b7280}
+.object-item .del-btn{background:none;border:none;color:#9ca3af;font-size:16px;cursor:pointer;padding:0 4px}
+.object-item .del-btn:hover{color:#ef4444}
+.add-object-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.add-object-row input{flex:1;min-width:80px;padding:8px 12px;border-radius:20px;border:1px solid #e5e7eb;font-size:13px;outline:none}
+.add-object-row input:focus{border-color:#7c3aed}
+.add-object-row .btn{padding:8px 16px;border-radius:30px;border:none;font-weight:600;font-size:13px;cursor:pointer;background:#7c3aed;color:#fff}
+.config-row{display:flex;justify-content:center;gap:12px;margin-top:14px;flex-shrink:0;flex-wrap:wrap}
+.config-group{flex:1;min-width:100px;max-width:160px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.config-group label{font-size:10px;font-weight:600;color:#9ca3af;letter-spacing:.3px;text-transform:uppercase}
+.chip-group{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.chip{font-size:11px;padding:4px 12px;border-radius:30px;background:#f3f4f6;color:#6b7280;border:none;cursor:pointer;transition:all .15s;font-weight:500}
+.chip.active{background:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,0.25)}
+.chip:active{transform:scale(.92)}
+.history-area{flex:1;background:rgba(255,255,255,0.5);backdrop-filter:blur(4px);border-radius:24px;margin:14px 0 12px;padding:12px 10px;overflow-y:auto;min-height:100px;max-height:45vh;display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,0.6)}
+.history-empty{color:#b0b0b0;font-size:14px;text-align:center;margin:auto}
+.msg-bubble{max-width:85%;padding:10px 16px;border-radius:20px;font-size:14px;line-height:1.5;word-break:break-word;box-shadow:0 2px 6px rgba(0,0,0,0.02)}
+.msg-girl{align-self:flex-start;background:#ede9fe;color:#2e1065;border-bottom-left-radius:6px}
+.msg-guy{align-self:flex-end;background:#d1fae5;color:#064e3b;border-bottom-right-radius:6px}
+.msg-label{font-size:10px;opacity:.5;margin-bottom:2px;font-weight:600}
+.suggestions-area{flex-shrink:0;background:rgba(255,247,235,0.8);backdrop-filter:blur(8px);border-radius:24px;padding:16px 14px;margin:6px 0 10px;border-left:5px solid #f59e0b;max-height:50vh;overflow-y:auto;display:none}
+.suggestions-area.show{display:block}
+.analysis-text{font-size:13px;font-weight:500;color:#78350f;background:rgba(245,158,11,0.12);padding:6px 16px;border-radius:30px;display:inline-block;margin-bottom:12px}
+.suggestion-card{background:#fff;border-radius:18px;padding:12px 16px;margin-top:10px;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #f3e8d0;cursor:pointer;transition:all .15s}
+.suggestion-card:active{transform:scale(.97);background:#fcf9f2}
+.suggestion-text{font-size:15px;font-weight:600;color:#1e1b4b}
+.suggestion-meta{font-size:12px;color:#8b8b8b;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.suggestion-meta span{background:#f5f3f0;padding:2px 12px;border-radius:20px}
+.badge-copy{font-size:11px;color:#7c3aed;font-weight:600;float:right}
+.input-area{display:flex;gap:10px;margin-top:8px;flex-shrink:0;align-items:center;flex-wrap:wrap}
+.input-area input{flex:1;min-width:120px;padding:14px 20px;border-radius:40px;border:1.5px solid #e5e7eb;font-size:15px;outline:none;background:#fff;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+.input-area input:focus{border-color:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,0.08)}
+.input-area .btn-group{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:12px 20px;border-radius:40px;border:none;font-weight:600;font-size:14px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:#7c3aed;color:#fff;box-shadow:0 4px 14px rgba(124,58,237,0.25)}
+.btn-primary:disabled{opacity:.5;box-shadow:none}
+.btn-outline{background:transparent;color:#6b7280;border:1.5px solid #e5e7eb}
+.btn-outline:hover{background:#f9fafb}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) scale(.9);background:#1f2937;color:#fff;padding:10px 24px;border-radius:40px;font-size:14px;opacity:0;transition:all .25s ease;pointer-events:none;max-width:90%;text-align:center;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.loader{display:inline-block;width:18px;height:18px;border:3px solid #e5e7eb;border-top-color:#7c3aed;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:10px}
+.small-btn{padding:4px 10px;font-size:12px;border-radius:20px}
+</style>
 </head>
 <body>
-  <div id="app">
-    <div class="header">
-      <h1>💬 聊天军师</h1>
-      <div class="header-right">
-        <span class="profile-tag" id="profileTag">👤 选择对象</span>
-        <span class="badge offline" id="statusBadge">⛔ 未连接</span>
-        <button class="settings-btn" id="settingsToggle">⚙️</button>
+<div id="app">
+  <div class="header">
+    <h1>💬 聊天军师</h1>
+    <div class="header-right">
+      <span class="profile-tag" id="profileTag">👤 选择对象</span>
+      <span class="badge offline" id="statusBadge">⛔ 未连接</span>
+      <button class="settings-btn" id="settingsToggle">⚙️</button>
+    </div>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <label>🔑 API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
+    <label>🌐 API 地址</label>
+    <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
+    <div class="hint">兼容 OpenAI Chat Completion 格式</div>
+    <label>🧠 模型名称</label>
+    <input type="text" id="modelInput" placeholder="glm-4-flash / gpt-3.5-turbo">
+    <div class="toggle-row">
+      <input type="checkbox" id="useAI" checked>
+      <label for="useAI">启用 AI</label>
+    </div>
+    <hr style="margin:16px 0;border:none;border-top:1px solid #e5e7eb;">
+    <label style="margin-top:0;">👥 聊天对象</label>
+    <div class="object-list" id="objectList"></div>
+    <div class="add-object-row">
+      <input type="text" id="newObjectName" placeholder="昵称" style="flex:1;">
+      <button class="btn small-btn" id="addObjectBtn">➕ 添加</button>
+    </div>
+    <label style="margin-top:14px;">✏️ 编辑当前对象</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="text" id="profileName" placeholder="昵称" style="flex:1;min-width:60px;">
+      <input type="number" id="profileAge" placeholder="年龄" style="flex:.8;min-width:50px;">
+    </div>
+    <input type="text" id="profileHobby" placeholder="爱好（如摄影、健身）">
+    <input type="text" id="profileNote" placeholder="其他备注（如性格特点）">
+    <button class="btn-save" id="saveObjectBtn" style="margin-top:8px;">💾 更新对象信息</button>
+    <button class="btn-save btn-secondary" id="saveSettingsBtn" style="margin-top:14px;">💾 保存所有设置</button>
+  </div>
+
+  <div class="config-row">
+    <div class="config-group">
+      <label>🎯 场景</label>
+      <div class="chip-group" id="scenarioGroup">
+        <button class="chip" data-value="破冰">破冰</button>
+        <button class="chip active" data-value="暧昧">暧昧</button>
+        <button class="chip" data-value="挽回">挽回</button>
       </div>
     </div>
-
-    <div class="settings-panel" id="settingsPanel">
-      <!-- API 设置 -->
-      <label>🔑 API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
-      <label>🌐 API 地址</label>
-      <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
-      <div class="hint">兼容 OpenAI Chat Completion 格式</div>
-      <label>🧠 模型名称</label>
-      <input type="text" id="modelInput" placeholder="glm-4-flash / gpt-3.5-turbo">
-
-      <div class="toggle-row">
-        <input type="checkbox" id="useAI" checked>
-        <label for="useAI">启用 AI（取消则强制报错）</label>
-      </div>
-
-      <hr style="margin: 16px 0; border: none; border-top: 1px solid #e5e7eb;">
-
-      <!-- 对象管理 -->
-      <label style="margin-top:0;">👥 聊天对象</label>
-      <div class="object-list" id="objectList"></div>
-
-      <div class="add-object-row">
-        <input type="text" id="newObjectName" placeholder="昵称" style="flex:1;">
-        <button class="btn small-btn" id="addObjectBtn">➕ 添加</button>
-      </div>
-
-      <!-- 当前对象详情编辑（在切换时自动填充） -->
-      <label style="margin-top:14px;">✏️ 编辑当前对象</label>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <input type="text" id="profileName" placeholder="昵称" style="flex:1; min-width:60px;">
-        <input type="number" id="profileAge" placeholder="年龄" style="flex:0.8; min-width:50px;">
-      </div>
-      <input type="text" id="profileHobby" placeholder="爱好（如摄影、健身）">
-      <input type="text" id="profileNote" placeholder="其他备注（如性格特点）">
-      <button class="btn-save" id="saveObjectBtn" style="margin-top:8px;">💾 更新对象信息</button>
-
-      <button class="btn-save btn-secondary" id="saveSettingsBtn" style="margin-top:14px;">💾 保存所有设置</button>
-    </div>
-
-    <div class="config-row">
-      <div class="config-group">
-        <label>🎯 场景</label>
-        <div class="chip-group" id="scenarioGroup">
-          <button class="chip" data-value="破冰">破冰</button>
-          <button class="chip active" data-value="暧昧">暧昧</button>
-          <button class="chip" data-value="挽回">挽回</button>
-        </div>
-      </div>
-      <div class="config-group">
-        <label>🎭 风格</label>
-        <div class="chip-group" id="styleGroup">
-          <button class="chip active" data-value="暖男">暖男</button>
-          <button class="chip" data-value="幽默">幽默</button>
-          <button class="chip" data-value="直球">直球</button>
-        </div>
-      </div>
-      <div class="config-group">
-        <label>🔒 安全</label>
-        <div class="chip-group" id="safetyGroup">
-          <button class="chip" data-value="green">绿</button>
-          <button class="chip active" data-value="yellow">黄</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="history-area" id="historyArea">
-      <div class="history-empty">👋 选择或添加一个对象开始聊天</div>
-    </div>
-
-    <div class="suggestions-area" id="suggestionsArea">
-      <div class="analysis-text" id="analysisText">🔍 潜台词</div>
-      <div id="suggestionList"></div>
-    </div>
-
-    <div class="input-area">
-      <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
-      <div class="btn-group">
-        <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
-        <button class="btn btn-outline" id="clearHistoryBtn" title="清除当前对象聊天记录">🗑️</button>
+    <div class="config-group">
+      <label>🎭 风格</label>
+      <div class="chip-group" id="styleGroup">
+        <button class="chip" data-value="幽默">幽默</button>
+        <button class="chip" data-value="直球">直球</button>
+        <button class="chip active" data-value="话题延伸">话题延伸</button>
+        <button class="chip" data-value="开启话题">开启话题</button>
       </div>
     </div>
   </div>
-  <div class="toast" id="toast"></div>
 
-  <script>
-    // ========== 核心状态 ==========
-    const state = {
-      objects: [],              // [{ id, name, age, hobby, note, history: [{role, content}] }]
-      currentObjectId: null,
-      config: { scenario: '暧昧', style: '暖男', safety: 'yellow' },
-      isLoading: false,
-      pendingGuyReply: false,
-      apiKey: '',
-      apiUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-      model: 'glm-4-flash',
-      useAI: true
-    };
+  <div class="history-area" id="historyArea">
+    <div class="history-empty">👋 添加一个对象开始聊天</div>
+  </div>
 
-    // DOM 引用
-    const $ = id => document.getElementById(id);
-    const historyArea = $('historyArea');
-    const suggestionsArea = $('suggestionsArea');
-    const analysisText = $('analysisText');
-    const suggestionList = $('suggestionList');
-    const messageInput = $('messageInput');
-    const sendBtn = $('sendBtn');
-    const toastEl = $('toast');
-    const statusBadge = $('statusBadge');
-    const profileTag = $('profileTag');
-    const settingsPanel = $('settingsPanel');
-    const settingsToggle = $('settingsToggle');
-    const apiKeyInput = $('apiKeyInput');
-    const apiUrlInput = $('apiUrlInput');
-    const modelInput = $('modelInput');
-    const useAICheckbox = $('useAI');
-    const profileName = $('profileName');
-    const profileAge = $('profileAge');
-    const profileHobby = $('profileHobby');
-    const profileNote = $('profileNote');
-    const saveSettingsBtn = $('saveSettingsBtn');
-    const saveObjectBtn = $('saveObjectBtn');
-    const clearHistoryBtn = $('clearHistoryBtn');
-    const objectList = $('objectList');
-    const newObjectName = $('newObjectName');
-    const addObjectBtn = $('addObjectBtn');
+  <div class="suggestions-area" id="suggestionsArea">
+    <div class="analysis-text" id="analysisText">🔍 潜台词</div>
+    <div id="suggestionList"></div>
+  </div>
 
-    // ========== 辅助函数 ==========
-    function getConfig() {
-      const scenario = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '暧昧';
-      const style = document.querySelector('#styleGroup .chip.active')?.dataset.value || '暖男';
-      const safety = document.querySelector('#safetyGroup .chip.active')?.dataset.value || 'yellow';
-      return { scenario, style, safety };
-    }
+  <div class="input-area">
+    <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
+    <div class="btn-group">
+      <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
+      <button class="btn btn-outline" id="clearHistoryBtn" title="清除当前对象聊天记录">🗑️</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-    function showToast(msg, duration = 2000) {
-      toastEl.textContent = msg;
-      toastEl.classList.add('show');
-      clearTimeout(toastEl._timer);
-      toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), duration);
-    }
+<script>
+// ========== 核心状态 ==========
+const state={objects:[],currentObjectId:null,config:{scenario:'暧昧',style:'话题延伸'},isLoading:!1,pendingGuyReply:!1,apiKey:'',apiUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',model:'glm-4-flash',useAI:!0};
+const $=id=>document.getElementById(id);
+const historyArea=$('historyArea'),suggestionsArea=$('suggestionsArea'),analysisText=$('analysisText'),suggestionList=$('suggestionList'),messageInput=$('messageInput'),sendBtn=$('sendBtn'),toastEl=$('toast'),statusBadge=$('statusBadge'),profileTag=$('profileTag'),settingsPanel=$('settingsPanel'),settingsToggle=$('settingsToggle'),apiKeyInput=$('apiKeyInput'),apiUrlInput=$('apiUrlInput'),modelInput=$('modelInput'),useAICheckbox=$('useAI'),profileName=$('profileName'),profileAge=$('profileAge'),profileHobby=$('profileHobby'),profileNote=$('profileNote'),saveSettingsBtn=$('saveSettingsBtn'),saveObjectBtn=$('saveObjectBtn'),clearHistoryBtn=$('clearHistoryBtn'),objectList=$('objectList'),newObjectName=$('newObjectName'),addObjectBtn=$('addObjectBtn');
 
-    function updateStatusBadge() {
-      const hasKey = state.apiKey && state.apiKey.trim().length > 0;
-      if (state.useAI && hasKey) {
-        statusBadge.textContent = '🤖 AI 在线';
-        statusBadge.className = 'badge online';
-      } else if (!state.useAI) {
-        statusBadge.textContent = '⛔ AI 禁用';
-        statusBadge.className = 'badge offline';
-      } else {
-        statusBadge.textContent = '⚠️ 缺少 Key';
-        statusBadge.className = 'badge offline';
-      }
-    }
+function getConfig(){const s=document.querySelector('#scenarioGroup .chip.active')?.dataset.value||'暧昧';const t=document.querySelector('#styleGroup .chip.active')?.dataset.value||'话题延伸';return{scenario:s,style:t}}
+function showToast(m,d=2000){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._timer);toastEl._timer=setTimeout(()=>toastEl.classList.remove('show'),d)}
+function updateStatusBadge(){const h=state.apiKey&&state.apiKey.trim().length>0;if(state.useAI&&h){statusBadge.textContent='🤖 AI 在线';statusBadge.className='badge online'}else if(!state.useAI){statusBadge.textContent='⛔ AI 禁用';statusBadge.className='badge offline'}else{statusBadge.textContent='⚠️ 缺少 Key';statusBadge.className='badge offline'}}
 
-    // ========== 对象管理 ==========
-    function getCurrentObject() {
-      return state.objects.find(o => o.id === state.currentObjectId) || null;
-    }
+function getCurrentObject(){return state.objects.find(o=>o.id===state.currentObjectId)||null}
+function updateProfileTag(){const o=getCurrentObject();if(o){profileTag.textContent=`👤 ${o.name||'未命名'} · ${o.age||'?'}岁${o.hobby?' · '+o.hobby:''}`}else{profileTag.textContent='👤 选择对象'}}
+function renderObjectList(){if(state.objects.length===0){objectList.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:8px;">暂无对象，请添加</div>';return}let html='';state.objects.forEach(obj=>{const a=obj.id===state.currentObjectId?'active':'';const c=obj.history?obj.history.length:0;html+=`<div class="object-item ${a}" data-id="${obj.id}"><div><div class="name">${obj.name||'未命名'} (${obj.age||'?'}岁)</div><div class="info">${obj.hobby||'无爱好'} · ${c}条消息</div></div><div><button class="del-btn" data-id="${obj.id}" title="删除对象">✕</button></div></div>`});objectList.innerHTML=html;objectList.querySelectorAll('.object-item').forEach(item=>{item.addEventListener('click',function(e){if(e.target.closest('.del-btn'))return;const id=this.dataset.id;switchObject(id)})});objectList.querySelectorAll('.del-btn').forEach(btn=>{btn.addEventListener('click',function(e){e.stopPropagation();const id=this.dataset.id;if(confirm('确定删除该对象及其所有聊天记录吗？'))deleteObject(id)})})}
+function switchObject(id){state.currentObjectId=id;loadCurrentObject();renderObjectList();updateProfileTag();renderHistory();suggestionsArea.classList.remove('show');showToast(`切换到 ${getCurrentObject()?.name||'对象'}`,1200);saveToStorage()}
+function loadCurrentObject(){const o=getCurrentObject();if(o){profileName.value=o.name||'';profileAge.value=o.age||'';profileHobby.value=o.hobby||'';profileNote.value=o.note||'';renderHistory();updateProfileTag()}else{profileName.value='';profileAge.value='';profileHobby.value='';profileNote.value='';historyArea.innerHTML='<div class="history-empty">👋 添加一个对象开始聊天</div>';updateProfileTag()}}
+function addObject(name){if(!name.trim()){showToast('请输入昵称',1000);return}if(state.objects.some(o=>o.name===name.trim())){showToast('已存在同名对象',1000);return}const n={id:Date.now().toString(36)+Math.random().toString(36).substr(2,4),name:name.trim(),age:'',hobby:'',note:'',history:[]};state.objects.push(n);state.currentObjectId=n.id;renderObjectList();loadCurrentObject();saveToStorage();showToast(`已添加对象：${n.name}`,1500)}
+function deleteObject(id){state.objects=state.objects.filter(o=>o.id!==id);if(state.currentObjectId===id){state.currentObjectId=state.objects.length>0?state.objects[0].id:null}renderObjectList();loadCurrentObject();saveToStorage();showToast('已删除',1000)}
+function saveObjectDetails(){const o=getCurrentObject();if(!o){showToast('请先选择一个对象',1000);return}o.name=profileName.value.trim()||'未命名';o.age=parseInt(profileAge.value)||0;o.hobby=profileHobby.value.trim();o.note=profileNote.value.trim();renderObjectList();updateProfileTag();saveToStorage();showToast('对象信息已更新',1500)}
 
-    function updateProfileTag() {
-      const obj = getCurrentObject();
-      if (obj) {
-        profileTag.textContent = `👤 ${obj.name || '未命名'} · ${obj.age || '?'}岁${obj.hobby ? ' · ' + obj.hobby : ''}`;
-      } else {
-        profileTag.textContent = '👤 选择对象';
-      }
-    }
+function getCurrentHistory(){const o=getCurrentObject();return o?o.history:[]}
+function pushHistory(r,c){const o=getCurrentObject();if(o){o.history.push({role:r,content:c});saveToStorage();renderHistory()}}
+function renderHistory(){const h=getCurrentHistory();if(h.length===0){const o=getCurrentObject();historyArea.innerHTML=`<div class="history-empty">👋 ${o?'开始与 '+o.name+' 的对话':'添加一个对象开始聊天'}</div>`;return}let html='';h.forEach(msg=>{const cls=msg.role==='girl'?'msg-girl':'msg-guy';const label=msg.role==='girl'?'👩 她':'🧑 我';html+=`<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`});historyArea.innerHTML=html;historyArea.scrollTop=historyArea.scrollHeight}
+function clearCurrentHistory(){if(!getCurrentObject()){showToast('请先选择对象',1000);return}if(confirm('确定清除当前对象的聊天记录吗？')){const o=getCurrentObject();o.history=[];state.pendingGuyReply=!1;renderHistory();suggestionsArea.classList.remove('show');saveToStorage();showToast('🗑️ 已清除',1000)}}
 
-    function renderObjectList() {
-      if (state.objects.length === 0) {
-        objectList.innerHTML = '<div style="color:#9ca3af; font-size:13px; text-align:center; padding:8px;">暂无对象，请添加</div>';
-        return;
-      }
-      let html = '';
-      state.objects.forEach(obj => {
-        const active = obj.id === state.currentObjectId ? 'active' : '';
-        const historyCount = obj.history ? obj.history.length : 0;
-        html += `
-          <div class="object-item ${active}" data-id="${obj.id}">
-            <div>
-              <div class="name">${obj.name || '未命名'} (${obj.age || '?'}岁)</div>
-              <div class="info">${obj.hobby || '无爱好'} · ${historyCount}条消息</div>
-            </div>
-            <div>
-              <button class="del-btn" data-id="${obj.id}" title="删除对象">✕</button>
-            </div>
-          </div>
-        `;
-      });
-      objectList.innerHTML = html;
+function renderSuggestions(r){if(!r||!r.suggestions||r.suggestions.length===0){suggestionsArea.classList.remove('show');return}suggestionsArea.classList.add('show');analysisText.textContent='🔍 '+r.analysis;let html='';r.suggestions.forEach(s=>{html+=`<div class="suggestion-card" data-text="${encodeURIComponent(s.text)}"><div class="suggestion-text">${s.id||'💡'}. ${s.text}</div><div class="suggestion-meta"><span>💡 ${s.reason||'推荐理由'}</span><span>📈 ${s.expectedEffect||'预期效果'}</span></div><div class="badge-copy">👆 点击复制</div></div>`});suggestionList.innerHTML=html;document.querySelectorAll('.suggestion-card').forEach(card=>{card.addEventListener('click',function(){const t=decodeURIComponent(this.dataset.text);copyAndSelect(t)})})}
+function copyAndSelect(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t))}else{fallbackCopy(t)}pushHistory('guy',t);state.pendingGuyReply=!0;suggestionsArea.classList.remove('show');messageInput.focus();showToast('📨 已记录，等女生回复后继续',1500)}
+function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}document.body.removeChild(ta)}
 
-      // 点击切换对象
-      objectList.querySelectorAll('.object-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-          if (e.target.closest('.del-btn')) return;
-          const id = this.dataset.id;
-          switchObject(id);
-        });
-      });
+async function callAI(gm,h,c){const o=getCurrentObject();const pt=o?`她叫${o.name||'未命名'}，${o.age||'?'}岁，喜欢${o.hobby||'未知'}。${o.note||''}`:'';let si='';if(c.style==='幽默'){si='用轻松幽默的方式回应，可以调侃、自嘲，但不要过度玩梗。'}else if(c.style==='直球'){si='直接、自信、简洁，表达明确意图，带轻微强势感。'}else if(c.style==='话题延伸'){si='不要直接回答或评价，而是提出开放性问题、分享相关经历，自然地把话题引向更深更广的方向。每条建议都应是一个引导对方继续说话的问句或话题引子。'}else if(c.style==='开启话题'){si='生成一个与当前聊天内容无关、但有趣且自然的新话题开场白，用于打破沉默或开启全新对话。可以结合对象的年龄、爱好等信息，但不受当前消息内容限制。每条建议应是一个完整的开场语句，让对方容易接话。'}const sp=`你是一位资深情感沟通顾问。当前对象信息：${pt}\n根据用户选择的【场景(${c.scenario})】和【风格(${c.style})】生成回复建议。\n风格要求：${si}\n规则：\n1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。\n2. 每条建议 15~30 字，口语化。\n3. 务必结合对象的年龄、爱好等信息，让回复更有针对性。\n4. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;const uc=JSON.stringify({girl_message:gm,history:h.slice(-10),config:c});const payload={model:state.model||'glm-4-flash',messages:[{role:'system',content:sp},{role:'user',content:uc}],temperature:.9,max_tokens:800};const resp=await fetch(state.apiUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${state.apiKey}`},body:JSON.stringify(payload)});if(!resp.ok){const e=await resp.text();throw new Error(`API 请求失败 (${resp.status}): ${e}`)}const data=await resp.json();const content=data.choices[0].message.content;try{return JSON.parse(content)}catch(e1){const m=content.match(/```json\s*([\s\S]*?)\s*```/);if(m){try{return JSON.parse(m[1])}catch(e2){}}const b=content.match(/\{[\s\S]*\}/);if(b){try{return JSON.parse(b[0])}catch(e3){}}throw new Error('AI 返回内容无法解析为JSON')}}
 
-      // 删除按钮
-      objectList.querySelectorAll('.del-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const id = this.dataset.id;
-          if (confirm('确定删除该对象及其所有聊天记录吗？')) {
-            deleteObject(id);
-          }
-        });
-      });
-    }
+async function handleSend(){if(state.isLoading)return;if(!getCurrentObject()){showToast('请先添加一个对象',1500);return}const input=messageInput.value.trim();if(!input){showToast('请输入女生的话',1000);return}if(state.pendingGuyReply){pushHistory('girl',input);state.pendingGuyReply=!1}else{pushHistory('girl',input)}messageInput.value='';renderHistory();state.isLoading=!0;sendBtn.disabled=!0;sendBtn.innerHTML='<span class="loader"></span>思考中';suggestionsArea.classList.remove('show');const config=getConfig();try{if(!state.useAI||!state.apiKey||state.apiKey.trim().length===0){throw new Error('AI 未启用或未填写 API Key')}const h=getCurrentHistory();const r=await callAI(input,h,config);if(!r.analysis||!r.suggestions||r.suggestions.length<3){throw new Error('AI 返回结构不完整')}renderSuggestions(r);showToast('✅ AI 分析完成',1000);suggestionsArea.scrollIntoView({behavior:'smooth',block:'nearest'})}catch(err){showToast('❌ '+err.message,4000);const o=getCurrentObject();if(o&&o.history.length>0&&o.history[o.history.length-1].role==='girl'){o.history.pop();renderHistory();saveToStorage()}messageInput.value=input}finally{state.isLoading=!1;sendBtn.disabled=!1;sendBtn.innerHTML='🚀 获取'}}
 
-    function switchObject(id) {
-      // 保存当前对象的历史
-      saveCurrentObject();
-      state.currentObjectId = id;
-      // 加载新对象数据到界面
-      loadCurrentObject();
-      renderObjectList();
-      updateProfileTag();
-      renderHistory();
-      suggestionsArea.classList.remove('show');
-      showToast(`切换到 ${getCurrentObject()?.name || '对象'}`, 1200);
-      // 保存到 localStorage
-      saveToStorage();
-    }
+function saveToStorage(){try{const data={objects:state.objects,currentObjectId:state.currentObjectId,apiKey:state.apiKey,apiUrl:state.apiUrl,model:state.model,useAI:state.useAI};localStorage.setItem('chat_data',JSON.stringify(data))}catch(e){}}
+function loadFromStorage(){try{const raw=localStorage.getItem('chat_data');if(raw){const data=JSON.parse(raw);state.objects=data.objects||[];state.currentObjectId=data.currentObjectId||null;state.apiKey=data.apiKey||'';state.apiUrl=data.apiUrl||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=data.model||'glm-4-flash';state.useAI=data.useAI!==undefined?data.useAI:!0;apiKeyInput.value=state.apiKey;apiUrlInput.value=state.apiUrl;modelInput.value=state.model;useAICheckbox.checked=state.useAI;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();return}}catch(e){console.warn('Load error',e)}state.objects=[];state.currentObjectId=null;renderObjectList();loadCurrentObject();updateProfileTag();updateStatusBadge();saveToStorage()}
 
-    function saveCurrentObject() {
-      const obj = getCurrentObject();
-      if (obj) {
-        // 从界面读取当前 history (已经维护在 state 中，实际上 state.history 已经弃用，我们用 obj.history)
-        // 但由于我们的渲染和操作都直接修改 obj.history，所以无需额外操作。
-        // 但为了安全，我们确保 obj.history 是最新的。
-        // 实际上我们一直在操作 obj.history，所以没问题。
-      }
-    }
-
-    function loadCurrentObject() {
-      const obj = getCurrentObject();
-      if (obj) {
-        // 填充编辑表单
-        profileName.value = obj.name || '';
-        profileAge.value = obj.age || '';
-        profileHobby.value = obj.hobby || '';
-        profileNote.value = obj.note || '';
-        // 更新历史显示
-        renderHistory();
-        updateProfileTag();
-      } else {
-        // 清空表单
-        profileName.value = '';
-        profileAge.value = '';
-        profileHobby.value = '';
-        profileNote.value = '';
-        historyArea.innerHTML = `<div class="history-empty">👋 选择或添加一个对象开始聊天</div>`;
-        updateProfileTag();
-      }
-    }
-
-    function addObject(name) {
-      if (!name.trim()) { showToast('请输入昵称', 1000); return; }
-      // 检查重名
-      if (state.objects.some(o => o.name === name.trim())) {
-        showToast('已存在同名对象', 1000);
-        return;
-      }
-      const newObj = {
-        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 4),
-        name: name.trim(),
-        age: '',
-        hobby: '',
-        note: '',
-        history: []
-      };
-      state.objects.push(newObj);
-      state.currentObjectId = newObj.id;
-      renderObjectList();
-      loadCurrentObject();
-      saveToStorage();
-      showToast(`已添加对象：${newObj.name}`, 1500);
-    }
-
-    function deleteObject(id) {
-      state.objects = state.objects.filter(o => o.id !== id);
-      if (state.currentObjectId === id) {
-        state.currentObjectId = state.objects.length > 0 ? state.objects[0].id : null;
-      }
-      renderObjectList();
-      loadCurrentObject();
-      saveToStorage();
-      showToast('已删除', 1000);
-    }
-
-    function saveObjectDetails() {
-      const obj = getCurrentObject();
-      if (!obj) { showToast('请先选择一个对象', 1000); return; }
-      obj.name = profileName.value.trim() || '未命名';
-      obj.age = parseInt(profileAge.value) || 0;
-      obj.hobby = profileHobby.value.trim();
-      obj.note = profileNote.value.trim();
-      renderObjectList();
-      updateProfileTag();
-      saveToStorage();
-      showToast('对象信息已更新', 1500);
-    }
-
-    // ========== 历史记录操作 ==========
-    function getCurrentHistory() {
-      const obj = getCurrentObject();
-      return obj ? obj.history : [];
-    }
-
-    function setCurrentHistory(newHistory) {
-      const obj = getCurrentObject();
-      if (obj) {
-        obj.history = newHistory;
-        saveToStorage();
-      }
-    }
-
-    function pushHistory(role, content) {
-      const obj = getCurrentObject();
-      if (obj) {
-        obj.history.push({ role, content });
-        saveToStorage();
-        renderHistory();
-      }
-    }
-
-    function renderHistory() {
-      const history = getCurrentHistory();
-      if (history.length === 0) {
-        historyArea.innerHTML = `<div class="history-empty">👋 开始与 ${getCurrentObject()?.name || '对象'} 的对话</div>`;
-        return;
-      }
-      let html = '';
-      history.forEach(msg => {
-        const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
-        const label = msg.role === 'girl' ? '👩 她' : '🧑 我';
-        html += `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`;
-      });
-      historyArea.innerHTML = html;
-      historyArea.scrollTop = historyArea.scrollHeight;
-    }
-
-    function clearCurrentHistory() {
-      if (!getCurrentObject()) { showToast('请先选择对象', 1000); return; }
-      if (confirm('确定清除当前对象的聊天记录吗？')) {
-        const obj = getCurrentObject();
-        obj.history = [];
-        state.pendingGuyReply = false;
-        renderHistory();
-        suggestionsArea.classList.remove('show');
-        saveToStorage();
-        showToast('🗑️ 已清除', 1000);
-      }
-    }
-
-    // ========== 渲染建议 ==========
-    function renderSuggestions(response) {
-      if (!response || !response.suggestions || response.suggestions.length === 0) {
-        suggestionsArea.classList.remove('show');
-        return;
-      }
-      suggestionsArea.classList.add('show');
-      analysisText.textContent = '🔍 ' + response.analysis;
-      let html = '';
-      response.suggestions.forEach(s => {
-        html += `
-          <div class="suggestion-card" data-text="${encodeURIComponent(s.text)}">
-            <div class="suggestion-text">${s.id || '💡'}. ${s.text}</div>
-            <div class="suggestion-meta">
-              <span>💡 ${s.reason || '推荐理由'}</span>
-              <span>📈 ${s.expectedEffect || '预期效果'}</span>
-            </div>
-            <div class="badge-copy">👆 点击复制</div>
-          </div>
-        `;
-      });
-      suggestionList.innerHTML = html;
-      document.querySelectorAll('.suggestion-card').forEach(card => {
-        card.addEventListener('click', function() {
-          const text = decodeURIComponent(this.dataset.text);
-          copyAndSelect(text);
-        });
-      });
-    }
-
-    function copyAndSelect(text) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制')).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
-      // 添加男方回复
-      pushHistory('guy', text);
-      state.pendingGuyReply = true;
-      suggestionsArea.classList.remove('show');
-      messageInput.focus();
-      showToast('📨 已记录，等女生回复后继续', 1500);
-    }
-
-    function fallbackCopy(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); showToast('✅ 已复制'); } catch (e) { showToast('⚠️ 手动复制', 3000); }
-      document.body.removeChild(ta);
-    }
-
-    // ========== AI 调用 ==========
-    async function callAI(girlMessage, history, config) {
-      const obj = getCurrentObject();
-      const profileText = obj ? `她叫${obj.name || '未命名'}，${obj.age || '?'}岁，喜欢${obj.hobby || '未知'}。${obj.note || ''}` : '';
-
-      const systemPrompt = `你是一位资深情感沟通顾问。当前对象信息：${profileText}
-根据用户选择的【场景(${config.scenario})】、【风格(${config.style})】、【安全等级(${config.safety})】生成回复建议。
-规则：
-1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。
-2. 每条建议 15~30 字，口语化。
-3. 安全等级 green 时严禁暧昧；yellow 时允许适度好感表达。
-4. 务必结合对象的年龄、爱好等信息，让回复更有针对性。
-5. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;
-
-      const userContent = JSON.stringify({ girl_message: girlMessage, history: history.slice(-10), config });
-
-      const payload = {
-        model: state.model || 'glm-4-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userContent }
-        ],
-        temperature: 0.9,
-        max_tokens: 800
-      };
-
-      const response = await fetch(state.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.apiKey}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`API 请求失败 (${response.status}): ${err}`);
-      }
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-
-      try {
-        return JSON.parse(content);
-      } catch (e1) {
-        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          try { return JSON.parse(jsonMatch[1]); } catch (e2) {}
-        }
-        const braceMatch = content.match(/\{[\s\S]*\}/);
-        if (braceMatch) {
-          try { return JSON.parse(braceMatch[0]); } catch (e3) {}
-        }
-        throw new Error('AI 返回内容无法解析为JSON');
-      }
-    }
-
-    // ========== 主逻辑 ==========
-    async function handleSend() {
-      if (state.isLoading) return;
-      if (!getCurrentObject()) { showToast('请先选择或添加一个对象', 1500); return; }
-      const input = messageInput.value.trim();
-      if (!input) { showToast('请输入女生的话', 1000); return; }
-
-      // 如果是pending回复状态，则此次输入为女生的新消息
-      if (state.pendingGuyReply) {
-        pushHistory('girl', input);
-        state.pendingGuyReply = false;
-      } else {
-        pushHistory('girl', input);
-      }
-      messageInput.value = '';
-      renderHistory();
-
-      state.isLoading = true;
-      sendBtn.disabled = true;
-      sendBtn.innerHTML = '<span class="loader"></span>思考中';
-      suggestionsArea.classList.remove('show');
-
-      const config = getConfig();
-
-      try {
-        if (!state.useAI || !state.apiKey || state.apiKey.trim().length === 0) {
-          throw new Error('AI 未启用或未填写 API Key');
-        }
-        const history = getCurrentHistory();
-        const response = await callAI(input, history, config);
-        if (!response.analysis || !response.suggestions || response.suggestions.length < 3) {
-          throw new Error('AI 返回结构不完整');
-        }
-        renderSuggestions(response);
-        showToast('✅ AI 分析完成', 1000);
-        suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      } catch (err) {
-        showToast('❌ ' + err.message, 4000);
-        // 回滚：移除刚刚添加的 girl 消息
-        const obj = getCurrentObject();
-        if (obj && obj.history.length > 0 && obj.history[obj.history.length-1].role === 'girl') {
-          obj.history.pop();
-          renderHistory();
-          saveToStorage();
-        }
-        messageInput.value = input;
-      } finally {
-        state.isLoading = false;
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = '🚀 获取';
-      }
-    }
-
-    // ========== 存储 ==========
-    function saveToStorage() {
-      try {
-        const data = {
-          objects: state.objects,
-          currentObjectId: state.currentObjectId,
-          apiKey: state.apiKey,
-          apiUrl: state.apiUrl,
-          model: state.model,
-          useAI: state.useAI
-        };
-        localStorage.setItem('chat_data', JSON.stringify(data));
-      } catch (e) {}
-    }
-
-    function loadFromStorage() {
-      try {
-        const raw = localStorage.getItem('chat_data');
-        if (raw) {
-          const data = JSON.parse(raw);
-          state.objects = data.objects || [];
-          state.currentObjectId = data.currentObjectId || null;
-          state.apiKey = data.apiKey || '';
-          state.apiUrl = data.apiUrl || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-          state.model = data.model || 'glm-4-flash';
-          state.useAI = data.useAI !== undefined ? data.useAI : true;
-          apiKeyInput.value = state.apiKey;
-          apiUrlInput.value = state.apiUrl;
-          modelInput.value = state.model;
-          useAICheckbox.checked = state.useAI;
-
-          // 迁移旧数据（单对象）
-          const oldHistory = localStorage.getItem('chat_history');
-          const oldProfile = localStorage.getItem('profile');
-          if (oldHistory || oldProfile) {
-            if (state.objects.length === 0) {
-              const name = oldProfile ? JSON.parse(oldProfile).name || '小雅' : '小雅';
-              const age = oldProfile ? JSON.parse(oldProfile).age || 23 : 23;
-              const hobby = oldProfile ? JSON.parse(oldProfile).hobby || '' : '';
-              const note = oldProfile ? JSON.parse(oldProfile).note || '' : '';
-              const history = oldHistory ? JSON.parse(oldHistory) : [];
-              const newObj = {
-                id: Date.now().toString(36),
-                name: name,
-                age: age,
-                hobby: hobby,
-                note: note,
-                history: history
-              };
-              state.objects = [newObj];
-              state.currentObjectId = newObj.id;
-              // 清理旧存储
-              localStorage.removeItem('chat_history');
-              localStorage.removeItem('profile');
-              // 重新保存
-              saveToStorage();
-            }
-          }
-
-          renderObjectList();
-          loadCurrentObject();
-          updateProfileTag();
-          updateStatusBadge();
-          return;
-        }
-      } catch (e) { console.warn('Load storage error', e); }
-
-      // 如果没有数据，创建默认对象
-      if (state.objects.length === 0) {
-        const defaultObj = {
-          id: Date.now().toString(36),
-          name: '小雅',
-          age: 23,
-          hobby: '摄影',
-          note: '',
-          history: []
-        };
-        state.objects = [defaultObj];
-        state.currentObjectId = defaultObj.id;
-        saveToStorage();
-        renderObjectList();
-        loadCurrentObject();
-        updateProfileTag();
-      }
-      updateStatusBadge();
-    }
-
-    // ========== 事件绑定 ==========
-    settingsToggle.addEventListener('click', () => {
-      settingsPanel.classList.toggle('show');
-    });
-
-    profileTag.addEventListener('click', () => {
-      settingsPanel.classList.toggle('show');
-    });
-
-    addObjectBtn.addEventListener('click', () => {
-      const name = newObjectName.value.trim();
-      addObject(name);
-      newObjectName.value = '';
-    });
-
-    newObjectName.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        addObject(newObjectName.value.trim());
-        newObjectName.value = '';
-      }
-    });
-
-    saveObjectBtn.addEventListener('click', saveObjectDetails);
-
-    saveSettingsBtn.addEventListener('click', () => {
-      const key = apiKeyInput.value.trim();
-      const url = apiUrlInput.value.trim();
-      const model = modelInput.value.trim();
-      state.apiKey = key;
-      state.apiUrl = url || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-      state.model = model || 'glm-4-flash';
-      state.useAI = useAICheckbox.checked;
-      saveToStorage();
-      updateStatusBadge();
-      showToast('✅ 设置已保存', 1500);
-      settingsPanel.classList.remove('show');
-    });
-
-    clearHistoryBtn.addEventListener('click', clearCurrentHistory);
-
-    document.querySelectorAll('.chip-group').forEach(group => {
-      group.addEventListener('click', function(e) {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
-        this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        if (getCurrentObject() && getCurrentHistory().length > 0) {
-          showToast('配置已切换，重新发送生效', 1200);
-        }
-      });
-    });
-
-    sendBtn.addEventListener('click', handleSend);
-    messageInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
-    });
-
-    // ========== 启动 ==========
-    loadFromStorage();
-    showToast('💡 可添加多个聊天对象，数据自动保存', 2000);
-  </script>
+settingsToggle.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
+profileTag.addEventListener('click',()=>settingsPanel.classList.toggle('show'));
+addObjectBtn.addEventListener('click',()=>{addObject(newObjectName.value.trim());newObjectName.value=''});
+newObjectName.addEventListener('keydown',e=>{if(e.key==='Enter'){addObject(newObjectName.value.trim());newObjectName.value=''}});
+saveObjectBtn.addEventListener('click',saveObjectDetails);
+saveSettingsBtn.addEventListener('click',()=>{state.apiKey=apiKeyInput.value.trim();state.apiUrl=apiUrlInput.value.trim()||'https://open.bigmodel.cn/api/paas/v4/chat/completions';state.model=modelInput.value.trim()||'glm-4-flash';state.useAI=useAICheckbox.checked;saveToStorage();updateStatusBadge();showToast('✅ 所有设置已保存',1500);settingsPanel.classList.remove('show')});
+clearHistoryBtn.addEventListener('click',clearCurrentHistory);
+document.querySelectorAll('.chip-group').forEach(group=>{group.addEventListener('click',function(e){const chip=e.target.closest('.chip');if(!chip)return;this.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');if(getCurrentObject()&&getCurrentHistory().length>0){showToast('配置已切换，重新发送生效',1200)}})});
+sendBtn.addEventListener('click',handleSend);
+messageInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleSend()}});
+loadFromStorage();
+showToast('💡 新增「开启话题」风格',2000);
+</script>
 </body>
 </html>
