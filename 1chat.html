@@ -1,149 +1,542 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>💬 聊天军师 · 纯AI版</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 12px 10px; }
-        #app { max-width: 480px; width: 100%; background: #ffffff; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; padding: 20px 16px 24px; position: relative; height: 95vh; display: flex; flex-direction: column; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
-        .header h1 { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .header-right { display: flex; align-items: center; gap: 8px; }
-        .badge-ai { font-size: 10px; background: #e8f5e9; color: #2e7d32; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
-        .badge-mock { font-size: 10px; background: #fff3e0; color: #e65100; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
-        .settings-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 20px; }
-        .settings-btn:hover { background: #f0f0f0; }
-        .settings-panel { background: #f8f9fa; border-radius: 16px; padding: 16px; margin: 12px 0; display: none; flex-shrink: 0; border: 1px solid #e9ecef; }
-        .settings-panel.show { display: block; }
-        .settings-panel label { font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 4px; margin-top: 8px; }
-        .settings-panel label:first-of-type { margin-top: 0; }
-        .settings-panel input, .settings-panel select { width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid #ddd; font-size: 14px; outline: none; background: white; }
-        .settings-panel input:focus, .settings-panel select:focus { border-color: #1a73e8; }
-        .settings-panel .hint { font-size: 11px; color: #888; margin-top: 4px; }
-        .toggle-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-        .toggle-row label { margin-bottom: 0; cursor: pointer; font-weight: 400; }
-        .config-row { display: flex; justify-content: space-between; gap: 6px; margin-top: 12px; flex-shrink: 0; flex-wrap: wrap; }
-        .config-group { flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .config-group label { font-size: 11px; font-weight: 600; color: #999; letter-spacing: 0.5px; }
-        .chip-group { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-        .chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: #f0f0f0; color: #666; border: none; cursor: pointer; transition: all 0.15s; font-weight: 500; }
-        .chip.active { background: #1a73e8; color: #fff; box-shadow: 0 2px 6px rgba(26,115,232,0.25); }
-        .chip:active { transform: scale(0.95); }
-        .history-area { flex: 1; background: #f8f9fa; border-radius: 16px; margin: 14px 0 12px; padding: 12px 10px; overflow-y: auto; min-height: 120px; max-height: 45vh; display: flex; flex-direction: column; gap: 6px; border: 1px solid #eee; }
-        .history-empty { color: #bbb; font-size: 13px; text-align: center; margin: auto; }
-        .msg-bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .msg-girl { align-self: flex-start; background: #e3f0ff; color: #0b2b4a; border-bottom-left-radius: 4px; }
-        .msg-guy { align-self: flex-end; background: #d4f0d4; color: #0d3d0d; border-bottom-right-radius: 4px; }
-        .msg-label { font-size: 10px; opacity: 0.6; margin-bottom: 2px; font-weight: 600; }
-        .suggestions-area { flex-shrink: 0; background: #fffbeb; border-radius: 16px; padding: 14px 12px; margin: 6px 0 10px; border-left: 4px solid #f9ab00; max-height: 50vh; overflow-y: auto; display: none; }
-        .suggestions-area.show { display: block; }
-        .analysis-text { font-size: 13px; font-weight: 500; color: #5d4e00; background: rgba(249,171,0,0.12); padding: 6px 12px; border-radius: 20px; margin-bottom: 12px; display: inline-block; }
-        .suggestion-card { background: white; border-radius: 14px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0e8d0; cursor: pointer; transition: all 0.15s; }
-        .suggestion-card:active { transform: scale(0.97); background: #fafafa; }
-        .suggestion-text { font-size: 15px; font-weight: 600; color: #1a1a1a; }
-        .suggestion-meta { font-size: 12px; color: #888; margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
-        .suggestion-meta span { background: #f5f5f5; padding: 2px 10px; border-radius: 12px; }
-        .badge-copy { font-size: 11px; color: #1a73e8; font-weight: 600; float: right; }
-        .input-area { display: flex; gap: 10px; margin-top: 6px; flex-shrink: 0; align-items: center; flex-wrap: wrap; }
-        .input-area input { flex: 1; min-width: 120px; padding: 12px 16px; border-radius: 30px; border: 1.5px solid #ddd; font-size: 15px; outline: none; background: #fafafa; }
-        .input-area input:focus { border-color: #1a73e8; background: #fff; }
-        .input-area .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn { padding: 10px 18px; border-radius: 30px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-        .btn:active { transform: scale(0.95); }
-        .btn-primary { background: #1a73e8; color: white; box-shadow: 0 4px 10px rgba(26,115,232,0.25); }
-        .btn-primary:disabled { opacity: 0.5; box-shadow: none; }
-        .btn-outline { background: transparent; color: #666; border: 1.5px solid #ddd; }
-        .btn-danger { background: #dc3545; color: white; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) scale(0.9); background: #222; color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 14px; opacity: 0; transition: all 0.25s ease; pointer-events: none; max-width: 90%; text-align: center; z-index: 999; }
-        .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-        .loader { display: inline-block; width: 18px; height: 18px; border: 3px solid #eee; border-top-color: #1a73e8; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 6px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>💬 聊天军师</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+    body {
+      background: linear-gradient(145deg, #f7f0fc 0%, #e9def0 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    #app {
+      max-width: 480px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 40px;
+      box-shadow: 0 20px 60px rgba(100, 70, 120, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      padding: 20px 16px 24px;
+      height: 95vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    /* 头部 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 30px;
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+    .badge.online {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .badge.offline {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .settings-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 30px;
+      transition: background 0.15s;
+    }
+    .settings-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* 设置面板 */
+    .settings-panel {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 16px 18px;
+      margin: 12px 0;
+      display: none;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    }
+    .settings-panel.show {
+      display: block;
+    }
+    .settings-panel label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      display: block;
+      margin: 10px 0 4px;
+    }
+    .settings-panel label:first-of-type {
+      margin-top: 0;
+    }
+    .settings-panel input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      font-size: 14px;
+      outline: none;
+      background: white;
+      transition: border 0.15s;
+    }
+    .settings-panel input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+    .settings-panel .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .toggle-row label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #7c3aed;
+    }
+    .btn-save {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 30px;
+      background: #7c3aed;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+    .btn-save:hover {
+      background: #6d28d9;
+      transform: scale(1.01);
+    }
+    .btn-save:active {
+      transform: scale(0.97);
+    }
+
+    /* 配置芯片 */
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 14px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .config-group {
+      flex: 1;
+      min-width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .config-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9ca3af;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .chip-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .chip {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 30px;
+      background: #f3f4f6;
+      color: #6b7280;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+    .chip.active {
+      background: #7c3aed;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+    }
+    .chip:active {
+      transform: scale(0.92);
+    }
+
+    /* 历史区域 */
+    .history-area {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      margin: 14px 0 12px;
+      padding: 12px 10px;
+      overflow-y: auto;
+      min-height: 100px;
+      max-height: 45vh;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .history-empty {
+      color: #b0b0b0;
+      font-size: 14px;
+      text-align: center;
+      margin: auto;
+    }
+    .msg-bubble {
+      max-width: 85%;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+    .msg-girl {
+      align-self: flex-start;
+      background: #ede9fe;
+      color: #2e1065;
+      border-bottom-left-radius: 6px;
+    }
+    .msg-guy {
+      align-self: flex-end;
+      background: #d1fae5;
+      color: #064e3b;
+      border-bottom-right-radius: 6px;
+    }
+    .msg-label {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+
+    /* 建议区 */
+    .suggestions-area {
+      flex-shrink: 0;
+      background: rgba(255, 247, 235, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 16px 14px;
+      margin: 6px 0 10px;
+      border-left: 5px solid #f59e0b;
+      max-height: 50vh;
+      overflow-y: auto;
+      display: none;
+    }
+    .suggestions-area.show {
+      display: block;
+    }
+    .analysis-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: #78350f;
+      background: rgba(245, 158, 11, 0.12);
+      padding: 6px 16px;
+      border-radius: 30px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .suggestion-card {
+      background: white;
+      border-radius: 18px;
+      padding: 12px 16px;
+      margin-top: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      border: 1px solid #f3e8d0;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .suggestion-card:active {
+      transform: scale(0.97);
+      background: #fcf9f2;
+    }
+    .suggestion-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e1b4b;
+    }
+    .suggestion-meta {
+      font-size: 12px;
+      color: #8b8b8b;
+      margin-top: 4px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .suggestion-meta span {
+      background: #f5f3f0;
+      padding: 2px 12px;
+      border-radius: 20px;
+    }
+    .badge-copy {
+      font-size: 11px;
+      color: #7c3aed;
+      font-weight: 600;
+      float: right;
+    }
+
+    /* 底部输入 */
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-shrink: 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .input-area input {
+      flex: 1;
+      min-width: 120px;
+      padding: 14px 20px;
+      border-radius: 40px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      transition: all 0.15s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+    .input-area input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+    }
+    .input-area .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 20px;
+      border-radius: 40px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn:active {
+      transform: scale(0.95);
+    }
+    .btn-primary {
+      background: #7c3aed;
+      color: white;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      box-shadow: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: #6b7280;
+      border: 1.5px solid #e5e7eb;
+    }
+    .btn-outline:hover {
+      background: #f9fafb;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.9);
+      background: #1f2937;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.25s ease;
+      pointer-events: none;
+      max-width: 90%;
+      text-align: center;
+      z-index: 999;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
+    /* 加载 */
+    .loader {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 滚动条 */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-<div id="app">
+  <div id="app">
+    <!-- 头部 -->
     <div class="header">
-        <h1>💬 聊天军师</h1>
-        <div class="header-right">
-            <span id="statusBadge" class="badge-mock">⚡ 模拟</span>
-            <button class="settings-btn" id="settingsToggle">⚙️</button>
-        </div>
+      <h1>💬 聊天军师</h1>
+      <div class="header-right">
+        <span class="badge offline" id="statusBadge">⛔ 未连接</span>
+        <button class="settings-btn" id="settingsToggle">⚙️</button>
+      </div>
     </div>
 
     <!-- 设置面板 -->
     <div class="settings-panel" id="settingsPanel">
-        <label>🔑 API Key</label>
-        <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
-        
-        <label>🌐 API 地址</label>
-        <input type="text" id="apiUrlInput" placeholder="https://api.deepseek.com/v1/chat/completions">
-        <div class="hint">兼容 OpenAI Chat Completion 格式</div>
-
-        <label>🧠 模型名称</label>
-        <input type="text" id="modelInput" placeholder="deepseek-chat 或 gpt-3.5-turbo">
-
-        <div class="toggle-row">
-            <input type="checkbox" id="useAI" checked>
-            <label for="useAI">启用真实 AI（取消则强制模拟）</label>
-        </div>
-
-        <div class="toggle-row">
-            <input type="checkbox" id="enableFallback">
-            <label for="enableFallback">启用模拟降级（AI 失败时自动切换固定回复）</label>
-        </div>
-
-        <button class="btn btn-primary" style="margin-top:10px; width:100%;" id="saveSettingsBtn">💾 保存设置</button>
+      <label>🔑 API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-... 或任意格式">
+      <label>🌐 API 地址</label>
+      <input type="text" id="apiUrlInput" placeholder="https://api.deepseek.com/v1/chat/completions">
+      <div class="hint">兼容 OpenAI Chat Completion 格式</div>
+      <label>🧠 模型名称</label>
+      <input type="text" id="modelInput" placeholder="deepseek-chat / gpt-3.5-turbo">
+      <div class="toggle-row">
+        <input type="checkbox" id="useAI" checked>
+        <label for="useAI">启用 AI（取消则强制报错）</label>
+      </div>
+      <button class="btn-save" id="saveSettingsBtn">💾 保存设置</button>
     </div>
 
-    <!-- 配置切换 -->
+    <!-- 配置芯片 -->
     <div class="config-row">
-        <div class="config-group"><label>🎯 场景</label><div class="chip-group" id="scenarioGroup"><button class="chip" data-value="破冰">破冰</button><button class="chip active" data-value="暧昧">暧昧</button><button class="chip" data-value="挽回">挽回</button></div></div>
-        <div class="config-group"><label>🎭 风格</label><div class="chip-group" id="styleGroup"><button class="chip active" data-value="暖男">暖男</button><button class="chip" data-value="幽默">幽默</button><button class="chip" data-value="直球">直球</button></div></div>
-        <div class="config-group"><label>🔒 安全</label><div class="chip-group" id="safetyGroup"><button class="chip" data-value="green">绿</button><button class="chip active" data-value="yellow">黄</button></div></div>
+      <div class="config-group">
+        <label>🎯 场景</label>
+        <div class="chip-group" id="scenarioGroup">
+          <button class="chip" data-value="破冰">破冰</button>
+          <button class="chip active" data-value="暧昧">暧昧</button>
+          <button class="chip" data-value="挽回">挽回</button>
+        </div>
+      </div>
+      <div class="config-group">
+        <label>🎭 风格</label>
+        <div class="chip-group" id="styleGroup">
+          <button class="chip active" data-value="暖男">暖男</button>
+          <button class="chip" data-value="幽默">幽默</button>
+          <button class="chip" data-value="直球">直球</button>
+        </div>
+      </div>
+      <div class="config-group">
+        <label>🔒 安全</label>
+        <div class="chip-group" id="safetyGroup">
+          <button class="chip" data-value="green">绿</button>
+          <button class="chip active" data-value="yellow">黄</button>
+        </div>
+      </div>
     </div>
 
     <!-- 历史 -->
-    <div class="history-area" id="historyArea"><div class="history-empty">👋 输入女生的话，AI 帮你分析潜台词</div></div>
+    <div class="history-area" id="historyArea">
+      <div class="history-empty">👋 输入女生的话，AI 帮你分析</div>
+    </div>
 
     <!-- 建议 -->
     <div class="suggestions-area" id="suggestionsArea">
-        <div class="analysis-text" id="analysisText">🔍 潜台词</div>
-        <div id="suggestionList"></div>
+      <div class="analysis-text" id="analysisText">🔍 潜台词</div>
+      <div id="suggestionList"></div>
     </div>
 
     <!-- 底部 -->
     <div class="input-area">
-        <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
-        <div class="btn-group">
-            <button class="btn btn-primary" id="sendBtn">🚀 获取建议</button>
-            <button class="btn btn-outline" id="clearHistoryBtn" title="清除历史">🗑️</button>
-        </div>
+      <input type="text" id="messageInput" placeholder="输入女生原话..." autocomplete="off">
+      <div class="btn-group">
+        <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
+        <button class="btn btn-outline" id="clearHistoryBtn" title="清除历史">🗑️</button>
+      </div>
     </div>
-</div>
-<div class="toast" id="toast"></div>
+  </div>
+  <div class="toast" id="toast"></div>
 
-<script>
-    // ============================================================
-    //  核心状态
-    // ============================================================
+  <script>
+    // ========== 核心状态 ==========
     const state = {
-        history: [],
-        config: { scenario: '暧昧', style: '暖男', safety: 'yellow' },
-        isLoading: false,
-        pendingGuyReply: false,
-        apiKey: '',
-        apiUrl: 'https://api.deepseek.com/v1/chat/completions',
-        model: 'deepseek-chat',
-        useAI: true,
-        enableFallback: false   // 默认关闭模拟降级
+      history: [],
+      config: { scenario: '暧昧', style: '暖男', safety: 'yellow' },
+      isLoading: false,
+      pendingGuyReply: false,
+      apiKey: '',
+      apiUrl: 'https://api.deepseek.com/v1/chat/completions',
+      model: 'deepseek-chat',
+      useAI: true
     };
 
-    // DOM
     const $ = id => document.getElementById(id);
     const historyArea = $('historyArea');
     const suggestionsArea = $('suggestionsArea');
@@ -159,342 +552,272 @@
     const apiUrlInput = $('apiUrlInput');
     const modelInput = $('modelInput');
     const useAICheckbox = $('useAI');
-    const enableFallbackCheckbox = $('enableFallback');
     const saveSettingsBtn = $('saveSettingsBtn');
     const clearHistoryBtn = $('clearHistoryBtn');
 
-    // ============================================================
-    //  本地模拟数据库（仅当用户显式开启降级时使用）
-    // ============================================================
-    const MOCK_DB = {
-        '暖男': {
-            '破冰': [{ text: '听你这么说，感觉你是个很认真的人，认识你很开心。', reason: '真诚表达欣赏。', effect: '她会觉得你靠谱。' }, { text: '虽然刚认识，但感觉你性格很好，希望多了解你。', reason: '表达好感留余地。', effect: '愿意继续聊。' }, { text: '今天能和你聊天很幸运，希望你也是。', reason: '温暖收尾。', effect: '氛围温馨。' }],
-            '暧昧': [{ text: '辛苦了，给你云递一杯热奶茶（加珍珠）。', reason: '虚拟关心。', effect: '被温暖到。' }, { text: '听你说累，我都有点心疼了，明天好好休息吧。', reason: '直接心疼。', effect: '感到被重视。' }, { text: '要是能帮你分担就好了，下次累记得找我。', reason: '暧昧试探。', effect: '关系升温。' }],
-            '挽回': [{ text: '我理解你的感受，之前确实是我没处理好。', reason: '承认问题。', effect: '情绪缓和。' }, { text: '不管结果如何，我都希望你是开心的。', reason: '低姿态尊重。', effect: '态度软化。' }, { text: '给我一点时间，我会改，但我不逼你。', reason: '展示担当。', effect: '保留机会。' }]
-        },
-        '幽默': {
-            '破冰': [{ text: '啊，这熟悉的感觉，难道我们上辈子是网友？', reason: '玩梗化解陌生。', effect: '她会笑。' }, { text: '你这句话我该怎么接？在线等。', reason: '自嘲示弱。', effect: '互动性强。' }, { text: '高手啊，一上来就聊这么深刻的话题。', reason: '夸张赞美。', effect: '气氛活跃。' }],
-            '暧昧': [{ text: '你这么累，我怕我的笑话你笑不动，那我岂不是亏了？', reason: '先关心再调侃。', effect: '情绪被调节。' }, { text: '卷王，再卷我就去公司楼下举牌抗议了。', reason: '结合职场梗。', effect: '觉得有趣。' }, { text: '累了就想想我，保准吓醒，比咖啡管用。', reason: '自黑式暧昧。', effect: '又甜又好笑。' }],
-            '挽回': [{ text: '虽然我现在挺笨的，但听你说话我还是会的。', reason: '自嘲认真。', effect: '缓解沉重。' }, { text: '好吧，我承认我输了，但输给你我不冤。', reason: '幽默认输。', effect: '气氛破冰。' }, { text: '你可以生我气，但别气坏了，不然我要内疚两辈子。', reason: '夸张讨好。', effect: '哭笑不得。' }]
-        },
-        '直球': {
-            '破冰': [{ text: '我觉得我们挺合拍的，要不要打个赌？', reason: '自信主导。', effect: '激发好胜心。' }, { text: '不说废话了，我想认识你。', reason: '简单直接。', effect: '冲击力强。' }, { text: '你挺有意思的，我不太想跟你只做网友。', reason: '直接表达意图。', effect: '明确态度。' }],
-            '暧昧': [{ text: '加班完，第一个想到的是找我诉苦，我该不该高兴？', reason: '戳破依赖。', effect: '暧昧升级。' }, { text: '别太拼了，我会担心。', reason: '霸道关心。', effect: '心跳加速。' }, { text: '下次累的时候，直接打电话给我，别打字了。', reason: '推进接触。', effect: '关系质变。' }],
-            '挽回': [{ text: '我不想放手，但如果你真要走，我送你。', reason: '强势温柔。', effect: '触动内心。' }, { text: '给我一次机会，就一次。', reason: '简洁有力。', effect: '直击灵魂。' }, { text: '之前是我的错，我不找借口，但我想弥补。', reason: '干脆认错。', effect: '展现担当。' }]
-        }
-    };
-
-    // ============================================================
-    //  辅助函数
-    // ============================================================
+    // ========== 辅助函数 ==========
     function getConfig() {
-        const scenario = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '暧昧';
-        const style = document.querySelector('#styleGroup .chip.active')?.dataset.value || '暖男';
-        const safety = document.querySelector('#safetyGroup .chip.active')?.dataset.value || 'yellow';
-        return { scenario, style, safety };
+      const scenario = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '暧昧';
+      const style = document.querySelector('#styleGroup .chip.active')?.dataset.value || '暖男';
+      const safety = document.querySelector('#safetyGroup .chip.active')?.dataset.value || 'yellow';
+      return { scenario, style, safety };
     }
 
     function showToast(msg, duration = 2000) {
-        toastEl.textContent = msg;
-        toastEl.classList.add('show');
-        clearTimeout(toastEl._timer);
-        toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), duration);
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._timer);
+      toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), duration);
     }
 
     function updateStatusBadge() {
-        const hasValidKey = state.apiKey && state.apiKey.trim().length > 0;
-        const aiEnabled = state.useAI;
-        if (hasValidKey && aiEnabled) {
-            statusBadge.textContent = '🤖 AI 在线';
-            statusBadge.className = 'badge-ai';
-        } else if (!aiEnabled && state.enableFallback) {
-            statusBadge.textContent = '⚡ 模拟（手动）';
-            statusBadge.className = 'badge-mock';
-        } else if (!aiEnabled && !state.enableFallback) {
-            statusBadge.textContent = '⛔ AI 已禁用';
-            statusBadge.className = 'badge-mock';
-        } else {
-            statusBadge.textContent = '⚡ 模拟（降级）';
-            statusBadge.className = 'badge-mock';
-        }
+      const hasKey = state.apiKey && state.apiKey.trim().length > 0;
+      if (state.useAI && hasKey) {
+        statusBadge.textContent = '🤖 AI 在线';
+        statusBadge.className = 'badge online';
+      } else if (!state.useAI) {
+        statusBadge.textContent = '⛔ AI 禁用';
+        statusBadge.className = 'badge offline';
+      } else {
+        statusBadge.textContent = '⚠️ 缺少 Key';
+        statusBadge.className = 'badge offline';
+      }
     }
 
     function renderHistory() {
-        if (state.history.length === 0) {
-            historyArea.innerHTML = `<div class="history-empty">👋 输入女生的话，AI 帮你分析潜台词</div>`;
-            return;
-        }
-        let html = '';
-        state.history.forEach(msg => {
-            const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
-            const label = msg.role === 'girl' ? '👩 她' : '🧑 我';
-            html += `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`;
-        });
-        historyArea.innerHTML = html;
-        historyArea.scrollTop = historyArea.scrollHeight;
-        try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch(e) {}
+      if (state.history.length === 0) {
+        historyArea.innerHTML = `<div class="history-empty">👋 输入女生的话，AI 帮你分析</div>`;
+        return;
+      }
+      let html = '';
+      state.history.forEach(msg => {
+        const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
+        const label = msg.role === 'girl' ? '👩 她' : '🧑 我';
+        html += `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`;
+      });
+      historyArea.innerHTML = html;
+      historyArea.scrollTop = historyArea.scrollHeight;
+      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
     }
 
     function renderSuggestions(response) {
-        if (!response || !response.suggestions || response.suggestions.length === 0) {
-            suggestionsArea.classList.remove('show');
-            return;
-        }
-        suggestionsArea.classList.add('show');
-        analysisText.textContent = '🔍 ' + response.analysis;
-
-        let html = '';
-        response.suggestions.forEach(s => {
-            html += `
-                <div class="suggestion-card" data-text="${encodeURIComponent(s.text)}">
-                    <div class="suggestion-text">${s.id || '💡'}. ${s.text}</div>
-                    <div class="suggestion-meta">
-                        <span>💡 ${s.reason || '推荐理由'}</span>
-                        <span>📈 ${s.expectedEffect || '预期效果'}</span>
-                    </div>
-                    <div class="badge-copy">👆 点击复制</div>
-                </div>
-            `;
+      if (!response || !response.suggestions || response.suggestions.length === 0) {
+        suggestionsArea.classList.remove('show');
+        return;
+      }
+      suggestionsArea.classList.add('show');
+      analysisText.textContent = '🔍 ' + response.analysis;
+      let html = '';
+      response.suggestions.forEach(s => {
+        html += `
+          <div class="suggestion-card" data-text="${encodeURIComponent(s.text)}">
+            <div class="suggestion-text">${s.id || '💡'}. ${s.text}</div>
+            <div class="suggestion-meta">
+              <span>💡 ${s.reason || '推荐理由'}</span>
+              <span>📈 ${s.expectedEffect || '预期效果'}</span>
+            </div>
+            <div class="badge-copy">👆 点击复制</div>
+          </div>
+        `;
+      });
+      suggestionList.innerHTML = html;
+      document.querySelectorAll('.suggestion-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const text = decodeURIComponent(this.dataset.text);
+          copyAndSelect(text);
         });
-        suggestionList.innerHTML = html;
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const text = decodeURIComponent(this.dataset.text);
-                copyAndSelect(text);
-            });
-        });
+      });
     }
 
     function copyAndSelect(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制：' + text)).catch(() => fallbackCopy(text));
-        } else { fallbackCopy(text); }
-        state.history.push({ role: 'guy', content: text });
-        state.pendingGuyReply = true;
-        renderHistory();
-        suggestionsArea.classList.remove('show');
-        messageInput.focus();
-        showToast('📨 已记录你的回复，等女生回了再输入', 1500);
-        try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch(e) {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制')).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+      state.history.push({ role: 'guy', content: text });
+      state.pendingGuyReply = true;
+      renderHistory();
+      suggestionsArea.classList.remove('show');
+      messageInput.focus();
+      showToast('📨 已记录，等女生回复后继续', 1500);
+      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
     }
 
     function fallbackCopy(text) {
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); showToast('✅ 已复制'); } catch(e) { showToast('⚠️ 手动复制：' + text, 3000); }
-        document.body.removeChild(ta);
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy');
+        showToast('✅ 已复制'); } catch (e) { showToast('⚠️ 手动复制', 3000); }
+      document.body.removeChild(ta);
     }
 
-    // ============================================================
-    //  通用 AI 调用
-    // ============================================================
+    // ========== AI 调用 ==========
     async function callAI(girlMessage, history, config) {
-        const systemPrompt = `你是一位资深情感沟通顾问。根据用户选择的【场景(${config.scenario})】、【风格(${config.style})】、【安全等级(${config.safety})】生成回复建议。
+      const systemPrompt = `你是一位资深情感沟通顾问。根据用户选择的【场景(${config.scenario})】、【风格(${config.style})】、【安全等级(${config.safety})】生成回复建议。
 规则：
 1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。
 2. 每条建议 15~30 字，口语化。
-3. 安全等级为 green 时严禁暧昧；yellow 时允许适度好感表达。
-4. 结合对话历史，利用已知信息让回复有针对性。`;
+3. 安全等级 green 时严禁暧昧；yellow 时允许适度好感表达。
+4. 结合对话历史，利用已知信息。`;
 
-        const userContent = JSON.stringify({
-            girl_message: girlMessage,
-            history: history.slice(-10),
-            config: config
-        });
+      const userContent = JSON.stringify({ girl_message: girlMessage, history: history.slice(-10), config });
+      const payload = {
+        model: state.model || 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userContent }
+        ],
+        temperature: 0.9,
+        max_tokens: 800,
+        response_format: { type: 'json_object' }
+      };
 
-        const payload = {
-            model: state.model || 'deepseek-chat',
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userContent }
-            ],
-            temperature: 0.9,
-            max_tokens: 800,
-            response_format: { type: 'json_object' }
-        };
+      const response = await fetch(state.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.apiKey}`
+        },
+        body: JSON.stringify(payload)
+      });
 
-        const response = await fetch(state.apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${state.apiKey}`
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(`API 请求失败 (${response.status}): ${err}`);
-        }
-
-        const data = await response.json();
-        const content = data.choices[0].message.content;
-        try {
-            return JSON.parse(content);
-        } catch(e) {
-            throw new Error('AI 返回格式错误，请重试');
-        }
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`API 请求失败 (${response.status}): ${err}`);
+      }
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      try {
+        return JSON.parse(content);
+      } catch (e) {
+        throw new Error('AI 返回格式错误');
+      }
     }
 
-    // 模拟引擎（仅当用户启用降级时使用）
-    function getMockSuggestions(girlMessage, history, config) {
-        const style = config.style || '暖男';
-        const scenario = config.scenario || '暧昧';
-        const styleData = MOCK_DB[style] || MOCK_DB['暖男'];
-        const suggestions = styleData[scenario] || styleData['暧昧'];
-        let analysis = '日常闲聊，可以制造轻松氛围。';
-        if (girlMessage.includes('累') || girlMessage.includes('加班') || girlMessage.includes('困')) analysis = '她在释放疲惫情绪，渴望被关心和照顾。';
-        else if (girlMessage.includes('?') || girlMessage.includes('？') || girlMessage.includes('吗')) analysis = '她在主动找话题，对你有关注度，接住并抛回问题。';
-        else if (girlMessage.includes('烦') || girlMessage.includes('难') || girlMessage.includes('不开心')) analysis = '她心情低落，需要情绪共鸣，而不是解决问题。';
-        const list = suggestions.map((s, idx) => ({ id: idx + 1, text: s.text, reason: s.reason, expectedEffect: s.effect }));
-        return { analysis, suggestions: list };
-    }
-
-    // ============================================================
-    //  主逻辑（无自动降级，除非用户明确开启）
-    // ============================================================
+    // ========== 主逻辑 ==========
     async function handleSend() {
-        if (state.isLoading) return;
-        const input = messageInput.value.trim();
-        if (!input) { showToast('请输入女生说的话', 1000); return; }
+      if (state.isLoading) return;
+      const input = messageInput.value.trim();
+      if (!input) { showToast('请输入女生的话', 1000); return; }
 
-        if (state.pendingGuyReply) {
-            state.history.push({ role: 'girl', content: input });
-            state.pendingGuyReply = false;
-        } else {
-            state.history.push({ role: 'girl', content: input });
+      if (state.pendingGuyReply) {
+        state.history.push({ role: 'girl', content: input });
+        state.pendingGuyReply = false;
+      } else {
+        state.history.push({ role: 'girl', content: input });
+      }
+      messageInput.value = '';
+      renderHistory();
+      try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch (e) {}
+
+      state.isLoading = true;
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="loader"></span>思考中';
+      suggestionsArea.classList.remove('show');
+
+      const config = getConfig();
+
+      try {
+        if (!state.useAI || !state.apiKey || state.apiKey.trim().length === 0) {
+          throw new Error('AI 未启用或未填写 API Key');
         }
-        messageInput.value = '';
+        const response = await callAI(input, state.history, config);
+        if (!response.analysis || !response.suggestions || response.suggestions.length < 3) {
+          throw new Error('AI 返回结构不完整');
+        }
+        renderSuggestions(response);
+        showToast('✅ AI 分析完成', 1000);
+        suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (err) {
+        showToast('❌ ' + err.message, 4000);
+        // 回滚历史
+        state.history.pop();
         renderHistory();
-        try { localStorage.setItem('chat_history', JSON.stringify(state.history)); } catch(e) {}
-
-        state.isLoading = true;
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<span class="loader"></span>思考中';
-        suggestionsArea.classList.remove('show');
-
-        const config = getConfig();
-
-        try {
-            let response;
-            const shouldUseAI = state.useAI && state.apiKey && state.apiKey.trim().length > 0;
-
-            if (shouldUseAI) {
-                // 调用真实 AI
-                response = await callAI(input, state.history, config);
-                if (!response.analysis || !response.suggestions || response.suggestions.length < 3) {
-                    throw new Error('AI 返回结构不完整');
-                }
-                showToast('✅ AI 分析完成', 1000);
-            } else {
-                // 用户手动禁用了 AI，或者没填 Key
-                if (state.enableFallback) {
-                    response = getMockSuggestions(input, state.history, config);
-                    showToast('⚡ 模拟模式（手动启用）', 1000);
-                } else {
-                    throw new Error('AI 未启用且未开启模拟降级。请检查设置。');
-                }
-            }
-
-            renderSuggestions(response);
-            suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } catch (err) {
-            // 如果 AI 调用失败，根据 fallback 开关决定是否降级
-            if (state.enableFallback) {
-                console.warn('AI 失败，使用模拟降级:', err);
-                showToast('⚠️ AI 失败，已自动切换模拟模式', 2000);
-                const fallbackResponse = getMockSuggestions(input, state.history, config);
-                renderSuggestions(fallbackResponse);
-                suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
-                showToast('❌ ' + err.message, 4000);
-                // 错误时不清除输入，让用户重试
-                messageInput.value = input;
-                // 回滚历史（移除刚添加的 girl 消息）
-                state.history.pop();
-                renderHistory();
-            }
-        } finally {
-            state.isLoading = false;
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '🚀 获取建议';
-        }
+        messageInput.value = input;
+      } finally {
+        state.isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '🚀 获取';
+      }
     }
 
-    // ============================================================
-    //  初始化与事件绑定
-    // ============================================================
+    // ========== 初始化 ==========
     function loadFromStorage() {
-        try {
-            const h = localStorage.getItem('chat_history');
-            if (h) { state.history = JSON.parse(h); renderHistory(); }
-            const key = localStorage.getItem('api_key');
-            if (key) { state.apiKey = key; apiKeyInput.value = key; }
-            const url = localStorage.getItem('api_url');
-            if (url) { state.apiUrl = url; apiUrlInput.value = url; }
-            const model = localStorage.getItem('model');
-            if (model) { state.model = model; modelInput.value = model; }
-            const use = localStorage.getItem('use_ai');
-            if (use !== null) { state.useAI = use === 'true'; useAICheckbox.checked = state.useAI; }
-            const fallback = localStorage.getItem('enable_fallback');
-            if (fallback !== null) { state.enableFallback = fallback === 'true'; enableFallbackCheckbox.checked = state.enableFallback; }
-        } catch(e) {}
-        updateStatusBadge();
+      try {
+        const h = localStorage.getItem('chat_history');
+        if (h) { state.history = JSON.parse(h);
+          renderHistory(); }
+        const key = localStorage.getItem('api_key');
+        if (key) { state.apiKey = key;
+          apiKeyInput.value = key; }
+        const url = localStorage.getItem('api_url');
+        if (url) { state.apiUrl = url;
+          apiUrlInput.value = url; }
+        const model = localStorage.getItem('model');
+        if (model) { state.model = model;
+          modelInput.value = model; }
+        const use = localStorage.getItem('use_ai');
+        if (use !== null) { state.useAI = use === 'true';
+          useAICheckbox.checked = state.useAI; }
+      } catch (e) {}
+      updateStatusBadge();
     }
 
     settingsToggle.addEventListener('click', () => {
-        settingsPanel.classList.toggle('show');
+      settingsPanel.classList.toggle('show');
     });
 
     saveSettingsBtn.addEventListener('click', () => {
-        const key = apiKeyInput.value.trim();
-        const url = apiUrlInput.value.trim();
-        const model = modelInput.value.trim();
-        state.apiKey = key;
-        state.apiUrl = url || 'https://api.deepseek.com/v1/chat/completions';
-        state.model = model || 'deepseek-chat';
-        state.useAI = useAICheckbox.checked;
-        state.enableFallback = enableFallbackCheckbox.checked;
-        localStorage.setItem('api_key', key);
-        localStorage.setItem('api_url', state.apiUrl);
-        localStorage.setItem('model', state.model);
-        localStorage.setItem('use_ai', String(state.useAI));
-        localStorage.setItem('enable_fallback', String(state.enableFallback));
-        updateStatusBadge();
-        showToast('✅ 设置已保存', 1500);
-        settingsPanel.classList.remove('show');
+      const key = apiKeyInput.value.trim();
+      const url = apiUrlInput.value.trim();
+      const model = modelInput.value.trim();
+      state.apiKey = key;
+      state.apiUrl = url || 'https://api.deepseek.com/v1/chat/completions';
+      state.model = model || 'deepseek-chat';
+      state.useAI = useAICheckbox.checked;
+      localStorage.setItem('api_key', key);
+      localStorage.setItem('api_url', state.apiUrl);
+      localStorage.setItem('model', state.model);
+      localStorage.setItem('use_ai', String(state.useAI));
+      updateStatusBadge();
+      showToast('✅ 设置已保存', 1500);
+      settingsPanel.classList.remove('show');
     });
 
     clearHistoryBtn.addEventListener('click', () => {
-        if (confirm('确定清除所有聊天记录吗？')) {
-            state.history = [];
-            state.pendingGuyReply = false;
-            renderHistory();
-            suggestionsArea.classList.remove('show');
-            localStorage.removeItem('chat_history');
-            showToast('🗑️ 已清除', 1000);
-        }
+      if (confirm('清除所有聊天记录？')) {
+        state.history = [];
+        state.pendingGuyReply = false;
+        renderHistory();
+        suggestionsArea.classList.remove('show');
+        localStorage.removeItem('chat_history');
+        showToast('🗑️ 已清除', 1000);
+      }
     });
 
     document.querySelectorAll('.chip-group').forEach(group => {
-        group.addEventListener('click', function(e) {
-            const chip = e.target.closest('.chip');
-            if (!chip) return;
-            this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            if (state.history.length > 0) {
-                showToast('配置已切换，重新发送消息生效', 1200);
-            }
-        });
+      group.addEventListener('click', function(e) {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        if (state.history.length > 0) {
+          showToast('配置已切换，重新发送生效', 1200);
+        }
+      });
     });
 
     sendBtn.addEventListener('click', handleSend);
     messageInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
+      if (e.key === 'Enter') { e.preventDefault();
+        handleSend(); }
     });
 
     loadFromStorage();
-    showToast('💡 输入女生的话，点击获取建议', 2000);
-</script>
+    showToast('💡 输入女生的话，点击获取', 2000);
+  </script>
 </body>
 </html>
