@@ -292,7 +292,7 @@
       document.body.removeChild(ta);
     }
 
-    // ========== AI 调用（修复 400 错误） ==========
+    // ========== AI 调用（修复格式错误） ==========
     async function callAI(girlMessage, history, config) {
       const profile = state.profile;
       const profileText = `她叫${profile.name || '未命名'}，${profile.age || '?'}岁，喜欢${profile.hobby || '未知'}。${profile.note || ''}`;
@@ -303,7 +303,8 @@
 1. 输出必须是纯 JSON 格式，包含 "analysis"(潜台词分析) 和 "suggestions"(数组，含3个对象，每个有 text, reason, expectedEffect)。
 2. 每条建议 15~30 字，口语化。
 3. 安全等级 green 时严禁暧昧；yellow 时允许适度好感表达。
-4. 务必结合对象的年龄、爱好等信息，让回复更有针对性。`;
+4. 务必结合对象的年龄、爱好等信息，让回复更有针对性。
+5. 请务必只输出一个有效的JSON对象，不要包含任何其他文字、解释、markdown或代码块标记。`;
 
       const userContent = JSON.stringify({ girl_message: girlMessage, history: history.slice(-10), config });
 
@@ -315,7 +316,6 @@
         ],
         temperature: 0.9,
         max_tokens: 800
-        // 注意：智谱 glm-4-flash 不支持 response_format，已移除
       };
 
       const response = await fetch(state.apiUrl, {
@@ -333,10 +333,27 @@
       }
       const data = await response.json();
       const content = data.choices[0].message.content;
+
+      // 智能解析 JSON（支持直接JSON、代码块、或花括号包裹）
       try {
+        // 尝试直接解析
         return JSON.parse(content);
-      } catch (e) {
-        throw new Error('AI 返回格式错误，请重试');
+      } catch (e1) {
+        // 尝试提取 ```json ... ``` 代码块
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          try {
+            return JSON.parse(jsonMatch[1]);
+          } catch (e2) {}
+        }
+        // 尝试提取第一个完整的花括号对象
+        const braceMatch = content.match(/\{[\s\S]*\}/);
+        if (braceMatch) {
+          try {
+            return JSON.parse(braceMatch[0]);
+          } catch (e3) {}
+        }
+        throw new Error('AI 返回内容无法解析为JSON，请检查AI响应');
       }
     }
 
@@ -376,6 +393,7 @@
         suggestionsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } catch (err) {
         showToast('❌ ' + err.message, 4000);
+        // 回滚历史
         state.history.pop();
         renderHistory();
         messageInput.value = input;
@@ -471,7 +489,7 @@
     });
 
     loadFromStorage();
-    showToast('💡 已修复 400 错误，请重试', 2000);
+    showToast('💡 已修复JSON解析，请重试', 2000);
   </script>
 </body>
 </html>
