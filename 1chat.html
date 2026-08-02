@@ -61,12 +61,14 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
 .suggestions-area{flex-shrink:0;background:rgba(255,247,235,0.8);backdrop-filter:blur(8px);border-radius:24px;padding:16px 14px;margin:6px 0 10px;border-left:5px solid #f59e0b;max-height:50vh;overflow-y:auto;display:none}
 .suggestions-area.show{display:block}
 .analysis-text{font-size:13px;font-weight:500;color:#78350f;background:rgba(245,158,11,0.12);padding:6px 16px;border-radius:30px;display:inline-block;margin-bottom:12px}
-.suggestion-card{background:#fff;border-radius:18px;padding:12px 16px;margin-top:10px;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #f3e8d0;cursor:pointer;transition:all .15s}
+.suggestion-card{background:#fff;border-radius:18px;padding:12px 16px;margin-top:10px;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #f3e8d0;cursor:pointer;transition:all .15s;position:relative}
 .suggestion-card:active{transform:scale(.97);background:#fcf9f2}
 .suggestion-text{font-size:15px;font-weight:600;color:#1e1b4b}
 .suggestion-meta{font-size:12px;color:#8b8b8b;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
 .suggestion-meta span{background:#f5f3f0;padding:2px 12px;border-radius:20px}
 .badge-copy{font-size:11px;color:#7c3aed;font-weight:600;float:right}
+.suggestion-card .del-suggestion{position:absolute;top:8px;right:10px;background:none;border:none;color:#b0b0b0;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s}
+.suggestion-card .del-suggestion:hover{color:#ef4444}
 .quick-bar{display:flex;gap:12px;margin:4px 0 8px;flex-shrink:0;flex-wrap:wrap;padding:6px 12px;background:rgba(255,255,255,0.4);border-radius:20px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.5)}
 .quick-item{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px}
 .quick-item .label{font-weight:500;color:#4b5563}
@@ -193,6 +195,7 @@ body{background:linear-gradient(145deg,#f7f0fc 0%,#e9def0 100%);min-height:100vh
         <button class="chip" data-value="直球">直球</button>
         <button class="chip active" data-value="话题延伸">话题延伸</button>
         <button class="chip" data-value="开启话题">开启话题</button>
+        <button class="chip" data-value="高情商回复">高情商回复</button>
       </div>
     </div>
   </div>
@@ -409,9 +412,78 @@ function pushHistory(r,c){const o=getCurrentObject();if(o){o.history.push({role:
 function renderHistory(){const h=getCurrentHistory();if(h.length===0){const o=getCurrentObject();historyArea.innerHTML=`<div class="history-empty">👋 ${o?'开始与 '+o.name+' 的对话':'添加一个对象开始聊天'}</div>`;return}let html='';h.forEach(msg=>{const cls=msg.role==='girl'?'msg-girl':'msg-guy';const label=msg.role==='girl'?'🗣️ 对方':'🧑 我';html+=`<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${msg.content}</div>`});historyArea.innerHTML=html;historyArea.scrollTop=historyArea.scrollHeight}
 function clearCurrentHistory(){if(!getCurrentObject()){showToast('请先选择对象',1000);return}if(confirm('确定清除当前对象的聊天记录吗？')){const o=getCurrentObject();o.history=[];state.pendingGuyReply=!1;renderHistory();suggestionsArea.classList.remove('show');saveToStorage();showToast('🗑️ 已清除',1000)}}
 
-function renderSuggestions(r){if(!r||!r.suggestions||r.suggestions.length===0){suggestionsArea.classList.remove('show');return}suggestionsArea.classList.add('show');analysisText.textContent='🔍 '+r.analysis;let html='';r.suggestions.forEach(s=>{html+=`<div class="suggestion-card" data-text="${encodeURIComponent(s.text)}"><div class="suggestion-text">${s.id||'💡'}. ${s.text}</div><div class="suggestion-meta"><span>💡 ${s.reason||'推荐理由'}</span><span>📈 ${s.expectedEffect||'预期效果'}</span></div><div class="badge-copy">👆 点击复制</div></div>`});suggestionList.innerHTML=html;document.querySelectorAll('.suggestion-card').forEach(card=>{card.addEventListener('click',function(){const t=decodeURIComponent(this.dataset.text);copyAndSelect(t)})})}
-function copyAndSelect(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t))}else{fallbackCopy(t)}pushHistory('guy',t);state.pendingGuyReply=!0;suggestionsArea.classList.remove('show');messageInput.focus();showToast('📨 已记录，等对方回复后继续',1500)}
-function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}document.body.removeChild(ta)}
+// ========== 修改：建议卡片增加删除按钮 ==========
+function renderSuggestions(r){
+  if(!r||!r.suggestions||r.suggestions.length===0){
+    suggestionsArea.classList.remove('show');
+    return;
+  }
+  suggestionsArea.classList.add('show');
+  analysisText.textContent='🔍 '+r.analysis;
+  let html='';
+  r.suggestions.forEach((s,index)=>{
+    html+=`
+      <div class="suggestion-card" data-index="${index}">
+        <button class="del-suggestion" data-index="${index}" title="删除此建议">✕</button>
+        <div class="suggestion-text">${s.id||'💡'}. ${s.text}</div>
+        <div class="suggestion-meta">
+          <span>💡 ${s.reason||'推荐理由'}</span>
+          <span>📈 ${s.expectedEffect||'预期效果'}</span>
+        </div>
+        <div class="badge-copy">👆 点击复制</div>
+      </div>
+    `;
+  });
+  suggestionList.innerHTML=html;
+
+  // 绑定复制事件（点击卡片主体复制）
+  document.querySelectorAll('.suggestion-card').forEach(card=>{
+    card.addEventListener('click',function(e){
+      if(e.target.closest('.del-suggestion')) return;
+      const text=decodeURIComponent(this.dataset.text);
+      copyAndSelect(text);
+    });
+    // 存储文本到 dataset
+    const text=r.suggestions[parseInt(this.dataset.index)].text;
+    this.dataset.text=encodeURIComponent(text);
+  });
+
+  // 绑定删除事件
+  document.querySelectorAll('.del-suggestion').forEach(btn=>{
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      const card=this.closest('.suggestion-card');
+      if(card){
+        card.remove();
+        if(document.querySelectorAll('.suggestion-card').length===0){
+          suggestionsArea.classList.remove('show');
+        }
+      }
+    });
+  });
+}
+
+function copyAndSelect(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>showToast('✅ 已复制')).catch(()=>fallbackCopy(t));
+  }else{
+    fallbackCopy(t);
+  }
+  pushHistory('guy',t);
+  state.pendingGuyReply=!0;
+  suggestionsArea.classList.remove('show');
+  messageInput.focus();
+  showToast('📨 已记录，等对方回复后继续',1500);
+}
+
+function fallbackCopy(t){
+  const ta=document.createElement('textarea');
+  ta.value=t;
+  document.body.appendChild(ta);
+  ta.select();
+  try{document.execCommand('copy');showToast('✅ 已复制')}catch(e){showToast('⚠️ 手动复制',3000)}
+  document.body.removeChild(ta);
+}
 
 // ---------- 图片 ----------
 function compressImage(dataUrl,maxSize=1024*1024){return new Promise((resolve)=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const canvas=document.createElement('canvas');let quality=0.9;const tryCompress=(q)=>{canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);const newData=canvas.toDataURL('image/jpeg',q);if(newData.length<maxSize||q<0.2){resolve(newData)}else{tryCompress(q-0.1)}};tryCompress(0.9)};img.src=dataUrl})}
@@ -468,16 +540,36 @@ async function regenerateSuggestions(){
   }
 }
 
-// ========== 核心修复：DeepSeek 图片识别兼容 ==========
+// ========== 修复 DeepSeek 识图：自动切换模型，并增加高情商回复风格 ==========
 async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
   const cleanKey=toAscii(state.apiKey).trim();
   if(!cleanKey)throw new Error('API Key 无效');
   const cleanUrl=toAscii(state.apiUrl).trim();
   if(!cleanUrl||!cleanUrl.startsWith('http'))throw new Error('API 地址无效');
-  const cleanModel=toAscii(state.model).trim()||'glm-4-flash';
+  let cleanModel=toAscii(state.model).trim()||'glm-4-flash';
+
+  // 判断是否为 DeepSeek
+  const isDeepSeek = cleanUrl.includes('deepseek.com');
+
+  // 如果是 DeepSeek 且有图片，但模型不是视觉模型，自动切换
+  if(isDeepSeek && image){
+    if(!cleanModel.includes('vl')){
+      const originalModel = cleanModel;
+      cleanModel = 'deepseek-vl';
+      console.warn(`DeepSeek 识图需要视觉模型，已自动将模型从 "${originalModel}" 切换为 "${cleanModel}"`);
+      showToast(`🔄 已自动切换为 ${cleanModel} 模型以支持识图`, 2000);
+    }
+  }
 
   const o=getCurrentObject();
   const profileText=o?`对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}`:'';
+
+  let si='';
+  if(c.style==='幽默'){si='用轻松幽默的口语回应，像朋友聊天，可以自嘲或调侃，但不过分。';}
+  else if(c.style==='直球'){si='直接、自信，简洁，像真人对话，不绕弯子。';}
+  else if(c.style==='话题延伸'){si='提出开放性问题或分享相关经历，引导对话深入。';}
+  else if(c.style==='开启话题'){si='生成一个全新话题开场白，自然有趣，让对方容易接话。';}
+  else if(c.style==='高情商回复'){si='用高情商的方式回应，注重共情、温和、体面，不得罪人，善于化解尴尬，让他人感到舒适，同时保持真诚。';}
 
   let sp = `你是一个嘴巴很贱但很真诚的聊天高手。你的回答要像真人说话一样——有语气词（"啊/吧/啦/呗"）、有断句、有情绪。
 当前聊天对象信息：${profileText}
@@ -485,6 +577,7 @@ async function callAI(gm,h,c,image,relation,purpose,isOpening=false){
 沟通目的：${purpose}
 场景：${c.scenario}
 风格：${c.style}
+风格要求：${si}
 
 绝对禁止：书面语、说教、分析体、"首先/其次/最后/综上所述"。
 每条建议必须像微信聊天里的原话，不超过25个字，带点个人风格（自嘲/反问/夸张）。
@@ -509,31 +602,19 @@ text必须是口语化的原话，reason简短说明为什么这么回，expecte
   if(image)userContent.push({type:'image_url',image_url:{url:image}});
   messages.push({role:'user',content:userContent});
 
-  // 判断是否为 DeepSeek API
-  const isDeepSeek = cleanUrl.includes('deepseek.com');
-
-  // 构建请求 payload
   const payload = {
     model: cleanModel,
     messages: messages,
     temperature: 1.0,
     max_tokens: 500
   };
-  // DeepSeek 不支持 response_format，其他 API 可尝试添加
-  if (!isDeepSeek) {
-    // 对于非 DeepSeek，先尝试带 response_format，但如果失败会自动降级
-    // 这里我们直接先尝试不带，避免首次失败（因为智谱也支持，但有些版本不支持）
-    // 更稳妥：先尝试带，但通过 tryFetch 处理
-    // 我们使用 tryFetch 逻辑
-  }
 
-  // 自动重试逻辑：先尝试带 response_format，如果返回 400/422 则去掉重试
+  // DeepSeek 永远不加 response_format，其他 API 先尝试加
   const tryFetch = async (includeFormat) => {
     const p = { ...payload };
     if (includeFormat && !isDeepSeek) {
       p.response_format = { type: 'json_object' };
     }
-    // DeepSeek 无论如何都不加 response_format
     if (isDeepSeek) {
       delete p.response_format;
     }
@@ -550,10 +631,8 @@ text必须是口语化的原话，reason简短说明为什么这么回，expecte
 
   let resp;
   if (isDeepSeek) {
-    // DeepSeek 直接发送不带 response_format 的请求
     resp = await tryFetch(false);
   } else {
-    // 其他 API 先尝试带，不行再降级
     resp = await tryFetch(true);
     if (resp.status === 400 || resp.status === 422) {
       console.warn('API 不支持 response_format，自动降级重试...');
@@ -725,7 +804,7 @@ document.querySelectorAll('.chip-group').forEach(group=>{
 });
 
 loadFromStorage();
-showToast('💡 DeepSeek 图片识别已优化',2000);
+showToast('💡 新增「高情商回复」风格',2000);
 </script>
 </body>
 </html>
