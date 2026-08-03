@@ -597,9 +597,9 @@
             <label>🔑 API Key</label>
             <input type="password" id="apiKeyInput" placeholder="sk-...">
             <label>🌐 API 地址</label>
-            <input type="text" id="apiUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4/chat/completions">
+            <input type="text" id="apiUrlInput" placeholder="https://api.deepseek.com/v1/chat/completions">
             <label>🧠 模型名称</label>
-            <input type="text" id="modelInput" placeholder="glm-4-flash / deepseek-chat">
+            <input type="text" id="modelInput" placeholder="deepseek-chat">
             <div class="toggle-row">
                 <input type="checkbox" id="useAI" checked>
                 <label for="useAI">启用 AI</label>
@@ -710,8 +710,8 @@
             isLoading: false,
             pendingGuyReply: false,
             apiKey: '',
-            apiUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-            model: 'glm-4-flash',
+            apiUrl: 'https://api.deepseek.com/v1/chat/completions',
+            model: 'deepseek-chat',
             useAI: true,
             imageBase64: null,
             presets: [],
@@ -924,8 +924,8 @@
         function saveCurrentAsPreset(name) {
             if (!name.trim()) { showToast('请输入名称', 1000); return; }
             const key = toAscii(apiKeyInput.value.trim());
-            const url = toAscii(apiUrlInput.value.trim()) || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-            const model = toAscii(modelInput.value.trim()) || 'glm-4-flash';
+            const url = toAscii(apiUrlInput.value.trim()) || 'https://api.deepseek.com/v1/chat/completions';
+            const model = toAscii(modelInput.value.trim()) || 'deepseek-chat';
             if (!key) { showToast('API Key不能为空', 1000); return; }
             if (state.presets.some(p => p.name === name.trim()) && !confirm(`覆盖 "${name}" ？`)) return;
             state.presets = state.presets.filter(p => p.name !== name.trim());
@@ -1194,7 +1194,7 @@
         }
 
         // ---------- 图片 ----------
-        function compressImage(d, m = 1024 * 1024) {
+        function compressImage(d, m = 800 * 1024) {
             return new Promise(r => {
                 const img = new Image();
                 img.onload = () => {
@@ -1206,8 +1206,10 @@
                         c.height = h;
                         const ctx = c.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        const nd = c.toDataURL('image/jpeg', Q); if (nd.length < m || Q < 0.2) r(nd);
-                        else t(Q - 0.1); };
+                        const nd = c.toDataURL('image/jpeg', Q);
+                        if (nd.length < m || Q < 0.1) r(nd);
+                        else t(Q - 0.05);
+                    };
                     t(0.9);
                 };
                 img.src = d;
@@ -1217,11 +1219,15 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = async e => {
-                try { const compressed = await compressImage(e.target.result);
+                try {
+                    const compressed = await compressImage(e.target.result);
                     state.imageBase64 = compressed;
                     previewImg.src = compressed;
                     imagePreview.style.display = 'flex';
-                    showToast('✅ 图片已加载', 1000); } catch (err) { showToast('❌ 图片处理失败', 2000); }
+                    showToast('✅ 图片已加载', 1000);
+                } catch (err) {
+                    showToast('❌ 图片处理失败', 2000);
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -1234,7 +1240,7 @@
         function isStyleOpeningTopic() { return document.querySelector('#styleGroup .chip.active')?.dataset.value ===
                 '开启话题'; }
 
-        // ---------- AI 调用（支持 DeepSeek 图片识别） ----------
+        // ---------- AI 调用（DeepSeek 图片识别修复） ----------
         async function regenerateSuggestions() {
             const obj = getCurrentObject();
             if (!obj) { showToast('请先选择对象', 1000); return; }
@@ -1279,19 +1285,21 @@
             if (!cleanKey) throw new Error('API Key 无效');
             const cleanUrl = toAscii(state.apiUrl).trim();
             if (!cleanUrl || !cleanUrl.startsWith('http')) throw new Error('API 地址无效');
-            let cleanModel = toAscii(state.model).trim() || 'glm-4-flash';
+            let cleanModel = toAscii(state.model).trim() || 'deepseek-chat';
             const isDeepSeek = cleanUrl.includes('deepseek.com');
 
-            // ---- DeepSeek 图片识别专用处理 ----
-            let imageData = image;
+            // ---- DeepSeek 图片处理（强制使用 deepseek-chat 并规范化 base64） ----
+            let imageData = null;
             if (isDeepSeek && image) {
-                if (!cleanModel.includes('vl')) {
-                    cleanModel = 'deepseek-vl2';
-                    showToast('🔄 已自动切换为 deepseek-vl2 以支持图片识别', 2000);
+                cleanModel = 'deepseek-chat';
+                if (typeof image === 'string') {
+                    if (image.startsWith('data:image')) {
+                        imageData = image;
+                    } else {
+                        imageData = 'data:image/jpeg;base64,' + image;
+                    }
                 }
-                if (typeof image === 'string' && !image.startsWith('data:image')) {
-                    imageData = 'data:image/jpeg;base64,' + image;
-                }
+                // 如果图片太大，压缩（但已在 compressImage 处理）
             }
 
             const o = getCurrentObject();
@@ -1325,17 +1333,15 @@
 
             let messages = [{ role: 'system', content: sp }];
             let userContent = [];
-            if (gm && gm.trim()) {
-                userContent.push({ type: 'text', text: gm });
-            }
+            if (gm && gm.trim()) userContent.push({ type: 'text', text: gm });
             if (imageData && isDeepSeek) {
                 userContent.push({ type: 'image_url', image_url: { url: imageData } });
             } else if (image && !isDeepSeek) {
-                userContent.push({ type: 'image_url', image_url: { url: image } });
+                let img = image;
+                if (!img.startsWith('data:image')) img = 'data:image/jpeg;base64,' + img;
+                userContent.push({ type: 'image_url', image_url: { url: img } });
             }
-            if (userContent.length === 0) {
-                userContent.push({ type: 'text', text: '请分析' });
-            }
+            if (userContent.length === 0) userContent.push({ type: 'text', text: '请分析' });
             messages.push({ role: 'user', content: userContent });
 
             const payload = {
@@ -1347,18 +1353,11 @@
 
             const tryFetch = async (includeFormat) => {
                 const p = { ...payload };
-                if (includeFormat && !isDeepSeek) {
-                    p.response_format = { type: 'json_object' };
-                }
-                if (isDeepSeek) {
-                    delete p.response_format;
-                }
+                if (includeFormat && !isDeepSeek) p.response_format = { type: 'json_object' };
+                if (isDeepSeek) delete p.response_format;
                 return fetch(cleanUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${cleanKey}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cleanKey}` },
                     body: JSON.stringify(p)
                 });
             };
@@ -1369,34 +1368,24 @@
             } else {
                 resp = await tryFetch(true);
                 if (resp.status === 400 || resp.status === 422) {
-                    console.warn('API 不支持 response_format，自动降级重试...');
+                    console.warn('降级重试...');
                     resp = await tryFetch(false);
                 }
             }
-
             if (!resp.ok) {
                 let errText = await resp.text();
-                try {
-                    const errJson = JSON.parse(errText);
-                    errText = errJson.error?.message || errText;
-                } catch (e) {}
+                try { const errJson = JSON.parse(errText);
+                    errText = errJson.error?.message || errText; } catch (e) {}
                 throw new Error(`API请求失败(${resp.status}): ${errText}`);
             }
-
             const data = await resp.json();
             const content = data.choices[0].message.content;
-            try {
-                return JSON.parse(content);
-            } catch (e1) {
+            try { return JSON.parse(content); } catch (e1) {
                 const m = content.match(/```json\s*([\s\S]*?)\s*```/);
-                if (m) {
-                    try { return JSON.parse(m[1]); } catch (e2) {}
-                }
+                if (m) try { return JSON.parse(m[1]); } catch (e2) {}
                 const b = content.match(/\{[\s\S]*\}/);
-                if (b) {
-                    try { return JSON.parse(b[0]); } catch (e3) {}
-                }
-                throw new Error('AI返回格式错误，无法解析JSON');
+                if (b) try { return JSON.parse(b[0]); } catch (e3) {}
+                throw new Error('AI返回格式错误');
             }
         }
 
@@ -1478,8 +1467,8 @@
                     state.objects = data.objects || [];
                     state.currentObjectId = data.currentObjectId || null;
                     state.apiKey = data.apiKey || '';
-                    state.apiUrl = data.apiUrl || 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-                    state.model = data.model || 'glm-4-flash';
+                    state.apiUrl = data.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
+                    state.model = data.model || 'deepseek-chat';
                     state.useAI = data.useAI !== undefined ? data.useAI : true;
                     state.presets = data.presets || [];
                     state.currentPreset = data.currentPreset || '';
