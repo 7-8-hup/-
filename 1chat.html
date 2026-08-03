@@ -339,6 +339,8 @@
         .quick-item .label { font-weight: 600; color: var(--gray-600); font-size: 10px; }
         .quick-item .value { background: #ede9fe; padding: 1px 9px; border-radius: 30px; font-weight: 500; color: #5b21b6; cursor: pointer; font-size: 11px; transition: var(--transition); }
         .quick-item .value:hover { background: #ddd6fe; }
+        .quick-item .value.myself { background: #d1fae5; color: #065f46; }
+        .quick-item .value.myself:hover { background: #a7f3d0; }
 
         /* ===== 核心布局修改 ===== */
         .history-area {
@@ -561,6 +563,18 @@
             </div>
             <button class="btn-save" id="saveSettingsBtn">💾 保存配置到预设</button>
             <hr>
+
+            <!-- ========== 我的资料卡 ========== -->
+            <label>🧑 我的资料</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <input type="text" id="myName" placeholder="我的昵称" style="flex:1;min-width:55px;">
+                <input type="number" id="myAge" placeholder="年龄" style="flex:0.7;min-width:45px;">
+            </div>
+            <input type="text" id="myHobby" placeholder="我的爱好/职业">
+            <input type="text" id="myNote" placeholder="我的备注（如性格）">
+            <button class="btn-save" id="saveMyProfileBtn" style="margin-top:6px;">💾 保存我的资料</button>
+            <hr>
+
             <label>👥 聊天对象</label>
             <div class="object-list" id="objectList"></div>
             <div class="add-object-row">
@@ -610,6 +624,7 @@
         <div class="quick-bar" id="quickBar">
             <div class="quick-item"><span class="label">🤝</span><span class="value" id="quickRelation">未设置</span></div>
             <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">闲聊</span></div>
+            <div class="quick-item"><span class="label">🧑</span><span class="value myself" id="quickMyName">我</span></div>
         </div>
 
         <!-- 历史区域可滚动 -->
@@ -658,7 +673,8 @@
             presets: [],
             currentPreset: '',
             relations: ['朋友', '同事', '恋人', '家人', '客户', '其他'],
-            currentSuggestions: null
+            currentSuggestions: null,
+            myProfile: { name: '', age: '', hobby: '', note: '' }  // 我的资料
         };
 
         const $ = id => document.getElementById(id);
@@ -694,7 +710,8 @@
             newPresetName = $('newPresetName'),
             addPresetBtn = $('addPresetBtn');
         const quickRelation = $('quickRelation'),
-            quickPurpose = $('quickPurpose');
+            quickPurpose = $('quickPurpose'),
+            quickMyName = $('quickMyName');
         const relationTags = $('relationTags'),
             profileRelationTags = $('profileRelationTags'),
             newRelationInput = $('newRelationInput'),
@@ -702,6 +719,12 @@
         const suggestionsPanel = $('suggestionsPanel'),
             suggestionsContent = $('suggestionsContent'),
             closeSuggestionsBtn = $('closeSuggestionsBtn');
+        // 我的资料字段
+        const myName = $('myName'),
+            myAge = $('myAge'),
+            myHobby = $('myHobby'),
+            myNote = $('myNote'),
+            saveMyProfileBtn = $('saveMyProfileBtn');
 
         function getConfig() {
             const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '日常闲聊';
@@ -723,7 +746,30 @@
                 statusBadge.className = 'badge offline'; }
         }
         function updateQuickPurposeText() { quickPurpose.textContent = getConfig().scenario; }
+        function updateMyNameDisplay() {
+            const name = state.myProfile.name.trim() || '我';
+            quickMyName.textContent = name;
+        }
 
+        // ---------- 我的资料 ----------
+        function loadMyProfile() {
+            myName.value = state.myProfile.name || '';
+            myAge.value = state.myProfile.age || '';
+            myHobby.value = state.myProfile.hobby || '';
+            myNote.value = state.myProfile.note || '';
+            updateMyNameDisplay();
+        }
+        function saveMyProfile() {
+            state.myProfile.name = myName.value.trim();
+            state.myProfile.age = parseInt(myAge.value) || '';
+            state.myProfile.hobby = myHobby.value.trim();
+            state.myProfile.note = myNote.value.trim();
+            saveToStorage();
+            updateMyNameDisplay();
+            showToast('我的资料已保存', 1500);
+        }
+
+        // ---------- 预设 ----------
         function renderPresets() {
             if (state.presets.length === 0) { presetList.innerHTML =
                     '<div style="color:#9ca3af;font-size:12px;padding:4px 0;">暂无预设</div>'; return; }
@@ -1110,14 +1156,21 @@
             const profileText = o ?
                 `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}` :
                 '';
+            // 加入我自己的资料
+            const my = state.myProfile;
+            const myText = my.name ? `我（${my.name}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，'+my.note:''}）` :
+                '我';
+
             let si = '';
             if (c.style === '幽默') si = '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。';
             else if (c.style === '直球') si = '直接、自信，简洁，不绕弯子。';
             else if (c.style === '话题延伸') si = '提出开放性问题或分享经历，引导深入。';
             else if (c.style === '开启话题') si = '生成全新话题开场白，自然有趣，让对方易接话。';
             else if (c.style === '高情商回复') si = '高情商回应，注重共情、温和、体面，善于化解尴尬。';
+
             let sp = `你是一位聊天高手。回答要口语化、有语气词、有情绪。
         ${profileText}
+        我自己的信息：${myText}
         关系：${relation}　目的：${purpose}
         场景：${c.scenario}　风格：${c.style}
         要求：${si}
@@ -1128,6 +1181,7 @@
             if (isOpening) sp += `\n当前为"开启话题"风格，直接基于对象信息生成3个有趣开场白。`;
             else sp += `\n示例：对方"今天好累"→"累啥，我昨天加班到凌晨，你起码还能喊累（狗头）"`;
             sp += `\n输出纯JSON，含"analysis"和"suggestions"(3条，每条有text,reason,expectedEffect)。text要口语化。`;
+
             let messages = [{ role: 'system', content: sp }];
             let userContent = [{ type: 'text', text: gm }];
             if (image) userContent.push({ type: 'image_url', image_url: { url: image } });
@@ -1215,7 +1269,8 @@
                     presets: state.presets,
                     currentPreset: state.currentPreset,
                     relations: state.relations,
-                    currentSuggestions: state.currentSuggestions
+                    currentSuggestions: state.currentSuggestions,
+                    myProfile: state.myProfile
                 };
                 localStorage.setItem('chat_data', JSON.stringify(data));
             } catch (e) {}
@@ -1235,10 +1290,12 @@
                     state.currentPreset = data.currentPreset || '';
                     state.relations = data.relations || ['朋友', '同事', '恋人', '家人', '客户', '其他'];
                     state.currentSuggestions = data.currentSuggestions || null;
+                    state.myProfile = data.myProfile || { name: '', age: '', hobby: '', note: '' };
                     apiKeyInput.value = state.apiKey;
                     apiUrlInput.value = state.apiUrl;
                     modelInput.value = state.model;
                     useAICheckbox.checked = state.useAI;
+                    loadMyProfile();
                     renderObjectList();
                     loadCurrentObject();
                     updateStatusBadge();
@@ -1255,6 +1312,8 @@
             state.currentPreset = '';
             state.relations = ['朋友', '同事', '恋人', '家人', '客户', '其他'];
             state.currentSuggestions = null;
+            state.myProfile = { name: '', age: '', hobby: '', note: '' };
+            loadMyProfile();
             renderObjectList();
             loadCurrentObject();
             updateStatusBadge();
@@ -1266,6 +1325,7 @@
         function updatePlaceholder() { messageInput.placeholder = isStyleOpeningTopic() ? '输入话题方向（可选）或留空自动生成' :
                 '输入对方原话...'; }
 
+        // ---------- 事件绑定 ----------
         settingsToggle.addEventListener('click', () => settingsPanel.classList.toggle('show'));
         profileTag.addEventListener('click', () => settingsPanel.classList.toggle('show'));
         addObjectBtn.addEventListener('click', () => { addObject(newObjectName.value.trim());
@@ -1298,6 +1358,9 @@
         newRelationInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addRelation(newRelationInput.value);
                 newRelationInput.value = ''; } });
 
+        // 保存我的资料
+        saveMyProfileBtn.addEventListener('click', saveMyProfile);
+
         document.querySelectorAll('.chip-group').forEach(group => {
             group.addEventListener('click', function(e) {
                 const chip = e.target.closest('.chip');
@@ -1317,7 +1380,7 @@
 
         window.copySuggestionFromPanel = copySuggestionFromPanel;
         loadFromStorage();
-        showToast('💡 建议面板固定在底部，可滑动查看', 2000);
+        showToast('💡 已添加“我的资料卡”', 2000);
     </script>
 </body>
 </html>
