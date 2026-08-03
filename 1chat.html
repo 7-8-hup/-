@@ -43,12 +43,7 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
 
         body {
             background: linear-gradient(160deg, #faf5ff 0%, #f0e6f6 30%, #e8dcf0 60%, #f5f0fa 100%);
@@ -110,14 +105,8 @@
             white-space: nowrap;
             transition: var(--transition);
         }
-        .badge.online {
-            background: var(--green-100);
-            color: var(--green-800);
-        }
-        .badge.offline {
-            background: var(--red-100);
-            color: var(--red-700);
-        }
+        .badge.online { background: var(--green-100); color: var(--green-800); }
+        .badge.offline { background: var(--red-100); color: var(--red-700); }
         .settings-btn {
             background: none;
             border: none;
@@ -128,12 +117,8 @@
             transition: var(--transition);
             line-height: 1;
         }
-        .settings-btn:hover {
-            background: rgba(124, 58, 237, 0.08);
-        }
-        .settings-btn:active {
-            transform: scale(0.9);
-        }
+        .settings-btn:hover { background: rgba(124, 58, 237, 0.08); }
+        .settings-btn:active { transform: scale(0.9); }
         .profile-tag {
             font-size: 11px;
             color: var(--gray-500);
@@ -151,9 +136,7 @@
             transition: var(--transition);
             font-weight: 500;
         }
-        .profile-tag:hover {
-            background: rgba(124, 58, 237, 0.15);
-        }
+        .profile-tag:hover { background: rgba(124, 58, 237, 0.15); }
 
         .settings-panel {
             background: rgba(255, 255, 255, 0.75);
@@ -169,14 +152,8 @@
             overflow-y: auto;
             box-shadow: var(--shadow-sm);
         }
-        .settings-panel.show {
-            display: block;
-            animation: fadeSlideIn 0.25s ease;
-        }
-        @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .settings-panel.show { display: block; animation: fadeSlideIn 0.25s ease; }
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         .settings-panel label {
             font-size: 11px;
             font-weight: 600;
@@ -197,10 +174,7 @@
             background: #fff;
             transition: var(--transition);
         }
-        .settings-panel input:focus {
-            border-color: var(--purple-500);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
-        }
+        .settings-panel input:focus { border-color: var(--purple-500); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08); }
         .settings-panel .hint { font-size: 10px; color: var(--gray-400); margin-top: 3px; }
         .toggle-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
         .toggle-row label { margin: 0; cursor: pointer; font-weight: 400; text-transform: none; font-size: 13px; }
@@ -240,6 +214,22 @@
         }
         .object-item:hover { background: var(--gray-50); border-color: var(--gray-300); }
         .object-item.active { border-color: var(--purple-500); background: #faf5ff; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.06); }
+        .object-item .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--purple-100);
+            color: var(--purple-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-right: 10px;
+            text-transform: uppercase;
+        }
+        .object-item .info-wrap { flex: 1; min-width: 0; }
         .object-item .name { font-weight: 600; font-size: 13px; color: var(--gray-800); }
         .object-item .info { font-size: 10px; color: var(--gray-500); margin-top: 1px; }
         .object-item .del-btn {
@@ -301,10 +291,42 @@
         .relation-input-row input:focus { border-color: var(--purple-500); }
         .relation-input-row .btn { padding: 6px 13px; border-radius: 20px; border: none; font-size: 11px; cursor: pointer; background: var(--purple-600); color: #fff; font-weight: 600; transition: var(--transition); }
 
-        .config-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-shrink: 0; flex-wrap: wrap; }
-        .config-group { flex: 1; min-width: 80px; max-width: 180px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .config-group label { font-size: 9px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.4px; text-transform: uppercase; }
-        .chip-group { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+        /* 场景管理 */
+        .scenario-input-row { display: flex; gap: 5px; margin: 4px 0 6px; }
+        .scenario-input-row input { flex: 1; padding: 6px 11px; border-radius: 20px; border: 1.5px solid var(--gray-200); font-size: 12px; outline: none; }
+        .scenario-input-row input:focus { border-color: var(--purple-500); }
+        .scenario-input-row .btn { padding: 6px 13px; border-radius: 20px; border: none; font-size: 11px; cursor: pointer; background: var(--purple-600); color: #fff; font-weight: 600; transition: var(--transition); }
+
+        .config-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .config-group {
+            flex: 1;
+            min-width: 80px;
+            max-width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .config-group label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--gray-400);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .chip-group {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
         .chip {
             font-size: 10px;
             padding: 4px 10px;
@@ -337,12 +359,35 @@
         }
         .quick-item { font-size: 11px; color: var(--gray-500); display: flex; align-items: center; gap: 3px; }
         .quick-item .label { font-weight: 600; color: var(--gray-600); font-size: 10px; }
-        .quick-item .value { background: #ede9fe; padding: 1px 9px; border-radius: 30px; font-weight: 500; color: #5b21b6; cursor: pointer; font-size: 11px; transition: var(--transition); }
+        .quick-item .value {
+            background: #ede9fe;
+            padding: 1px 9px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #5b21b6;
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
         .quick-item .value:hover { background: #ddd6fe; }
-        .quick-item .value.myself { background: #d1fae5; color: #065f46; }
-        .quick-item .value.myself:hover { background: #a7f3d0; }
+        .quick-item .value .mini-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--purple-200);
+            color: var(--purple-700);
+            font-size: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+        }
 
-        /* ===== 核心布局修改 ===== */
+        /* 历史区域 */
         .history-area {
             flex: 1 1 0;
             min-height: 0;
@@ -374,7 +419,7 @@
         .msg-guy { align-self: flex-end; background: #d1fae5; color: #064e3b; border-bottom-right-radius: 6px; border: 1px solid #bbf7d0; }
         .msg-label { font-size: 9px; opacity: 0.5; margin-bottom: 2px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
 
-        /* 建议面板固定在底部，可滚动，不遮挡 */
+        /* 建议面板 */
         .suggestions-panel {
             flex-shrink: 0;
             max-height: 40vh;
@@ -564,15 +609,14 @@
             <button class="btn-save" id="saveSettingsBtn">💾 保存配置到预设</button>
             <hr>
 
-            <!-- ========== 我的资料卡 ========== -->
-            <label>🧑 我的资料</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <input type="text" id="myName" placeholder="我的昵称" style="flex:1;min-width:55px;">
-                <input type="number" id="myAge" placeholder="年龄" style="flex:0.7;min-width:45px;">
+            <!-- ========== 场景管理（自定义） ========== -->
+            <label>🎯 场景管理</label>
+            <div class="scenario-input-row">
+                <input type="text" id="newScenarioInput" placeholder="新场景名称">
+                <button class="btn" id="addScenarioBtn">➕</button>
             </div>
-            <input type="text" id="myHobby" placeholder="我的爱好/职业">
-            <input type="text" id="myNote" placeholder="我的备注（如性格）">
-            <button class="btn-save" id="saveMyProfileBtn" style="margin-top:6px;">💾 保存我的资料</button>
+            <div class="tags-wrap" id="scenarioTags"></div>
+            <div style="font-size:10px; color:var(--gray-400); margin-top:3px;">点击场景名称可切换，点击 ✕ 删除</div>
             <hr>
 
             <label>👥 聊天对象</label>
@@ -604,9 +648,7 @@
             <div class="config-group">
                 <label>🎯 场景</label>
                 <div class="chip-group" id="scenarioGroup">
-                    <button class="chip active" data-value="日常闲聊">闲聊</button>
-                    <button class="chip" data-value="深入交流">深入</button>
-                    <button class="chip" data-value="正式沟通">正式</button>
+                    <!-- 动态由 JS 渲染 -->
                 </div>
             </div>
             <div class="config-group">
@@ -623,16 +665,15 @@
 
         <div class="quick-bar" id="quickBar">
             <div class="quick-item"><span class="label">🤝</span><span class="value" id="quickRelation">未设置</span></div>
-            <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">闲聊</span></div>
-            <div class="quick-item"><span class="label">🧑</span><span class="value myself" id="quickMyName">我</span></div>
+            <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">日常闲聊</span></div>
         </div>
 
-        <!-- 历史区域可滚动 -->
+        <!-- 历史区域 -->
         <div class="history-area" id="historyArea">
             <div class="history-empty">👋 添加对象开始</div>
         </div>
 
-        <!-- 建议面板固定在底部，可滚动 -->
+        <!-- 建议面板 -->
         <div class="suggestions-panel" id="suggestionsPanel">
             <div class="s-header">
                 <span class="s-title">💡 AI 候选回复</span>
@@ -674,7 +715,7 @@
             currentPreset: '',
             relations: ['朋友', '同事', '恋人', '家人', '客户', '其他'],
             currentSuggestions: null,
-            myProfile: { name: '', age: '', hobby: '', note: '' }  // 我的资料
+            scenarios: ['日常闲聊', '深入交流', '正式沟通']  // 默认场景，可自定义
         };
 
         const $ = id => document.getElementById(id);
@@ -710,8 +751,7 @@
             newPresetName = $('newPresetName'),
             addPresetBtn = $('addPresetBtn');
         const quickRelation = $('quickRelation'),
-            quickPurpose = $('quickPurpose'),
-            quickMyName = $('quickMyName');
+            quickPurpose = $('quickPurpose');
         const relationTags = $('relationTags'),
             profileRelationTags = $('profileRelationTags'),
             newRelationInput = $('newRelationInput'),
@@ -719,15 +759,14 @@
         const suggestionsPanel = $('suggestionsPanel'),
             suggestionsContent = $('suggestionsContent'),
             closeSuggestionsBtn = $('closeSuggestionsBtn');
-        // 我的资料字段
-        const myName = $('myName'),
-            myAge = $('myAge'),
-            myHobby = $('myHobby'),
-            myNote = $('myNote'),
-            saveMyProfileBtn = $('saveMyProfileBtn');
+        // 场景管理
+        const scenarioTags = $('scenarioTags'),
+            newScenarioInput = $('newScenarioInput'),
+            addScenarioBtn = $('addScenarioBtn');
+        const scenarioGroup = $('scenarioGroup');
 
         function getConfig() {
-            const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || '日常闲聊';
+            const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || state.config.scenario || '日常闲聊';
             const t = document.querySelector('#styleGroup .chip.active')?.dataset.value || '话题延伸';
             return { scenario: s, style: t };
         }
@@ -745,28 +784,96 @@
                 statusBadge.className = 'badge offline'; } else { statusBadge.textContent = '⚠️ 缺少 Key';
                 statusBadge.className = 'badge offline'; }
         }
-        function updateQuickPurposeText() { quickPurpose.textContent = getConfig().scenario; }
-        function updateMyNameDisplay() {
-            const name = state.myProfile.name.trim() || '我';
-            quickMyName.textContent = name;
+        function updateQuickPurposeText() {
+            const current = getConfig().scenario || '日常闲聊';
+            quickPurpose.textContent = current;
         }
 
-        // ---------- 我的资料 ----------
-        function loadMyProfile() {
-            myName.value = state.myProfile.name || '';
-            myAge.value = state.myProfile.age || '';
-            myHobby.value = state.myProfile.hobby || '';
-            myNote.value = state.myProfile.note || '';
-            updateMyNameDisplay();
+        // ---------- 场景管理 ----------
+        function renderScenarioTags() {
+            let html = '';
+            state.scenarios.forEach(s => {
+                html += `<span class="tag" data-scenario="${s}">${s}<button class="del-tag" data-scenario="${s}">✕</button></span>`;
+            });
+            scenarioTags.innerHTML = html;
+            // 点击标签快速切换场景（同时更新芯片选中状态）
+            scenarioTags.querySelectorAll('.tag').forEach(tag => {
+                tag.addEventListener('click', function(e) {
+                    if (e.target.closest('.del-tag')) return;
+                    const scenario = this.dataset.scenario;
+                    // 更新场景芯片激活状态
+                    document.querySelectorAll('#scenarioGroup .chip').forEach(c => c.classList.remove('active'));
+                    const targetChip = document.querySelector(`#scenarioGroup .chip[data-value="${scenario}"]`);
+                    if (targetChip) targetChip.classList.add('active');
+                    state.config.scenario = scenario;
+                    updateQuickPurposeText();
+                    saveToStorage();
+                    // 触发重新生成建议
+                    const obj = getCurrentObject();
+                    if (obj && obj.history && obj.history.some(m => m.role === 'girl')) {
+                        regenerateSuggestions();
+                    }
+                    showToast(`场景切换为：${scenario}`, 1000);
+                });
+            });
+            // 删除场景
+            scenarioTags.querySelectorAll('.del-tag').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const scenario = this.dataset.scenario;
+                    if (state.scenarios.length <= 1) { showToast('至少保留一个场景', 1000); return; }
+                    if (confirm(`删除场景 "${scenario}" ？`)) {
+                        state.scenarios = state.scenarios.filter(s => s !== scenario);
+                        // 如果当前选中的场景被删除，切换到第一个
+                        if (state.config.scenario === scenario) {
+                            state.config.scenario = state.scenarios[0];
+                        }
+                        saveToStorage();
+                        renderScenarioTags();
+                        renderScenarioChips();
+                        updateQuickPurposeText();
+                        showToast('已删除', 1000);
+                    }
+                });
+            });
         }
-        function saveMyProfile() {
-            state.myProfile.name = myName.value.trim();
-            state.myProfile.age = parseInt(myAge.value) || '';
-            state.myProfile.hobby = myHobby.value.trim();
-            state.myProfile.note = myNote.value.trim();
+
+        function renderScenarioChips() {
+            scenarioGroup.innerHTML = '';
+            state.scenarios.forEach(s => {
+                const chip = document.createElement('button');
+                chip.className = 'chip' + (s === state.config.scenario ? ' active' : '');
+                chip.dataset.value = s;
+                chip.textContent = s;
+                chip.addEventListener('click', function(e) {
+                    const scenario = this.dataset.value;
+                    document.querySelectorAll('#scenarioGroup .chip').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    state.config.scenario = scenario;
+                    updateQuickPurposeText();
+                    saveToStorage();
+                    const obj = getCurrentObject();
+                    if (obj && obj.history && obj.history.some(m => m.role === 'girl')) {
+                        regenerateSuggestions();
+                    }
+                    showToast(`场景：${scenario}`, 1000);
+                });
+                scenarioGroup.appendChild(chip);
+            });
+        }
+
+        function addScenario(name) {
+            name = name.trim();
+            if (!name) { showToast('请输入场景名称', 1000); return; }
+            if (state.scenarios.includes(name)) { showToast('已存在', 1000); return; }
+            state.scenarios.push(name);
+            // 如果当前没有场景，自动选中第一个
+            if (!state.config.scenario) state.config.scenario = name;
             saveToStorage();
-            updateMyNameDisplay();
-            showToast('我的资料已保存', 1500);
+            renderScenarioTags();
+            renderScenarioChips();
+            updateQuickPurposeText();
+            showToast(`已添加场景：${name}`, 1000);
         }
 
         // ---------- 预设 ----------
@@ -835,6 +942,7 @@
             showToast(`已保存：${name.trim()}`, 1500);
         }
 
+        // ---------- 关系 ----------
         function renderRelations() {
             let html = '';
             state.relations.forEach(r => { html +=
@@ -876,14 +984,23 @@
             showToast(`已添加：${rel}`, 1000);
         }
 
+        // ---------- 对象 ----------
         function getCurrentObject() { return state.objects.find(o => o.id === state.currentObjectId) || null; }
         function updateProfileTag() {
             const o = getCurrentObject();
             profileTag.textContent = o ? `👤 ${o.name||'未命名'}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}` :
                 '👤 选择对象';
         }
-        function updateQuickBar() { quickRelation.textContent = getCurrentObject()?.relationship || '未设置';
-            updateQuickPurposeText(); }
+        function updateQuickBar() {
+            const o = getCurrentObject();
+            if (o) {
+                const initial = (o.name || '?')[0].toUpperCase();
+                quickRelation.innerHTML = `<span class="mini-avatar">${initial}</span> ${o.relationship || '未设置'}`;
+            } else {
+                quickRelation.textContent = '未设置';
+            }
+            updateQuickPurposeText();
+        }
 
         function renderObjectList() {
             if (state.objects.length === 0) { objectList.innerHTML =
@@ -892,8 +1009,17 @@
             state.objects.forEach(obj => {
                 const a = obj.id === state.currentObjectId ? 'active' : '';
                 const c = obj.history ? obj.history.length : 0;
-                html +=
-                    `<div class="object-item ${a}" data-id="${obj.id}"><div><div class="name">${obj.name||'未命名'}${obj.age?' ('+obj.age+'岁)':''}</div><div class="info">${obj.hobby||'无备注'} · ${c}条消息</div></div><button class="del-btn" data-id="${obj.id}">✕</button></div>`;
+                const initial = (obj.name || '?')[0].toUpperCase();
+                html += `
+                    <div class="object-item ${a}" data-id="${obj.id}">
+                        <div class="avatar">${initial}</div>
+                        <div class="info-wrap">
+                            <div class="name">${obj.name||'未命名'}${obj.age?' ('+obj.age+'岁)':''}</div>
+                            <div class="info">${obj.hobby||'无备注'} · ${c}条消息</div>
+                        </div>
+                        <button class="del-btn" data-id="${obj.id}">✕</button>
+                    </div>
+                `;
             });
             objectList.innerHTML = html;
             objectList.querySelectorAll('.object-item').forEach(item => {
@@ -987,6 +1113,7 @@
             showToast('已更新', 1500);
         }
 
+        // ---------- 历史 ----------
         function getCurrentHistory() { const o = getCurrentObject(); return o ? o.history : []; }
         function pushHistory(r, c) { const o = getCurrentObject(); if (o) { o.history.push({ role: r, content: c });
                 saveToStorage();
@@ -1008,6 +1135,7 @@
         function escapeHtml(str) { const div = document.createElement('div');
             div.textContent = str; return div.innerHTML; }
 
+        // ---------- 建议面板 ----------
         function renderSuggestionsPanel() {
             const s = state.currentSuggestions;
             if (!s || !s.suggestions || s.suggestions.length === 0) {
@@ -1064,6 +1192,7 @@
             saveToStorage();
         }
 
+        // ---------- 图片 ----------
         function compressImage(d, m = 1024 * 1024) {
             return new Promise(r => {
                 const img = new Image();
@@ -1104,6 +1233,7 @@
         function isStyleOpeningTopic() { return document.querySelector('#styleGroup .chip.active')?.dataset.value ===
                 '开启话题'; }
 
+        // ---------- AI 调用 ----------
         async function regenerateSuggestions() {
             const obj = getCurrentObject();
             if (!obj) { showToast('请先选择对象', 1000); return; }
@@ -1156,10 +1286,6 @@
             const profileText = o ?
                 `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，'+o.note:''}` :
                 '';
-            // 加入我自己的资料
-            const my = state.myProfile;
-            const myText = my.name ? `我（${my.name}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，'+my.note:''}）` :
-                '我';
 
             let si = '';
             if (c.style === '幽默') si = '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。';
@@ -1170,7 +1296,6 @@
 
             let sp = `你是一位聊天高手。回答要口语化、有语气词、有情绪。
         ${profileText}
-        我自己的信息：${myText}
         关系：${relation}　目的：${purpose}
         场景：${c.scenario}　风格：${c.style}
         要求：${si}
@@ -1209,6 +1334,7 @@
                         0]); } catch (e3) {} throw new Error('AI返回格式错误'); }
         }
 
+        // ---------- 发送 ----------
         async function handleSend() {
             if (state.isLoading) return;
             if (!getCurrentObject()) { showToast('请先添加对象', 1500); return; }
@@ -1257,6 +1383,7 @@
             }
         }
 
+        // ---------- 存储 ----------
         function saveToStorage() {
             try {
                 const data = {
@@ -1270,7 +1397,8 @@
                     currentPreset: state.currentPreset,
                     relations: state.relations,
                     currentSuggestions: state.currentSuggestions,
-                    myProfile: state.myProfile
+                    scenarios: state.scenarios,
+                    config: state.config
                 };
                 localStorage.setItem('chat_data', JSON.stringify(data));
             } catch (e) {}
@@ -1290,18 +1418,25 @@
                     state.currentPreset = data.currentPreset || '';
                     state.relations = data.relations || ['朋友', '同事', '恋人', '家人', '客户', '其他'];
                     state.currentSuggestions = data.currentSuggestions || null;
-                    state.myProfile = data.myProfile || { name: '', age: '', hobby: '', note: '' };
+                    state.scenarios = data.scenarios || ['日常闲聊', '深入交流', '正式沟通'];
+                    state.config = data.config || { scenario: '日常闲聊', style: '话题延伸' };
                     apiKeyInput.value = state.apiKey;
                     apiUrlInput.value = state.apiUrl;
                     modelInput.value = state.model;
                     useAICheckbox.checked = state.useAI;
-                    loadMyProfile();
+                    // 确保当前场景在列表中
+                    if (!state.scenarios.includes(state.config.scenario)) {
+                        state.config.scenario = state.scenarios[0] || '日常闲聊';
+                    }
                     renderObjectList();
                     loadCurrentObject();
                     updateStatusBadge();
                     renderPresets();
                     renderRelations();
                     renderSuggestionsPanel();
+                    renderScenarioTags();
+                    renderScenarioChips();
+                    updateQuickPurposeText();
                     updatePlaceholder();
                     return;
                 }
@@ -1312,14 +1447,17 @@
             state.currentPreset = '';
             state.relations = ['朋友', '同事', '恋人', '家人', '客户', '其他'];
             state.currentSuggestions = null;
-            state.myProfile = { name: '', age: '', hobby: '', note: '' };
-            loadMyProfile();
+            state.scenarios = ['日常闲聊', '深入交流', '正式沟通'];
+            state.config = { scenario: '日常闲聊', style: '话题延伸' };
             renderObjectList();
             loadCurrentObject();
             updateStatusBadge();
             renderPresets();
             renderRelations();
             renderSuggestionsPanel();
+            renderScenarioTags();
+            renderScenarioChips();
+            updateQuickPurposeText();
             saveToStorage();
         }
         function updatePlaceholder() { messageInput.placeholder = isStyleOpeningTopic() ? '输入话题方向（可选）或留空自动生成' :
@@ -1358,17 +1496,18 @@
         newRelationInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addRelation(newRelationInput.value);
                 newRelationInput.value = ''; } });
 
-        // 保存我的资料
-        saveMyProfileBtn.addEventListener('click', saveMyProfile);
+        // 场景添加
+        addScenarioBtn.addEventListener('click', () => { addScenario(newScenarioInput.value);
+            newScenarioInput.value = ''; });
+        newScenarioInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addScenario(newScenarioInput.value);
+                newScenarioInput.value = ''; } });
 
-        document.querySelectorAll('.chip-group').forEach(group => {
-            group.addEventListener('click', function(e) {
-                const chip = e.target.closest('.chip');
-                if (!chip) return;
-                this.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
+        // 风格切换自动重新生成（不依赖场景芯片，因为场景芯片已独立处理）
+        document.querySelectorAll('#styleGroup .chip').forEach(chip => {
+            chip.addEventListener('click', function(e) {
+                document.querySelectorAll('#styleGroup .chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
                 updatePlaceholder();
-                updateQuickPurposeText();
                 const obj = getCurrentObject();
                 if (!obj) { showToast('请先选择对象', 1000); return; }
                 const history = obj.history || [];
@@ -1380,7 +1519,7 @@
 
         window.copySuggestionFromPanel = copySuggestionFromPanel;
         loadFromStorage();
-        showToast('💡 已添加“我的资料卡”', 2000);
+        showToast('💡 场景可自定义，对象显示头像', 2000);
     </script>
 </body>
 </html>
