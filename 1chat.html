@@ -79,7 +79,7 @@
             transition: all var(--transition-slow);
         }
 
-        /* ===== 头部 ===== */
+        /* 头部 */
         .header {
             display: flex;
             justify-content: space-between;
@@ -156,7 +156,7 @@
         .profile-tag:hover { background: rgba(124, 58, 237, 0.15); color: var(--purple-700); }
         .profile-tag:active { transform: scale(0.95); }
 
-        /* ===== 配置行 ===== */
+        /* 配置行 */
         .config-row {
             display: flex;
             justify-content: center;
@@ -204,7 +204,7 @@
         .chip.active { background: var(--purple-600); color: #fff; border-color: var(--purple-600); box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3); font-weight: 600; }
         .chip:active { transform: scale(0.9); }
 
-        /* ===== 快捷栏 ===== */
+        /* 快捷栏 */
         .quick-bar {
             display: flex;
             gap: 10px;
@@ -248,7 +248,7 @@
             text-transform: uppercase;
         }
 
-        /* ===== 历史区域 ===== */
+        /* 历史区域 */
         .history-area {
             flex: 1 1 0;
             min-height: 0;
@@ -282,7 +282,7 @@
         .msg-guy { align-self: flex-end; background: #d1fae5; color: #064e3b; border-bottom-right-radius: 6px; border: 1px solid #bbf7d0; }
         .msg-label { font-size: 9px; opacity: 0.5; margin-bottom: 2px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; cursor: default; }
 
-        /* ===== 建议面板 ===== */
+        /* 建议面板 */
         .suggestions-panel {
             flex-shrink: 0;
             max-height: 40vh;
@@ -330,7 +330,7 @@
         .suggestion-card.copied .s-num { background: #bbf7d0; color: #166534; }
         .suggestion-card.copied .s-copy-hint { opacity: 1; color: #15803d; }
 
-        /* ===== 输入区 ===== */
+        /* 输入区 */
         .input-area {
             display: flex;
             gap: 8px;
@@ -393,7 +393,7 @@
         .image-preview .remove-img { background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 20px; }
         .image-preview .remove-img:hover { background: rgba(239,68,68,0.08); }
 
-        /* ===== Toast ===== */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -468,7 +468,7 @@
             .msg-bubble { max-width: 90%; font-size: 12px; padding: 7px 11px; }
         }
 
-        /* ===== 通用页面样式 ===== */
+        /* 通用页面样式 */
         .page-overlay {
             position: fixed;
             inset: 0;
@@ -522,7 +522,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* ===== 管理页面（选择对象 + 所有管理功能） ===== */
+        /* 管理页面样式 */
         .manage-object-item {
             display: flex;
             align-items: center;
@@ -681,7 +681,7 @@
         .btn-save-sm:hover { background: var(--purple-700); box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35); transform: translateY(-1px); }
         .btn-save-sm:active { transform: scale(0.96); }
 
-        /* ===== 设置页面（仅 API） ===== */
+        /* 设置页面样式 */
         .settings-body label {
             font-size: 12px;
             font-weight: 600;
@@ -753,7 +753,7 @@
 </head>
 <body>
     <div id="app">
-        <!-- ===== 主界面 ===== -->
+        <!-- 主界面 -->
         <div class="header">
             <h1>💬 聊天助手</h1>
             <div class="header-right">
@@ -770,13 +770,7 @@
             </div>
             <div class="config-group">
                 <label>🎭 风格</label>
-                <div class="chip-group" id="styleGroup">
-                    <button class="chip" data-value="幽默">😄 幽默</button>
-                    <button class="chip" data-value="直球">🎯 直球</button>
-                    <button class="chip active" data-value="话题延伸">💬 延伸</button>
-                    <button class="chip" data-value="开启话题">🆕 开启</button>
-                    <button class="chip" data-value="高情商回复">🧠 高情商</button>
-                </div>
+                <div class="chip-group" id="styleGroup"></div>
             </div>
         </div>
 
@@ -812,18 +806,18 @@
         </div>
         <input type="file" id="fileInput" accept="image/*" style="display:none;">
 
-        <!-- ===== 管理页面（对象 + 场景 + 关系 + 我的资料） ===== -->
+        <!-- 管理页面 -->
         <div class="page-overlay" id="managePage">
             <div class="page-header">
                 <h2>📋 管理</h2>
                 <button class="close-btn" id="manageCloseBtn">✕</button>
             </div>
             <div class="page-body" id="manageBody">
-                <!-- 由 JS 动态渲染 -->
+                <!-- JS动态渲染 -->
             </div>
         </div>
 
-        <!-- ===== 设置页面（仅 API） ===== -->
+        <!-- 设置页面 -->
         <div class="page-overlay" id="settingsPage">
             <div class="page-header">
                 <h2>⚙️ API 设置</h2>
@@ -871,13 +865,19 @@
                 relations: ['朋友', '同事', '恋人', '家人', '客户', '其他'],
                 currentSuggestions: null,
                 scenarios: ['日常闲聊', '深入交流', '正式沟通'],
+                styles: [
+                    { name: '幽默', instruction: '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。', opening: false },
+                    { name: '直球', instruction: '直接、自信、简洁，不绕弯子。', opening: false },
+                    { name: '话题延伸', instruction: '提出开放性问题或分享经历，引导深入。', opening: false },
+                    { name: '开启话题', instruction: '生成全新话题开场白，自然有趣，结合对方信息。', opening: true },
+                    { name: '高情商回复', instruction: '高情商回应，注重共情、温和、体面。', opening: false }
+                ],
                 myProfile: { name: '', age: '', hobby: '', note: '' },
                 toastTimer: null,
             };
 
             const $ = id => document.getElementById(id);
 
-            // ===== DOM 引用 =====
             const dom = {
                 historyArea: $('historyArea'),
                 toastEl: $('toast'),
@@ -886,7 +886,6 @@
                 messageInput: $('messageInput'),
                 sendBtn: $('sendBtn'),
                 settingsToggle: $('settingsToggle'),
-                // 设置页面
                 settingsPage: $('settingsPage'),
                 settingsCloseBtn: $('settingsCloseBtn'),
                 apiKeyInput: $('apiKeyInput'),
@@ -897,11 +896,9 @@
                 presetList: $('presetList'),
                 newPresetName: $('newPresetName'),
                 addPresetBtn: $('addPresetBtn'),
-                // 管理页面
                 managePage: $('managePage'),
                 manageCloseBtn: $('manageCloseBtn'),
                 manageBody: $('manageBody'),
-                // 其他
                 imageBtn: $('imageBtn'),
                 fileInput: $('fileInput'),
                 imagePreview: $('imagePreview'),
@@ -933,8 +930,8 @@
             function toAscii(str) { return str.replace(/[^\x00-\x7F]/g, ''); }
 
             function getConfig() {
-                const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || state.config.scenario || '日常闲聊';
-                const t = document.querySelector('#styleGroup .chip.active')?.dataset.value || '话题延伸';
+                const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || state.config.scenario;
+                const t = document.querySelector('#styleGroup .chip.active')?.dataset.value || state.config.style;
                 return { scenario: s, style: t };
             }
 
@@ -942,7 +939,11 @@
 
             function getCurrentHistory() { const o = getCurrentObject(); return o ? o.history : []; }
 
-            function isStyleOpeningTopic() { return document.querySelector('#styleGroup .chip.active')?.dataset.value === '开启话题'; }
+            function isStyleOpeningTopic() {
+                const styleName = getConfig().style;
+                const styleObj = state.styles.find(s => s.name === styleName);
+                return styleObj ? styleObj.opening : false;
+            }
 
             function updateStatusBadge() {
                 const hasKey = state.apiKey && state.apiKey.trim().length > 0;
@@ -978,6 +979,7 @@
                         relations: state.relations,
                         currentSuggestions: state.currentSuggestions,
                         scenarios: state.scenarios,
+                        styles: state.styles,
                         config: state.config,
                         myProfile: state.myProfile,
                     };
@@ -1001,10 +1003,20 @@
                         state.relations = data.relations || ['朋友', '同事', '恋人', '家人', '客户', '其他'];
                         state.currentSuggestions = data.currentSuggestions || null;
                         state.scenarios = data.scenarios || ['日常闲聊', '深入交流', '正式沟通'];
+                        state.styles = data.styles || [];
                         state.config = data.config || { scenario: '日常闲聊', style: '话题延伸' };
                         state.myProfile = data.myProfile || { name: '', age: '', hobby: '', note: '' };
-                        if (!state.scenarios.includes(state.config.scenario)) state.config.scenario = state.scenarios[0] ||
-                            '日常闲聊';
+                        if (!state.scenarios.includes(state.config.scenario)) state.config.scenario = state.scenarios[0] || '日常闲聊';
+                        if (state.styles.length === 0) {
+                            state.styles = [
+                                { name: '幽默', instruction: '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。', opening: false },
+                                { name: '直球', instruction: '直接、自信、简洁，不绕弯子。', opening: false },
+                                { name: '话题延伸', instruction: '提出开放性问题或分享经历，引导深入。', opening: false },
+                                { name: '开启话题', instruction: '生成全新话题开场白，自然有趣，结合对方信息。', opening: true },
+                                { name: '高情商回复', instruction: '高情商回应，注重共情、温和、体面。', opening: false }
+                            ];
+                        }
+                        if (!state.styles.find(s => s.name === state.config.style)) state.config.style = state.styles[0]?.name || '话题延伸';
                         return true;
                     }
                 } catch (e) {}
@@ -1019,6 +1031,13 @@
                 state.relations = ['朋友', '同事', '恋人', '家人', '客户', '其他'];
                 state.currentSuggestions = null;
                 state.scenarios = ['日常闲聊', '深入交流', '正式沟通'];
+                state.styles = [
+                    { name: '幽默', instruction: '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。', opening: false },
+                    { name: '直球', instruction: '直接、自信、简洁，不绕弯子。', opening: false },
+                    { name: '话题延伸', instruction: '提出开放性问题或分享经历，引导深入。', opening: false },
+                    { name: '开启话题', instruction: '生成全新话题开场白，自然有趣，结合对方信息。', opening: true },
+                    { name: '高情商回复', instruction: '高情商回应，注重共情、温和、体面。', opening: false }
+                ];
                 state.config = { scenario: '日常闲聊', style: '话题延伸' };
                 state.myProfile = { name: '', age: '', hobby: '', note: '' };
             }
@@ -1049,6 +1068,7 @@
                 updatePlaceholder();
                 updateImageBtnState();
                 renderScenarioChips();
+                renderStyleChips();
                 loadCurrentObject();
             }
 
@@ -1057,7 +1077,7 @@
                 const body = dom.manageBody;
                 let html = '';
 
-                // ---- 对象列表 ----
+                // 对象列表
                 html += `<div class="manage-section-title">👥 聊天对象</div>`;
                 if (state.objects.length === 0) {
                     html += `<div style="color:var(--gray-400);font-size:13px;padding:8px 0;text-align:center;">暂无对象，请添加</div>`;
@@ -1079,7 +1099,6 @@
                         `;
                     });
                 }
-                // 添加对象
                 html += `
                     <div class="manage-add-row" style="margin-top:6px;">
                         <input type="text" id="manageNewObjectName" placeholder="昵称">
@@ -1102,7 +1121,7 @@
                     </div>
                 `;
 
-                // ---- 关系管理 ----
+                // 关系管理
                 html += `<div class="manage-section-title" style="margin-top:20px;">🤝 关系管理</div>`;
                 html += `<div class="manage-add-row">
                             <input type="text" id="manageNewRelationInput" placeholder="关系">
@@ -1110,7 +1129,7 @@
                         </div>
                         <div class="manage-tags" id="manageRelationTags"></div>`;
 
-                // ---- 场景管理 ----
+                // 场景管理
                 html += `<div class="manage-section-title" style="margin-top:20px;">🎯 场景管理</div>`;
                 html += `<div class="manage-add-row">
                             <input type="text" id="manageNewScenarioInput" placeholder="新场景名称">
@@ -1119,7 +1138,20 @@
                         <div class="manage-tags" id="manageScenarioTags"></div>
                         <div class="hint" style="font-size:10px;color:var(--gray-400);margin-top:3px;">点击场景名称可切换主场景，点击 ✕ 删除</div>`;
 
-                // ---- 我的资料 ----
+                // 风格管理
+                html += `<div class="manage-section-title" style="margin-top:20px;">🎭 风格管理</div>`;
+                html += `<div class="manage-add-row">
+                            <input type="text" id="manageNewStyleName" placeholder="风格名称">
+                            <input type="text" id="manageNewStyleInstruction" placeholder="指令（如：幽默回应）" style="flex:2;">
+                            <label style="display:flex;align-items:center;gap:4px;font-size:12px;">
+                                <input type="checkbox" id="manageNewStyleOpening"> 开启话题
+                            </label>
+                            <button class="btn" id="manageAddStyleBtn">➕</button>
+                        </div>
+                        <div id="manageStyleList" style="margin-top:6px;"></div>
+                        <div class="hint" style="font-size:10px;color:var(--gray-400);margin-top:3px;">点击风格名称可编辑指令，勾选“开启话题”则该风格不需要对方原话即可生成话题</div>`;
+
+                // 我的资料
                 html += `<div class="manage-section-title" style="margin-top:20px;">🧑 我的资料</div>`;
                 html += `<div class="manage-edit-row">
                             <input type="text" id="manageMyName" placeholder="我的昵称">
@@ -1132,7 +1164,7 @@
                 body.innerHTML = html;
 
                 // ---- 绑定管理页面事件 ----
-                // 选择/删除对象
+                // 对象事件
                 body.querySelectorAll('.manage-object-item').forEach(item => {
                     item.addEventListener('click', function(e) {
                         if (e.target.closest('.del-btn')) return;
@@ -1156,7 +1188,6 @@
                     });
                 });
 
-                // 添加对象
                 const addObjBtn = body.querySelector('#manageAddObjectBtn');
                 const addObjInput = body.querySelector('#manageNewObjectName');
                 if (addObjBtn) {
@@ -1193,7 +1224,6 @@
                     if (profileNote) profileNote.value = o.note || '';
                     if (profileRel) profileRel.value = o.relationship || '';
                 }
-                // 关系标签（用于快速填入）
                 const relTagsContainer = body.querySelector('#manageProfileRelationTags');
                 if (relTagsContainer) {
                     let relHtml = '';
@@ -1208,7 +1238,6 @@
                         });
                     });
                 }
-                // 保存对象
                 const saveObjBtn = body.querySelector('#manageSaveObjectBtn');
                 if (saveObjBtn) {
                     saveObjBtn.addEventListener('click', function() {
@@ -1228,7 +1257,7 @@
                     });
                 }
 
-                // ---- 关系管理 ----
+                // 关系管理
                 const relContainer = body.querySelector('#manageRelationTags');
                 const relInput = body.querySelector('#manageNewRelationInput');
                 const addRelBtn = body.querySelector('#manageAddRelationBtn');
@@ -1266,7 +1295,7 @@
                     relInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addRelBtn.click(); } });
                 }
 
-                // ---- 场景管理 ----
+                // 场景管理
                 const scContainer = body.querySelector('#manageScenarioTags');
                 const scInput = body.querySelector('#manageNewScenarioInput');
                 const addScBtn = body.querySelector('#manageAddScenarioBtn');
@@ -1298,8 +1327,7 @@
                             if (state.scenarios.length <= 1) { showToast('至少保留一个场景', 1000); return; }
                             if (confirm(`删除场景 "${scenario}" ？`)) {
                                 state.scenarios = state.scenarios.filter(s => s !== scenario);
-                                if (state.config.scenario === scenario) state.config.scenario = state
-                                    .scenarios[0];
+                                if (state.config.scenario === scenario) state.config.scenario = state.scenarios[0];
                                 saveToStorage();
                                 renderScenarioChips();
                                 updateQuickPurposeText();
@@ -1327,7 +1355,88 @@
                     scInput.addEventListener('keydown', e => { if (e.key === 'Enter') { addScBtn.click(); } });
                 }
 
-                // ---- 我的资料 ----
+                // 风格管理
+                const styleListDiv = body.querySelector('#manageStyleList');
+                const addStyleBtn = body.querySelector('#manageAddStyleBtn');
+                const styleNameInput = body.querySelector('#manageNewStyleName');
+                const styleInstructionInput = body.querySelector('#manageNewStyleInstruction');
+                const styleOpeningCheck = body.querySelector('#manageNewStyleOpening');
+
+                function renderStyleList() {
+                    if (!styleListDiv) return;
+                    let html = '';
+                    state.styles.forEach((style, index) => {
+                        const active = style.name === state.config.style ? ' style="border-color:var(--purple-600);background:#ede9fe;"' : '';
+                        html += `<div class="manage-tag" data-index="${index}"${active}>
+                                    ${escapeHtml(style.name)}${style.opening ? ' 🆕' : ''}
+                                    <button class="del-tag" data-index="${index}">✕</button>
+                                 </div>`;
+                        html += `<div style="margin:2px 0 8px 10px;display:flex;gap:4px;align-items:center;">
+                                    <input type="text" class="style-instruction-edit" data-index="${index}" value="${escapeHtml(style.instruction)}" style="flex:1;padding:4px 8px;border-radius:12px;border:1px solid var(--gray-200);font-size:11px;">
+                                    <label style="font-size:11px;white-space:nowrap;"><input type="checkbox" class="style-opening-edit" data-index="${index}" ${style.opening ? 'checked' : ''}> 开启话题</label>
+                                 </div>`;
+                    });
+                    styleListDiv.innerHTML = html;
+
+                    // 编辑事件
+                    styleListDiv.querySelectorAll('.style-instruction-edit').forEach(input => {
+                        input.addEventListener('change', function() {
+                            const index = parseInt(this.dataset.index);
+                            state.styles[index].instruction = this.value.trim();
+                            saveToStorage();
+                            renderStyleChips();
+                        });
+                    });
+                    styleListDiv.querySelectorAll('.style-opening-edit').forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            const index = parseInt(this.dataset.index);
+                            state.styles[index].opening = this.checked;
+                            saveToStorage();
+                            renderStyleChips();
+                            updatePlaceholder();
+                        });
+                    });
+                    styleListDiv.querySelectorAll('.del-tag').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const index = parseInt(this.dataset.index);
+                            if (state.styles.length <= 1) { showToast('至少保留一个风格', 1000); return; }
+                            const name = state.styles[index].name;
+                            if (confirm(`删除风格 "${name}" ？`)) {
+                                state.styles.splice(index, 1);
+                                if (state.config.style === name) state.config.style = state.styles[0].name;
+                                saveToStorage();
+                                renderStyleChips();
+                                updatePlaceholder();
+                                renderManagePage();
+                                showToast('已删除', 1000);
+                            }
+                        });
+                    });
+                }
+                renderStyleList();
+
+                if (addStyleBtn) {
+                    addStyleBtn.addEventListener('click', function() {
+                        const name = styleNameInput.value.trim();
+                        const instruction = styleInstructionInput.value.trim();
+                        if (!name) { showToast('请输入风格名称', 1000); return; }
+                        if (!instruction) { showToast('请输入指令', 1000); return; }
+                        if (state.styles.some(s => s.name === name)) { showToast('风格名称已存在', 1000); return; }
+                        state.styles.push({ name, instruction, opening: styleOpeningCheck.checked });
+                        if (!state.config.style) state.config.style = name;
+                        saveToStorage();
+                        renderStyleChips();
+                        updatePlaceholder();
+                        renderManagePage();
+                        styleNameInput.value = '';
+                        styleInstructionInput.value = '';
+                        styleOpeningCheck.checked = false;
+                        showToast(`已添加风格：${name}`, 1000, 'success');
+                    });
+                }
+
+                // 我的资料
                 const myName = body.querySelector('#manageMyName');
                 const myAge = body.querySelector('#manageMyAge');
                 const myHobby = body.querySelector('#manageMyHobby');
@@ -1358,7 +1467,7 @@
                 }
             }
 
-            // ==================== 核心函数（与之前一致） ====================
+            // ==================== 核心函数 ====================
             function deleteObject(id) {
                 state.objects = state.objects.filter(o => o.id !== id);
                 if (state.currentObjectId === id) {
@@ -1372,11 +1481,6 @@
             function loadCurrentObject() {
                 const o = getCurrentObject();
                 if (o) {
-                    dom.profileName ? dom.profileName.value = o.name || '' : null;
-                    dom.profileAge ? dom.profileAge.value = o.age || '' : null;
-                    dom.profileHobby ? dom.profileHobby.value = o.hobby || '' : null;
-                    dom.profileNote ? dom.profileNote.value = o.note || '' : null;
-                    dom.profileRelationship ? dom.profileRelationship.value = o.relationship || '' : null;
                     renderHistory();
                 } else {
                     dom.historyArea.innerHTML = '<div class="history-empty">💬 添加对象开始聊天</div>';
@@ -1423,6 +1527,28 @@
                         showToast(`场景：${scenario}`, 1000, 'success');
                     });
                     dom.scenarioGroup.appendChild(chip);
+                });
+            }
+
+            function renderStyleChips() {
+                dom.styleGroup.innerHTML = '';
+                state.styles.forEach(style => {
+                    const chip = document.createElement('button');
+                    chip.className = 'chip' + (style.name === state.config.style ? ' active' : '');
+                    chip.dataset.value = style.name;
+                    chip.textContent = style.name + (style.opening ? ' 🆕' : '');
+                    chip.addEventListener('click', function() {
+                        const styleName = this.dataset.value;
+                        document.querySelectorAll('#styleGroup .chip').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        state.config.style = styleName;
+                        updatePlaceholder();
+                        saveToStorage();
+                        const obj = getCurrentObject();
+                        if (obj && obj.history && obj.history.some(m => m.role === 'girl')) regenerateSuggestions();
+                        showToast(`风格：${styleName}`, 1000, 'success');
+                    });
+                    dom.styleGroup.appendChild(chip);
                 });
             }
 
@@ -1654,33 +1780,13 @@
                 }
 
                 const o = getCurrentObject();
-                const profileText = o ? `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，备注：'+o.note:''}` :
-                    '';
+                const profileText = o ? `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，备注：'+o.note:''}` : '';
                 const my = state.myProfile;
                 const myText = my.name ?
-                    `我（${my.name}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，备注：'+my.note:''}）` :
-                    '我';
+                    `我（${my.name}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，备注：'+my.note:''}）` : '我';
 
-                let styleInstruction = '';
-                switch (config.style) {
-                    case '幽默':
-                        styleInstruction = '用轻松幽默口语回应，像朋友聊天，可自嘲调侃。';
-                        break;
-                    case '直球':
-                        styleInstruction = '直接、自信、简洁，不绕弯子。';
-                        break;
-                    case '话题延伸':
-                        styleInstruction = '提出开放性问题或分享经历，引导深入。';
-                        break;
-                    case '开启话题':
-                        styleInstruction = '生成全新话题开场白，自然有趣，结合对方信息。';
-                        break;
-                    case '高情商回复':
-                        styleInstruction = '高情商回应，注重共情、温和、体面。';
-                        break;
-                    default:
-                        styleInstruction = '自然口语化回应。';
-                }
+                const styleObj = state.styles.find(s => s.name === config.style);
+                const styleInstruction = styleObj ? styleObj.instruction : '自然口语化回应。';
 
                 let systemPrompt =
                     `你是一位聊天高手。回答要口语化、有语气词。\n${profileText}\n我的信息：${myText}\n关系：${relation}\n场景：${config.scenario}\n风格：${config.style}\n要求：${styleInstruction}\n禁止书面语、说教。每条建议像微信原话，不超过30字。\n输出纯JSON，含"analysis"和"suggestions"(3条，每条含text,reason,expectedEffect)。`;
@@ -1805,15 +1911,11 @@
 
             // ==================== 事件绑定 ====================
             function bindEvents() {
-                // 管理页面
                 dom.profileTag.addEventListener('click', openManage);
                 dom.manageCloseBtn.addEventListener('click', closeManage);
-
-                // 设置页面
                 dom.settingsToggle.addEventListener('click', openSettings);
                 dom.settingsCloseBtn.addEventListener('click', closeSettings);
 
-                // API 设置
                 dom.apiKeyInput.addEventListener('input', () => { state.apiKey = dom.apiKeyInput.value;
                     updateStatusBadge(); });
                 dom.apiUrlInput.addEventListener('input', () => { state.apiUrl = dom.apiUrlInput.value; });
@@ -1821,8 +1923,7 @@
                 dom.useAICheckbox.addEventListener('change', () => { state.useAI = dom.useAICheckbox.checked;
                     updateStatusBadge();
                     saveToStorage(); });
-                dom.saveSettingsBtn.addEventListener('click', () => saveCurrentAsPreset(dom.newPresetName.value.trim() ||
-                    '默认配置'));
+                dom.saveSettingsBtn.addEventListener('click', () => saveCurrentAsPreset(dom.newPresetName.value.trim() || '默认配置'));
                 dom.addPresetBtn.addEventListener('click', () => {
                     const n = dom.newPresetName.value.trim();
                     if (!n) { showToast('请输入名称', 1000); return; }
@@ -1830,7 +1931,6 @@
                     dom.newPresetName.value = '';
                 });
 
-                // 主界面按钮
                 dom.clearHistoryBtn.addEventListener('click', () => {
                     if (confirm('清除所有聊天记录？')) {
                         const o = getCurrentObject();
@@ -1848,29 +1948,11 @@
                 dom.messageInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault();
                         handleSend(); } });
                 dom.imageBtn.addEventListener('click', () => dom.fileInput.click());
-                dom.fileInput.addEventListener('change', e => { if (e.target.files.length > 0) handleImageSelect(e.target
-                        .files[0]); });
+                dom.fileInput.addEventListener('change', e => { if (e.target.files.length > 0) handleImageSelect(e.target.files[0]); });
                 dom.removeImgBtn.addEventListener('click', clearImage);
-                dom.previewImg.addEventListener('click', () => { if (dom.previewImg.src?.startsWith('data:image'))
-                        showImageModal(dom.previewImg.src); });
+                dom.previewImg.addEventListener('click', () => { if (dom.previewImg.src?.startsWith('data:image')) showImageModal(dom.previewImg.src); });
                 dom.closeSuggestionsBtn.addEventListener('click', closeSuggestionsPanel);
 
-                // 风格切换
-                document.querySelectorAll('#styleGroup .chip').forEach(chip => {
-                    chip.addEventListener('click', function() {
-                        document.querySelectorAll('#styleGroup .chip').forEach(c => c.classList.remove('active'));
-                        this.classList.add('active');
-                        updatePlaceholder();
-                        saveToStorage();
-                        const obj = getCurrentObject();
-                        if (!obj) { showToast('请先选择对象', 1000); return; }
-                        if (!obj.history?.some(m => m.role === 'girl') && !isStyleOpeningTopic()) { showToast(
-                                '暂无对方消息', 1200); return; }
-                        regenerateSuggestions();
-                    });
-                });
-
-                // ESC 关闭
                 document.addEventListener('keydown', e => {
                     if (e.key === 'Escape') {
                         if (dom.managePage.classList.contains('show')) closeManage();
@@ -1892,12 +1974,13 @@
                 renderPresets();
                 renderSuggestionsPanel();
                 renderScenarioChips();
+                renderStyleChips();
                 updateQuickPurposeText();
                 updatePlaceholder();
                 updateImageBtnState();
                 bindEvents();
                 saveToStorage();
-                showToast('💡 设置仅保留API，其他管理已独立', 2000, 'success');
+                showToast('💡 风格已可完全自定义', 2000, 'success');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
