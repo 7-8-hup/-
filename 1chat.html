@@ -537,7 +537,7 @@
             cursor: default;
         }
 
-        /* 建议面板 */
+        /* 建议面板 - 已修复滚动 */
         .suggestions-panel {
             flex-shrink: 0;
             max-height: 40vh;
@@ -551,6 +551,9 @@
             animation: slideUp 0.35s ease;
             display: none;
             -webkit-overflow-scrolling: touch;
+            /* 修复滚动 */
+            touch-action: pan-y;
+            overscroll-behavior: contain;
         }
         .suggestions-panel.show {
             display: block;
@@ -2657,21 +2660,14 @@
 
             // ==================== 初始化 ====================
             function checkSplash() {
-                const splashClosed = localStorage.getItem('splash_closed');
-                if (splashClosed === 'true') {
+                // 每次都显示进入界面
+                dom.splash.classList.remove('hidden');
+                dom.app.classList.add('hidden');
+                dom.enterAppBtn.addEventListener('click', () => {
                     dom.splash.classList.add('hidden');
                     dom.app.classList.remove('hidden');
                     initApp();
-                } else {
-                    dom.splash.classList.remove('hidden');
-                    dom.app.classList.add('hidden');
-                    dom.enterAppBtn.addEventListener('click', () => {
-                        dom.splash.classList.add('hidden');
-                        dom.app.classList.remove('hidden');
-                        localStorage.setItem('splash_closed', 'true');
-                        initApp();
-                    });
-                }
+                });
             }
 
             function initApp() {
