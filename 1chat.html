@@ -261,7 +261,7 @@
         .manage-tag { display: inline-flex; align-items: center; gap: 3px; background: #ede9fe; padding: 3px 10px; border-radius: 30px; font-size: 11px; color: #5b21b6; cursor: pointer; border: 1px solid #ddd6fe; font-weight: 500; }
         .manage-tag .del-tag { background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: 12px; padding: 0 2px; }
         .manage-edit-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-        .manage-edit-row input { flex: 1; min-width: 55px; padding: 7px 11px; border-radius: 20px; border: 1.5px solid var(--gray-200); font-size: 12px; outline: none; }
+        .manage-edit-row input, .manage-edit-row select { flex: 1; min-width: 55px; padding: 7px 11px; border-radius: 20px; border: 1.5px solid var(--gray-200); font-size: 12px; outline: none; }
         .btn-save-sm { margin-top: 8px; width: 100%; padding: 10px; border: none; border-radius: 30px; background: var(--purple-600); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
 
         /* 设置页面 */
@@ -394,7 +394,7 @@
                     { name: '开启话题', instruction: '生成全新话题开场白，自然有趣，结合对方信息。', opening: true },
                     { name: '高情商回复', instruction: '高情商回应，注重共情、温和、体面。', opening: false }
                 ],
-                myProfile: { name: '', age: '', hobby: '', note: '' },
+                myProfile: { name: '', age: '', hobby: '', note: '', gender: '' }, // 添加 gender 字段
                 toastTimer: null,
             };
 
@@ -471,6 +471,8 @@
                     if (raw) {
                         const data = JSON.parse(raw);
                         state.objects = data.objects || [];
+                        // 兼容旧数据：为每个对象添加 gender 字段
+                        state.objects.forEach(obj => { if (!obj.gender) obj.gender = ''; });
                         state.currentObjectId = data.currentObjectId || null;
                         state.apiKey = data.apiKey || '';
                         state.apiUrl = data.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
@@ -483,7 +485,8 @@
                         state.scenarios = data.scenarios || ['日常闲聊', '深入交流', '正式沟通'];
                         state.styles = data.styles || [];
                         state.config = data.config || { scenario: '日常闲聊', style: '话题延伸' };
-                        state.myProfile = data.myProfile || { name: '', age: '', hobby: '', note: '' };
+                        state.myProfile = data.myProfile || { name: '', age: '', hobby: '', note: '', gender: '' };
+                        if (!state.myProfile.gender) state.myProfile.gender = '';
                         if (!state.scenarios.includes(state.config.scenario)) state.config.scenario = state.scenarios[0] || '日常闲聊';
                         if (state.styles.length === 0) {
                             state.styles = [
@@ -513,7 +516,7 @@
                     { name: '高情商回复', instruction: '高情商回应，注重共情、温和、体面。', opening: false }
                 ];
                 state.config = { scenario: '日常闲聊', style: '话题延伸' };
-                state.myProfile = { name: '', age: '', hobby: '', note: '' };
+                state.myProfile = { name: '', age: '', hobby: '', note: '', gender: '' }; // 添加 gender 字段
             }
 
             // ==================== 页面控制 ====================
@@ -553,6 +556,12 @@
                 html += `<div class="manage-add-row"><input type="text" id="manageNewObjectName" placeholder="昵称"><button class="btn" id="manageAddObjectBtn">➕ 添加</button></div>
                 <div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:4px;">✏️ 编辑当前对象</div>
                 <div class="manage-edit-row"><input type="text" id="manageProfileName" placeholder="昵称"><input type="number" id="manageProfileAge" placeholder="年龄" min="1" max="120"></div>
+                <div class="manage-edit-row" style="margin-top:4px;"><select id="manageProfileGender" style="flex:1;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;background:#fff;">
+                    <option value="">保密</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="其他">其他</option>
+                </select></div>
                 <input type="text" id="manageProfileHobby" placeholder="爱好/职业" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
                 <input type="text" id="manageProfileNote" placeholder="备注" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
                 <div style="margin-top:6px;"><label style="font-size:12px;font-weight:600;color:var(--gray-600);display:block;">🤝 与我的关系</label><input type="text" id="manageProfileRelationship" placeholder="输入或点击下方标签" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;"><div class="manage-tags" id="manageProfileRelationTags"></div></div>
@@ -565,6 +574,12 @@
                 <div id="manageStyleList" style="margin-top:6px;"></div>`;
                 html += `<div class="manage-section-title" style="margin-top:20px;">🧑 我的资料</div>
                 <div class="manage-edit-row"><input type="text" id="manageMyName" placeholder="我的昵称"><input type="number" id="manageMyAge" placeholder="年龄"></div>
+                <div class="manage-edit-row" style="margin-top:4px;"><select id="manageMyGender" style="flex:1;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;background:#fff;">
+                    <option value="">保密</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="其他">其他</option>
+                </select></div>
                 <input type="text" id="manageMyHobby" placeholder="我的爱好/职业" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
                 <input type="text" id="manageMyNote" placeholder="我的备注" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
                 <button class="btn-save-sm" id="manageSaveMyProfileBtn">💾 保存我的资料</button>`;
@@ -594,7 +609,7 @@
                         const name = addObjInput.value.trim();
                         if (!name) { showToast('请输入昵称', 1000); return; }
                         if (state.objects.some(o => o.name === name)) { showToast('已存在同名对象', 1000); return; }
-                        const n = { id: Date.now().toString(36) + Math.random().toString(36).substr(2,6), name, age:'', hobby:'', note:'', relationship:'', history:[] };
+                        const n = { id: Date.now().toString(36) + Math.random().toString(36).substr(2,6), name, age:'', hobby:'', note:'', relationship:'', gender:'', history:[] }; // 添加 gender
                         state.objects.push(n); state.currentObjectId = n.id; state.currentSuggestions = null;
                         saveToStorage(); loadCurrentObject(); renderManagePage();
                         showToast(`已添加：${name}`, 1500, 'success');
@@ -605,12 +620,14 @@
                 const o = getCurrentObject();
                 const profileName = body.querySelector('#manageProfileName');
                 const profileAge = body.querySelector('#manageProfileAge');
+                const profileGender = body.querySelector('#manageProfileGender'); // 新增
                 const profileHobby = body.querySelector('#manageProfileHobby');
                 const profileNote = body.querySelector('#manageProfileNote');
                 const profileRel = body.querySelector('#manageProfileRelationship');
                 if (o) {
                     if (profileName) profileName.value = o.name || '';
                     if (profileAge) profileAge.value = o.age || '';
+                    if (profileGender) profileGender.value = o.gender || ''; // 设置性别
                     if (profileHobby) profileHobby.value = o.hobby || '';
                     if (profileNote) profileNote.value = o.note || '';
                     if (profileRel) profileRel.value = o.relationship || '';
@@ -629,6 +646,7 @@
                         if (!obj) { showToast('请先选择对象', 1000); return; }
                         obj.name = (profileName ? profileName.value.trim() : '') || '未命名';
                         obj.age = parseInt(profileAge ? profileAge.value : '') || '';
+                        obj.gender = profileGender ? profileGender.value : ''; // 保存性别
                         obj.hobby = (profileHobby ? profileHobby.value.trim() : '');
                         obj.note = (profileNote ? profileNote.value.trim() : '');
                         const rel = (profileRel ? profileRel.value.trim() : '');
@@ -772,10 +790,12 @@
                 // 我的资料
                 const myName = body.querySelector('#manageMyName');
                 const myAge = body.querySelector('#manageMyAge');
+                const myGender = body.querySelector('#manageMyGender'); // 新增
                 const myHobby = body.querySelector('#manageMyHobby');
                 const myNote = body.querySelector('#manageMyNote');
                 if (myName) myName.value = state.myProfile.name || '';
                 if (myAge) myAge.value = state.myProfile.age || '';
+                if (myGender) myGender.value = state.myProfile.gender || ''; // 设置性别
                 if (myHobby) myHobby.value = state.myProfile.hobby || '';
                 if (myNote) myNote.value = state.myProfile.note || '';
                 const saveMyBtn = body.querySelector('#manageSaveMyProfileBtn');
@@ -783,6 +803,7 @@
                     saveMyBtn.addEventListener('click', () => {
                         state.myProfile.name = myName ? myName.value.trim() : '';
                         state.myProfile.age = parseInt(myAge ? myAge.value : '') || '';
+                        state.myProfile.gender = myGender ? myGender.value : ''; // 保存性别
                         state.myProfile.hobby = myHobby ? myHobby.value.trim() : '';
                         state.myProfile.note = myNote ? myNote.value.trim() : '';
                         saveToStorage(); showToast('我的资料已保存', 1500, 'success');
@@ -791,6 +812,7 @@
                 if (o) {
                     if (profileName) profileName.value = o.name || '';
                     if (profileAge) profileAge.value = o.age || '';
+                    if (profileGender) profileGender.value = o.gender || '';
                     if (profileHobby) profileHobby.value = o.hobby || '';
                     if (profileNote) profileNote.value = o.note || '';
                     if (profileRel) profileRel.value = o.relationship || '';
@@ -818,7 +840,7 @@
             }
             function updateProfileTag() {
                 const o = getCurrentObject();
-                dom.profileTag.textContent = o ? `👤 ${o.name||'未命名'}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}` : '👤 选择对象';
+                dom.profileTag.textContent = o ? `👤 ${o.name||'未命名'}${o.gender?' · '+o.gender:''}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}` : '👤 选择对象';
             }
             function updateQuickBar() {
                 const o = getCurrentObject();
@@ -1038,9 +1060,9 @@
                     if (isDeepSeek) cleanModel = 'deepseek-vl2';
                 }
                 const o = getCurrentObject();
-                const profileText = o ? `对方信息：${o.name||'未命名'}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，备注：'+o.note:''}` : '';
+                const profileText = o ? `对方信息：${o.name||'未命名'}${o.gender?'，性别 '+o.gender:''}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，备注：'+o.note:''}` : '';
                 const my = state.myProfile;
-                const myText = my.name ? `我（${my.name}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，备注：'+my.note:''}）` : '我';
+                const myText = my.name ? `我（${my.name}${my.gender?'，性别 '+my.gender:''}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，备注：'+my.note:''}）` : '我';
                 const styleObj = state.styles.find(s => s.name === config.style);
                 const styleInstruction = styleObj ? styleObj.instruction : '自然口语化回应。';
                 let systemPrompt = `你是一位聊天高手。回答要口语化、有语气词。\n${profileText}\n我的信息：${myText}\n关系：${relation}\n场景：${config.scenario}\n风格：${config.style}\n要求：${styleInstruction}\n禁止书面语、说教。每条建议像微信原话，不超过30字。\n输出纯JSON，含"analysis"和"suggestions"(3条，每条含text,reason,expectedEffect)。`;
