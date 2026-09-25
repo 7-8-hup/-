@@ -3,343 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>💬 聊天助手</title>
+<title>聊天助手</title>
 <style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --purple-50:#faf5ff;--purple-100:#f3e8ff;--purple-200:#e9d5ff;--purple-300:#d8b4fe;
-  --purple-400:#c084fc;--purple-500:#a855f7;--purple-600:#9333ea;--purple-700:#7c3aed;--purple-800:#6d28d9;
-  --green-50:#f0fdf4;--green-100:#dcfce7;--green-200:#bbf7d0;--green-600:#16a34a;--green-700:#15803d;--green-800:#166534;
-  --red-50:#fef2f2;--red-100:#fee2e2;--red-400:#f87171;--red-700:#b91c1c;
-  --amber-50:#fffbeb;--amber-100:#fef3c7;--amber-600:#d97706;
-  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;
-  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-800:#1f2937;
-  --radius-sm:12px;--radius-md:18px;--radius-lg:24px;--radius-xl:40px;
-  --shadow-sm:0 2px 8px rgba(100,70,120,0.06);
-  --shadow-glow:0 0 0 1px rgba(255,255,255,0.6), 0 20px 60px rgba(100,70,120,0.2);
-  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+  --bg:#fff;
+  --surface:#f5f5f7;
+  --text:#1a1a1a;
+  --text-2:#666;
+  --text-3:#999;
+  --primary:#7c5cff;
+  --border:#ebebf0;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;}
+html,body{height:100%;}
 body{
-  background:linear-gradient(160deg,#faf5ff 0%,#f0e6f6 30%,#e8dcf0 60%,#f5f0fa 100%);
-  background-attachment:fixed;min-height:100vh;min-height:100dvh;
-  display:flex;justify-content:center;align-items:flex-start;padding:12px;
-  -webkit-tap-highlight-color:transparent;position:relative;overflow-x:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;
+  overflow:hidden;-webkit-font-smoothing:antialiased;
 }
-/* Splash */
-#splash{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:linear-gradient(145deg,#2e1065 0%,#4c1d95 30%,#7c3aed 70%,#a855f7 100%);
-  overflow:hidden;animation:splashBg 3s ease infinite alternate;}
-@keyframes splashBg{0%{background:linear-gradient(145deg,#2e1065 0%,#4c1d95 40%,#7c3aed 80%,#a855f7 100%);}100%{background:linear-gradient(145deg,#4c1d95 0%,#7c3aed 40%,#a855f7 80%,#c084fc 100%);}}
-#splash.hidden{display:none;}
-.splash-content{text-align:center;z-index:1;animation:fadeInUp 0.8s ease;}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
-.splash-icon{font-size:72px;margin-bottom:16px;animation:float 3s ease-in-out infinite;display:inline-block;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-.splash-title{font-size:36px;font-weight:800;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,0.3);margin-bottom:8px;letter-spacing:1px;}
-.splash-subtitle{font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:40px;letter-spacing:2px;}
-.splash-btn{padding:16px 48px;border-radius:60px;border:none;background:rgba(255,255,255,0.95);color:#5b21b6;
-  font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.2);transition:all 0.3s ease;
-  letter-spacing:0.5px;z-index:1;animation:pulse 2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{box-shadow:0 8px 30px rgba(0,0,0,0.2);transform:scale(1);}50%{box-shadow:0 8px 40px rgba(124,58,237,0.4);transform:scale(1.03);}}
-.splash-btn:hover{background:#fff;box-shadow:0 12px 40px rgba(124,58,237,0.5);transform:translateY(-2px);}
-.splash-btn:active{transform:scale(0.96);}
-.splash-bg-dots{position:absolute;inset:0;pointer-events:none;}
-.splash-dot{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);animation:dotFloat 8s infinite alternate;}
-.splash-dot:nth-child(1){width:120px;height:120px;top:10%;left:10%;animation-duration:10s;}
-.splash-dot:nth-child(2){width:80px;height:80px;top:70%;left:80%;animation-duration:12s;}
-.splash-dot:nth-child(3){width:200px;height:200px;top:40%;left:50%;animation-duration:14s;}
-.splash-dot:nth-child(4){width:60px;height:60px;top:20%;right:15%;animation-duration:9s;}
-@keyframes dotFloat{0%{transform:translate(0,0) scale(1);opacity:0.2;}100%{transform:translate(30px,-20px) scale(1.1);opacity:0.4;}}
-/* App */
-#app{max-width:500px;width:100%;background:rgba(255,255,255,0.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-radius:var(--radius-xl);box-shadow:var(--shadow-glow);padding:18px 14px 24px;
-  min-height:calc(100vh - 24px);min-height:calc(100dvh - 24px);display:flex;flex-direction:column;
-  border:1px solid rgba(255,255,255,0.5);}
-#app.hidden{display:none;}
-.header{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.04);flex-shrink:0;gap:8px;}
-.header h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#a855f7,#c084fc);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.3px;white-space:nowrap;flex-shrink:0;}
-.header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:30px;white-space:nowrap;transition:var(--transition);flex-shrink:0;}
-.badge.online{background:var(--green-100);color:var(--green-800);animation:pulseBadge 2s ease-in-out infinite;}
-.badge.offline{background:var(--red-100);color:var(--red-700);}
-.badge.warning{background:var(--amber-100);color:var(--amber-600);}
-@keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0.3);}50%{box-shadow:0 0 0 8px rgba(22,163,74,0);}}
-.settings-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:6px 10px;border-radius:30px;transition:var(--transition);line-height:1;flex-shrink:0;color:var(--gray-600);}
-.settings-btn:hover{background:rgba(124,58,237,0.08);color:var(--purple-600);}
-.settings-btn:active{transform:scale(0.9);}
-.profile-tag{font-size:11px;color:var(--gray-500);background:rgba(124,58,237,0.07);padding:3px 10px;border-radius:30px;
-  display:inline-flex;align-items:center;gap:3px;cursor:pointer;max-width:110px;overflow:hidden;white-space:nowrap;
-  text-overflow:ellipsis;transition:var(--transition);font-weight:500;flex-shrink:1;}
-.profile-tag:hover{background:rgba(124,58,237,0.15);color:var(--purple-700);}
-.profile-tag:active{transform:scale(0.95);}
-/* 话题栏 */
-.topic-bar{display:flex;gap:6px;margin:8px 0 2px;padding:2px 2px 4px;overflow-x:auto;flex-shrink:0;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;}
-.topic-bar::-webkit-scrollbar{display:none;}
-.topic-bar:empty{display:none;margin:0;}
-.topic-chip{font-size:11px;padding:5px 10px 5px 12px;border-radius:20px;background:rgba(255,255,255,0.75);
-  border:1px solid var(--gray-200);color:var(--gray-600);cursor:pointer;white-space:nowrap;
-  transition:var(--transition);flex-shrink:0;display:inline-flex;align-items:center;gap:4px;}
-.topic-chip:hover{background:#fff;border-color:var(--purple-300);}
-.topic-chip.active{background:var(--purple-100);border-color:var(--purple-400);color:var(--purple-700);font-weight:600;}
-.topic-chip .del-topic{opacity:0.45;font-size:13px;line-height:1;cursor:pointer;padding:0 2px;transition:var(--transition);}
-.topic-chip .del-topic:hover{opacity:1;color:#dc2626;}
-.topic-chip.add{color:var(--purple-600);border-style:dashed;padding:5px 12px;font-weight:500;}
-.topic-chip.add:hover{background:var(--purple-50);}
-/* 配置行 */
-.config-row{display:flex;justify-content:center;gap:10px;margin-top:6px;flex-shrink:0;flex-wrap:wrap;}
-.config-group{flex:1;min-width:80px;max-width:180px;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.config-group label{font-size:9px;font-weight:700;color:var(--gray-400);letter-spacing:0.4px;text-transform:uppercase;}
-.chip-group{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;}
-.chip{font-size:10px;padding:4px 10px;border-radius:30px;background:var(--gray-100);color:var(--gray-500);
-  border:1.5px solid transparent;cursor:pointer;font-weight:500;transition:var(--transition);white-space:nowrap;outline:none;}
-.chip:hover{background:#ede9fe;color:var(--purple-600);transform:translateY(-1px);}
-.chip.active{background:var(--purple-600);color:#fff;border-color:var(--purple-600);box-shadow:0 2px 8px rgba(124,58,237,0.3);font-weight:600;}
-.chip:active{transform:scale(0.9);}
-/* 快捷栏 + 语气 */
-.meta-bar{display:flex;align-items:center;gap:10px;margin:6px 0;flex-shrink:0;flex-wrap:wrap;
-  padding:6px 10px;background:rgba(255,255,255,0.45);border-radius:16px;backdrop-filter:blur(4px);
-  border:1px solid rgba(255,255,255,0.5);font-size:11px;}
-.quick-item{display:flex;align-items:center;gap:3px;color:var(--gray-500);}
-.quick-item .label{font-weight:600;color:var(--gray-600);font-size:10px;}
-.quick-item .value{background:#ede9fe;padding:1px 9px;border-radius:30px;font-weight:500;color:#5b21b6;
-  cursor:pointer;font-size:11px;transition:var(--transition);display:inline-flex;align-items:center;gap:4px;}
-.quick-item .value:hover{background:#ddd6fe;}
-.quick-item .value .mini-avatar{width:16px;height:16px;border-radius:50%;background:var(--purple-200);
-  color:var(--purple-700);font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;text-transform:uppercase;}
-.tone-group{display:flex;align-items:center;gap:6px;flex:1;min-width:150px;}
-.tone-group .tone-label{font-weight:600;color:var(--gray-600);font-size:10px;white-space:nowrap;}
-.tone-group input[type=range]{flex:1;height:4px;accent-color:var(--purple-600);cursor:pointer;min-width:0;}
-.tone-group .tone-value{min-width:56px;text-align:center;font-size:10px;font-weight:600;
-  color:var(--purple-700);background:#ede9fe;padding:2px 8px;border-radius:20px;white-space:nowrap;}
-/* 历史 */
-.history-area{max-height:40vh;overflow-y:auto;background:rgba(255,255,255,0.45);border-radius:var(--radius-lg);
-  margin:6px 0 4px;padding:10px 8px;border:1px solid rgba(255,255,255,0.5);display:flex;flex-direction:column;
-  gap:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;flex-shrink:0;}
-.history-empty{color:#c4b5d0;font-size:13px;text-align:center;margin:auto;font-weight:500;letter-spacing:0.3px;line-height:1.6;padding:20px 0;}
-.msg-bubble{max-width:85%;padding:9px 14px;border-radius:18px;font-size:13px;line-height:1.55;
-  word-break:break-word;box-shadow:var(--shadow-sm);animation:msgIn 0.3s ease;position:relative;}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
-.msg-girl{align-self:flex-start;background:#ede9fe;color:#2e1065;border-bottom-left-radius:6px;border:1px solid #e9d5ff;}
-.msg-guy{align-self:flex-end;background:#d1fae5;color:#064e3b;border-bottom-right-radius:6px;border:1px solid #bbf7d0;}
-.msg-label{font-size:9px;opacity:0.5;margin-bottom:2px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;cursor:default;}
-/* 建议面板 */
-.suggestions-panel{flex-shrink:0;max-height:min(42vh,280px);overflow-y:auto;
-  background:linear-gradient(135deg,#fffdf5,#fffef9);border:1.5px solid #f3e8d0;border-radius:var(--radius-lg);
-  padding:8px 12px;margin:4px 0 8px;box-shadow:0 2px 12px rgba(180,150,80,0.08);
-  animation:slideUp 0.35s ease;display:none;-webkit-overflow-scrolling:touch;touch-action:pan-y;
-  overscroll-behavior:contain;transition:max-height 0.3s ease;}
-.suggestions-panel.show{display:block;}
-.suggestions-panel.expanded{max-height:60vh;}
-@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.suggestions-panel .s-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.suggestions-panel .s-title{font-weight:700;font-size:12px;color:#8b7355;display:flex;align-items:center;gap:4px;}
-.suggestions-panel .s-header-actions{display:flex;gap:4px;align-items:center;}
-.suggestions-panel .s-close,.suggestions-panel .s-expand{background:none;border:none;color:#c4b5a0;
-  cursor:pointer;font-size:16px;padding:2px 6px;border-radius:20px;transition:var(--transition);line-height:1;}
-.suggestions-panel .s-close:hover,.suggestions-panel .s-expand:hover{color:#a08060;background:rgba(0,0,0,0.04);}
-.suggestion-card{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:5px;background:#fff;
-  border-radius:var(--radius-sm);cursor:pointer;border:1px solid #f0e8d5;transition:var(--transition);}
-.suggestion-card:last-child{margin-bottom:0;}
-.suggestion-card:hover{background:#fffbeb;border-color:#e8d8b0;box-shadow:0 1px 4px rgba(180,150,80,0.1);transform:translateX(2px);}
-.suggestion-card:active{transform:scale(0.97);background:#fef9e7;}
-.suggestion-card .s-num{width:22px;height:22px;border-radius:50%;background:#ede9fe;color:#5b21b6;
-  font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.suggestion-card .s-body{flex:1;min-width:0;}
-.suggestion-card .s-text{font-weight:500;font-size:13px;color:var(--gray-800);line-height:1.4;}
-.suggestion-card .s-meta{font-size:10px;color:#a09080;display:flex;gap:6px;margin-top:2px;flex-wrap:wrap;}
-.suggestion-card .s-meta span{background:#fdf6e8;padding:1px 7px;border-radius:10px;font-size:9px;white-space:nowrap;}
-.suggestion-card .s-copy-hint{font-size:9px;color:var(--purple-500);opacity:0;transition:var(--transition);white-space:nowrap;font-weight:500;}
-.suggestion-card:hover .s-copy-hint{opacity:1;}
-.suggestion-card.copied{background:#f0fdf4 !important;border-color:#bbf7d0 !important;animation:copiedPulse 0.5s ease;}
-@keyframes copiedPulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0.3);}50%{box-shadow:0 0 0 12px rgba(22,163,74,0);}}
-.suggestion-card.copied .s-num{background:#bbf7d0;color:#166534;}
-.suggestion-card.copied .s-copy-hint{opacity:1;color:#15803d;}
-/* 输入区 */
-.input-area{display:flex;gap:8px;margin-top:4px;flex-shrink:0;align-items:center;flex-wrap:wrap;}
-.input-area input{flex:1;min-width:100px;padding:12px 16px;border-radius:40px;border:1.5px solid var(--gray-200);
-  font-size:14px;outline:none;background:#fff;transition:var(--transition);color:var(--gray-800);}
-.input-area input:focus{border-color:var(--purple-500);box-shadow:0 0 0 4px rgba(124,58,237,0.06);}
-.input-area input::placeholder{color:var(--gray-400);}
-.input-area .btn-group{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
-.btn{padding:11px 18px;border-radius:40px;border:none;font-weight:600;font-size:13px;cursor:pointer;
-  white-space:nowrap;transition:var(--transition);letter-spacing:0.2px;outline:none;}
-.btn:active{transform:scale(0.93);}
-.btn-primary{background:var(--purple-600);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,0.3);}
-.btn-primary:hover{background:var(--purple-700);box-shadow:0 6px 18px rgba(124,58,237,0.4);}
-.btn-primary:disabled{opacity:0.5;box-shadow:none;cursor:not-allowed;transform:none;}
-.btn-outline{background:transparent;color:var(--gray-500);border:1.5px solid var(--gray-200);padding:10px 14px;font-size:12px;}
-.btn-outline:hover{background:var(--gray-50);border-color:var(--gray-300);color:var(--gray-700);}
-.btn-image{background:transparent;color:var(--purple-600);border:1.5px solid var(--purple-400);padding:9px 13px;font-size:18px;line-height:1;}
-.btn-image:hover{background:rgba(124,58,237,0.06);border-color:var(--purple-500);}
-.btn-image.has-image{background:var(--purple-100);border-color:var(--purple-500);animation:imageGlow 1.5s ease-in-out infinite;}
-@keyframes imageGlow{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,0.3);}50%{box-shadow:0 0 0 8px rgba(124,58,237,0);}}
-.btn-manual{background:transparent;color:var(--green-700);border:1.5px solid var(--green-200);padding:9px 13px;font-size:13px;}
-.btn-manual:hover{background:var(--green-50);border-color:var(--green-600);}
-.image-preview{display:flex;align-items:center;gap:6px;margin-top:4px;flex-shrink:0;padding:4px 8px;
-  background:rgba(255,255,255,0.6);border-radius:16px;border:1px solid var(--gray-200);}
-.image-preview img{max-width:50px;max-height:50px;border-radius:10px;border:1px solid var(--gray-200);object-fit:cover;cursor:pointer;}
-.image-preview .remove-img{background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer;padding:2px 6px;border-radius:20px;}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) scale(0.85);background:var(--gray-800);
-  color:#fff;padding:10px 22px;border-radius:40px;font-size:13px;opacity:0;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
-  pointer-events:none;max-width:90%;text-align:center;z-index:999;box-shadow:0 8px 30px rgba(0,0,0,0.2);font-weight:500;}
-.toast.show{opacity:1;transform:translateX(-50%) scale(1);}
-.toast.error{background:#dc2626;}
-.toast.success{background:#16a34a;}
-.loader{display:inline-block;width:16px;height:16px;border:2.5px solid var(--gray-200);border-top-color:var(--purple-600);
-  border-radius:50%;animation:spin 0.6s linear infinite;margin-right:6px;vertical-align:middle;}
+#app{
+  max-width:520px;margin:0 auto;height:100vh;height:100dvh;
+  background:var(--bg);display:flex;flex-direction:column;position:relative;
+}
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+header h1{font-size:16px;font-weight:600;letter-spacing:-0.2px;}
+.icon-btn{
+  width:36px;height:36px;border:none;background:transparent;border-radius:50%;
+  font-size:18px;cursor:pointer;color:var(--text-2);
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .15s;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--surface);}
+.icon-btn:active{background:#e8e8ed;}
+main{
+  flex:1;overflow-y:auto;padding:16px 18px;
+  display:flex;flex-direction:column;gap:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.empty{
+  margin:auto;color:var(--text-3);text-align:center;
+  font-size:14px;line-height:1.8;
+}
+.bubble{
+  max-width:80%;padding:9px 14px;border-radius:18px;
+  font-size:15px;line-height:1.45;word-break:break-word;
+  animation:pop .2s ease;
+}
+@keyframes pop{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.bubble.ta{align-self:flex-start;background:var(--surface);color:var(--text);border-bottom-left-radius:6px;}
+.bubble.me{align-self:flex-end;background:var(--primary);color:#fff;border-bottom-right-radius:6px;}
+.suggestions{
+  flex-shrink:0;padding:0 18px 12px;
+  display:none;flex-direction:column;gap:8px;
+}
+.suggestions.show{display:flex;}
+.s-title{
+  font-size:12px;color:var(--text-3);font-weight:500;padding:4px 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.s-title .spinner{
+  width:12px;height:12px;border:2px solid var(--border);
+  border-top-color:var(--primary);border-radius:50%;
+  animation:spin .6s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg);}}
-.suggestions-loader{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;color:var(--gray-500);font-size:12px;}
-.image-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.image-modal img{max-width:95vw;max-height:90vh;border-radius:16px;object-fit:contain;}
-/* 覆盖层 */
-.page-overlay{position:fixed;inset:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(30px);
-  -webkit-backdrop-filter:blur(30px);display:none;flex-direction:column;overflow:hidden;}
-.page-overlay.show{display:flex;}
-.page-overlay .page-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 12px;
-  border-bottom:1px solid rgba(0,0,0,0.06);flex-shrink:0;}
-.page-overlay .page-header h2{font-size:18px;font-weight:700;color:var(--gray-800);}
-.page-overlay .page-header .close-btn{background:none;border:none;font-size:24px;cursor:pointer;padding:4px 8px;
-  border-radius:30px;color:var(--gray-500);}
-.page-overlay .page-body{flex:1;overflow-y:auto;padding:16px 20px 30px;-webkit-overflow-scrolling:touch;}
-.manage-object-item{display:flex;align-items:center;padding:12px 16px;background:#fff;border-radius:var(--radius-sm);
-  margin-bottom:8px;border:1.5px solid var(--gray-200);cursor:pointer;}
-.manage-object-item.active{border-color:var(--purple-500);background:#faf5ff;}
-.manage-object-item .avatar{width:44px;height:44px;border-radius:50%;background:var(--purple-100);color:var(--purple-700);
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;margin-right:14px;}
-.manage-object-item .info-wrap{flex:1;min-width:0;}
-.manage-object-item .name{font-weight:600;font-size:15px;color:var(--gray-800);}
-.manage-object-item .info{font-size:12px;color:var(--gray-500);margin-top:2px;}
-.manage-object-item .check-mark{color:var(--purple-600);font-size:18px;font-weight:700;opacity:0;}
-.manage-object-item.active .check-mark{opacity:1;}
-.manage-object-item .del-btn{background:none;border:none;color:var(--gray-400);font-size:18px;cursor:pointer;padding:2px 8px;margin-left:8px;}
-.manage-section-title{font-size:12px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.5px;
-  margin:16px 0 8px;border-bottom:1px solid var(--gray-200);padding-bottom:4px;}
-.manage-add-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
-.manage-add-row input{flex:1;min-width:70px;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;}
-.manage-add-row input:focus{border-color:var(--purple-500);}
-.manage-add-row .btn{padding:7px 14px;border-radius:30px;border:none;font-weight:600;font-size:12px;cursor:pointer;background:var(--purple-600);color:#fff;}
-.manage-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
-.manage-tag{display:inline-flex;align-items:center;gap:3px;background:#ede9fe;padding:3px 10px;border-radius:30px;
-  font-size:11px;color:#5b21b6;cursor:pointer;border:1px solid #ddd6fe;font-weight:500;}
-.manage-tag .del-tag{background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:12px;padding:0 2px;}
-.manage-edit-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
-.manage-edit-row input,.manage-edit-row select{flex:1;min-width:55px;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;}
-.btn-save-sm{margin-top:8px;width:100%;padding:10px;border:none;border-radius:30px;background:var(--purple-600);color:#fff;font-weight:600;font-size:13px;cursor:pointer;}
-.settings-body label{font-size:12px;font-weight:600;color:var(--gray-600);display:block;margin:10px 0 4px;}
-.settings-body input[type=text],.settings-body input[type=password]{width:100%;padding:9px 12px;border-radius:var(--radius-sm);
-  border:1.5px solid var(--gray-200);font-size:13px;outline:none;background:#fff;}
-.settings-body .btn-save{margin-top:12px;width:100%;padding:11px;border:none;border-radius:30px;background:var(--purple-600);color:#fff;font-weight:600;font-size:14px;cursor:pointer;}
-.settings-body .preset-item{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;
-  background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:4px;border:1px solid var(--gray-200);}
-.settings-body .preset-item .name{font-size:12px;font-weight:500;cursor:pointer;flex:1;color:var(--gray-700);}
-.settings-body .preset-item .del-preset{background:none;border:none;color:var(--gray-400);cursor:pointer;padding:0 6px;font-size:13px;}
-.settings-body .add-row{display:flex;gap:6px;margin-top:6px;}
-.settings-body .add-row input{flex:1;min-width:70px;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;}
-.settings-body .add-row .btn{padding:7px 14px;border-radius:30px;border:none;font-weight:600;font-size:12px;background:var(--purple-600);color:#fff;}
-.toggle-row{display:flex;align-items:center;gap:8px;margin:14px 0 4px;}
-.toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--purple-600);cursor:pointer;flex-shrink:0;}
-.toggle-row label{margin:0 !important;font-size:13px !important;color:var(--gray-700);cursor:pointer;}
-@media (max-width:400px){
-  #app{padding:12px 8px 24px;}
-  .header h1{font-size:17px;}
-  .btn{padding:9px 14px;font-size:12px;}
-  .input-area input{padding:10px 14px;font-size:13px;}
-  .history-area{max-height:35vh;}
-  .suggestions-panel{max-height:min(38vh,240px);}
-  .suggestion-card .s-text{font-size:12px;}
-  .profile-tag{max-width:80px;font-size:10px;}
-  .msg-bubble{max-width:90%;font-size:12px;padding:7px 11px;}
-  .tone-group .tone-value{min-width:48px;font-size:9px;}
+.s-card{
+  background:var(--surface);border-radius:12px;padding:10px 14px;
+  font-size:15px;line-height:1.45;cursor:pointer;
+  transition:background .15s,transform .1s;
+  display:flex;align-items:flex-start;gap:10px;
 }
+.s-card:hover{background:#efeff4;}
+.s-card:active{background:#e8e8ee;transform:scale(0.995);}
+.s-card.copied{background:#ecfdf5;}
+.s-card .s-text{flex:1;min-width:0;}
+.s-card .s-badge{
+  font-size:11px;color:var(--text-3);background:var(--bg);
+  padding:2px 8px;border-radius:8px;flex-shrink:0;font-weight:500;
+}
+.s-card.copied .s-badge{color:#059669;background:#d1fae5;}
+.composer{
+  flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border);display:flex;align-items:center;
+  gap:8px;background:var(--bg);
+}
+.composer input{
+  flex:1;min-width:0;height:40px;padding:0 14px;border:none;
+  background:var(--surface);border-radius:20px;font-size:15px;
+  outline:none;color:var(--text);font-family:inherit;
+  transition:background .15s;
+}
+.composer input:focus{background:#efeff4;}
+.composer input::placeholder{color:var(--text-3);}
+.send-btn{
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:var(--primary);color:#fff;font-size:18px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .15s,opacity .15s;flex-shrink:0;
+}
+.send-btn:hover{background:#6a4ae6;}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;}
+.send-btn:active:not(:disabled){transform:scale(0.95);}
+.img-preview{
+  padding:0 16px 8px;display:none;align-items:center;gap:8px;flex-shrink:0;
+}
+.img-preview.show{display:flex;}
+.img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px;}
+.img-preview button{
+  border:none;background:transparent;color:var(--text-3);
+  font-size:16px;cursor:pointer;padding:4px;
+}
+.settings-panel{
+  position:fixed;inset:0;background:var(--bg);z-index:100;
+  transform:translateX(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.settings-panel.show{transform:translateX(0);}
+.sp-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0;
+  max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;
+}
+.sp-header h2{font-size:16px;font-weight:600;}
+.sp-body{
+  flex:1;overflow-y:auto;padding:24px 18px;
+  -webkit-overflow-scrolling:touch;
+  max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;
+}
+.field{margin-bottom:22px;}
+.field label{
+  display:block;font-size:13px;font-weight:500;
+  color:var(--text-2);margin-bottom:8px;
+}
+.field input{
+  width:100%;height:44px;padding:0 14px;border:1px solid var(--border);
+  background:var(--bg);border-radius:12px;font-size:15px;
+  outline:none;color:var(--text);font-family:inherit;
+  transition:border-color .15s;
+}
+.field input:focus{border-color:var(--primary);}
+.field .row{display:flex;gap:8px;}
+.field .row input{flex:1;min-width:0;}
+.detect-btn{
+  height:44px;padding:0 18px;border:none;background:var(--primary);
+  color:#fff;font-size:14px;font-weight:500;border-radius:12px;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;
+  transition:background .15s,opacity .15s;
+}
+.detect-btn:hover{background:#6a4ae6;}
+.detect-btn:disabled{opacity:.5;cursor:not-allowed;}
+.status-text{
+  font-size:12px;color:var(--text-3);
+  margin-top:8px;min-height:16px;line-height:1.4;
+}
+.status-text.ok{color:#059669;}
+.status-text.err{color:#dc2626;}
+.status-text.info{color:var(--primary);}
+.hint{
+  font-size:12px;color:var(--text-3);line-height:1.6;margin-top:10px;
+}
+.clear-btn{
+  width:100%;height:44px;border:1px solid var(--border);
+  background:transparent;color:#dc2626;font-size:15px;
+  border-radius:12px;cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.clear-btn:hover{background:#fef2f2;}
+.toast{
+  position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:rgba(30,30,35,0.95);color:#fff;
+  padding:10px 18px;border-radius:20px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  z-index:999;max-width:80%;text-align:center;font-weight:500;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.img-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.img-modal img{max-width:92vw;max-height:90vh;border-radius:12px;object-fit:contain;}
 </style>
 </head>
 <body>
-<div id="splash">
-  <div class="splash-bg-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
-  <div class="splash-content">
-    <div class="splash-icon">💬</div>
-    <h1 class="splash-title">聊天助手</h1>
-    <p class="splash-subtitle">AI 助力，高情商回复</p>
-    <button class="splash-btn" id="enterAppBtn">✨ 开始使用</button>
+<div id="app">
+  <header>
+    <h1>聊天助手</h1>
+    <button class="icon-btn" id="settingsBtn" aria-label="设置">⚙️</button>
+  </header>
+
+  <main id="messages">
+    <div class="empty">输入对方的话<br>获取 3 条回复建议</div>
+  </main>
+
+  <section class="suggestions" id="suggestions">
+    <div class="s-title">
+      <span id="sTitleText">回复建议</span>
+      <span id="sTitleSpinner" style="display:none" class="spinner"></span>
+    </div>
+    <div id="sList"></div>
+  </section>
+
+  <div class="img-preview" id="imgPreview">
+    <img id="previewImg" alt="">
+    <button id="removeImg" aria-label="移除">✕</button>
   </div>
+
+  <div class="composer">
+    <button class="icon-btn" id="imageBtn" aria-label="图片">📷</button>
+    <input type="text" id="input" placeholder="对方说了什么..." autocomplete="off">
+    <button class="send-btn" id="sendBtn" aria-label="发送">↑</button>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
 
-<div id="app" class="hidden">
-  <div class="header">
-    <h1>💬 聊天助手</h1>
-    <div class="header-right">
-      <span class="profile-tag" id="profileTag">👤 选择对象</span>
-      <span class="badge offline" id="statusBadge">⛔ 未连接</span>
-      <button class="settings-btn" id="settingsToggle" title="设置">⚙️</button>
-    </div>
+<div class="settings-panel" id="settings">
+  <div class="sp-header">
+    <h2>设置</h2>
+    <button class="icon-btn" id="closeSettings" aria-label="关闭">✕</button>
   </div>
-
-  <div class="topic-bar" id="topicBar"></div>
-
-  <div class="config-row">
-    <div class="config-group"><label>🎯 场景</label><div class="chip-group" id="scenarioGroup"></div></div>
-    <div class="config-group"><label>🎭 风格</label><div class="chip-group" id="styleGroup"></div></div>
-  </div>
-
-  <div class="meta-bar" id="quickBar">
-    <div class="quick-item"><span class="label">🤝</span><span class="value" id="quickRelation">未设置</span></div>
-    <div class="quick-item"><span class="label">🎯</span><span class="value" id="quickPurpose">日常闲聊</span></div>
-    <div class="tone-group">
-      <span class="tone-label">🎚️ 语气</span>
-      <input type="range" id="toneSlider" min="0" max="100" step="5" value="50">
-      <span class="tone-value" id="toneValue">50 · 自然</span>
-    </div>
-  </div>
-
-  <div class="history-area" id="historyArea">
-    <div class="history-empty">💬 添加对象开始聊天</div>
-  </div>
-
-  <div class="suggestions-panel" id="suggestionsPanel">
-    <div class="s-header">
-      <span class="s-title">💡 AI 候选回复</span>
-      <div class="s-header-actions">
-        <button class="s-expand" id="expandSuggestionsBtn" title="展开/收起">🔍</button>
-        <button class="s-close" id="closeSuggestionsBtn" title="关闭">✕</button>
+  <div class="sp-body">
+    <div class="field">
+      <label>API Key</label>
+      <div class="row">
+        <input type="password" id="apiKey" placeholder="粘贴任意 AI 的 Key" autocomplete="off">
+        <button class="detect-btn" id="detectBtn">识别</button>
       </div>
+      <div class="status-text" id="detectStatus"></div>
+      <div class="hint">支持 DeepSeek / 通义 / 智谱 / Kimi / 豆包 / OpenAI / Claude / Gemini。<br>粘贴后点识别即可自动配置。</div>
     </div>
-    <div id="suggestionsContent"></div>
-  </div>
 
-  <div class="image-preview" id="imagePreview" style="display:none;">
-    <img id="previewImg" alt="预览">
-    <button class="remove-img" id="removeImgBtn">✕</button>
-  </div>
-
-  <div class="input-area">
-    <input type="text" id="messageInput" placeholder="输入对方原话...">
-    <div class="btn-group">
-      <button class="btn btn-image" id="imageBtn">📷</button>
-      <button class="btn btn-primary" id="sendBtn">🚀 获取</button>
-      <button class="btn btn-manual" id="manualBtn" title="把我发的这句话记入对话">✅ 我发了</button>
-      <button class="btn btn-outline" id="clearHistoryBtn">🗑️</button>
+    <div class="field">
+      <label>我的昵称（可选）</label>
+      <input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off">
     </div>
-  </div>
-  <input type="file" id="fileInput" accept="image/*" style="display:none;">
-</div>
 
-<div class="page-overlay" id="managePage">
-  <div class="page-header"><h2>📋 管理</h2><button class="close-btn" id="manageCloseBtn">✕</button></div>
-  <div class="page-body" id="manageBody"></div>
-</div>
-<div class="page-overlay" id="settingsPage">
-  <div class="page-header"><h2>⚙️ API 设置</h2><button class="close-btn" id="settingsCloseBtn">✕</button></div>
-  <div class="page-body settings-body" id="settingsBody">
-    <div class="manage-section-title">📦 API 预设</div>
-    <div id="presetList"></div>
-    <div class="add-row"><input type="text" id="newPresetName" placeholder="预设名称"><button class="btn" id="addPresetBtn">💾 保存当前</button></div>
-    <label>🔑 API Key</label><input type="password" id="apiKeyInput" placeholder="sk-...">
-    <label>🌐 API 地址</label><input type="text" id="apiUrlInput" placeholder="https://api.deepseek.com/v1/chat/completions">
-    <label>🧠 模型名称</label><input type="text" id="modelInput" placeholder="deepseek-chat">
-    <div class="toggle-row"><input type="checkbox" id="useAI" checked><label for="useAI">启用 AI 生成</label></div>
-    <button class="btn-save" id="saveSettingsBtn">💾 保存配置到预设</button>
+    <div class="field">
+      <label>对方昵称（可选）</label>
+      <input type="text" id="taName" placeholder="让 AI 更懂你们的关系" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <button class="clear-btn" id="clearBtn">清空对话记录</button>
+    </div>
   </div>
 </div>
 
@@ -347,1071 +256,588 @@ body{
 
 <script>
 (function(){
-  // ==================== 状态 ====================
-  const state = {
-    objects: [], currentObjectId: null,
-    config: { scenario:'日常闲聊', style:'话题延伸' },
-    tone: 50,
-    isLoading: false,
-    apiKey:'', apiUrl:'https://api.deepseek.com/v1/chat/completions', model:'deepseek-chat',
-    useAI:true, imageBase64:null, presets:[], currentPreset:'',
-    relations:['朋友','同事','恋人','家人','客户','其他'],
-    scenarios:['日常闲聊','深入交流','正式沟通'],
-    styles:[
-      { name:'幽默', instruction:'用轻松幽默口语回应，像朋友聊天，可自嘲调侃。', opening:false },
-      { name:'直球', instruction:'直接、自信、简洁，不绕弯子。', opening:false },
-      { name:'话题延伸', instruction:'提出开放性问题或分享经历，引导深入。', opening:false },
-      { name:'开启话题', instruction:'生成全新话题开场白，自然有趣，结合对方信息。', opening:true },
-      { name:'高情商回复', instruction:'高情商回应，注重共情、温和、体面。', opening:false }
-    ],
-    myProfile:{ name:'', age:'', hobby:'', note:'', gender:'' },
-    toastTimer:null
-  };
+'use strict';
 
-  const $ = id => document.getElementById(id);
-  const dom = {
-    splash:$('splash'), app:$('app'), enterAppBtn:$('enterAppBtn'),
-    historyArea:$('historyArea'), toastEl:$('toast'),
-    statusBadge:$('statusBadge'), profileTag:$('profileTag'),
-    messageInput:$('messageInput'), sendBtn:$('sendBtn'),
-    settingsToggle:$('settingsToggle'), settingsPage:$('settingsPage'), settingsCloseBtn:$('settingsCloseBtn'),
-    apiKeyInput:$('apiKeyInput'), apiUrlInput:$('apiUrlInput'), modelInput:$('modelInput'),
-    useAICheckbox:$('useAI'), saveSettingsBtn:$('saveSettingsBtn'),
-    presetList:$('presetList'), newPresetName:$('newPresetName'), addPresetBtn:$('addPresetBtn'),
-    managePage:$('managePage'), manageCloseBtn:$('manageCloseBtn'), manageBody:$('manageBody'),
-    imageBtn:$('imageBtn'), fileInput:$('fileInput'), imagePreview:$('imagePreview'),
-    previewImg:$('previewImg'), removeImgBtn:$('removeImgBtn'),
-    clearHistoryBtn:$('clearHistoryBtn'), manualBtn:$('manualBtn'),
-    suggestionsPanel:$('suggestionsPanel'), suggestionsContent:$('suggestionsContent'),
-    closeSuggestionsBtn:$('closeSuggestionsBtn'), expandSuggestionsBtn:$('expandSuggestionsBtn'),
-    quickRelation:$('quickRelation'), quickPurpose:$('quickPurpose'),
-    scenarioGroup:$('scenarioGroup'), styleGroup:$('styleGroup'),
-    topicBar:$('topicBar'), toneSlider:$('toneSlider'), toneValue:$('toneValue')
-  };
+const PROVIDERS = {
+  openai:    { name:'OpenAI',  icon:'🟢', url:'https://api.openai.com/v1/chat/completions', model:'gpt-4o-mini', visionModel:'gpt-4o', format:'openai' },
+  deepseek:  { name:'DeepSeek',icon:'🐋', url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', visionModel:null, format:'openai' },
+  qwen:      { name:'通义千问',icon:'☁️', url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', model:'qwen-plus', visionModel:'qwen-vl-max', format:'openai' },
+  zhipu:     { name:'智谱',    icon:'🧠', url:'https://open.bigmodel.cn/api/paas/v4/chat/completions', model:'glm-4-flash', visionModel:'glm-4v', format:'openai' },
+  kimi:      { name:'Kimi',    icon:'🌙', url:'https://api.moonshot.cn/v1/chat/completions', model:'moonshot-v1-8k', visionModel:'moonshot-v1-8k-vision-preview', format:'openai' },
+  doubao:    { name:'豆包',    icon:'🎵', url:'https://ark.cn-beijing.volces.com/api/v3/chat/completions', model:'doubao-pro-32k', visionModel:'doubao-vision-pro-32k', format:'openai' },
+  anthropic: { name:'Claude',  icon:'🅰️', url:'https://api.anthropic.com/v1/messages', model:'claude-3-5-sonnet-20241022', visionModel:'claude-3-5-sonnet-20241022', format:'anthropic' },
+  google:    { name:'Gemini',  icon:'🔷', url:'https://generativelanguage.googleapis.com/v1beta/models', model:'gemini-2.0-flash', visionModel:'gemini-2.0-flash', format:'google' }
+};
+const PROBE_CANDIDATES = ['deepseek','kimi','zhipu','openai','doubao','qwen'];
 
-  // ==================== 工具 ====================
-  function showToast(m, d=2000, type=''){
-    const el = dom.toastEl;
-    el.textContent = m; el.className = 'toast ' + type; el.classList.add('show');
-    clearTimeout(state.toastTimer);
-    state.toastTimer = setTimeout(() => el.classList.remove('show'), d);
-  }
-  function escapeHtml(str){ const d = document.createElement('div'); d.textContent = String(str==null?'':str); return d.innerHTML; }
-  function escapeAttr(str){ return escapeHtml(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-  function toAscii(str){ return String(str||'').replace(/[^\x00-\x7F]/g,''); }
-  function genId(prefix){ return (prefix||'') + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+const state = {
+  messages: [], suggestions: [],
+  apiKey:'', apiUrl:'', model:'', provider:'',
+  myName:'', taName:'',
+  imageBase64:null, loading:false
+};
 
-  function getConfig(){
-    const s = document.querySelector('#scenarioGroup .chip.active')?.dataset.value || state.config.scenario;
-    const t = document.querySelector('#styleGroup .chip.active')?.dataset.value || state.config.style;
-    return { scenario:s, style:t };
-  }
-  function getCurrentObject(){ return state.objects.find(o => o.id === state.currentObjectId) || null; }
-  function getCurrentTopic(){
-    const o = getCurrentObject();
-    if (!o || !o.topics || o.topics.length === 0) return null;
-    return o.topics.find(t => t.id === o.currentTopicId) || o.topics[0];
-  }
-  function getCurrentHistory(){ const t = getCurrentTopic(); return t ? (t.history || []) : []; }
-  function getCurrentSuggestions(){ const t = getCurrentTopic(); return t ? (t.suggestions || null) : null; }
-  function setCurrentSuggestions(s){
-    const t = getCurrentTopic();
-    if (t) { t.suggestions = s; saveToStorage(); }
-  }
-  function isStyleOpeningTopic(){
-    const styleObj = state.styles.find(s => s.name === getConfig().style);
-    return styleObj ? !!styleObj.opening : false;
-  }
-  function updateStatusBadge(){
-    const hasKey = state.apiKey && state.apiKey.trim().length > 0;
-    const badge = dom.statusBadge;
-    if (state.useAI && hasKey){ badge.textContent = '🤖 AI 在线'; badge.className = 'badge online'; }
-    else if (!state.useAI){ badge.textContent = '⛔ AI 禁用'; badge.className = 'badge offline'; }
-    else { badge.textContent = '⚠️ 缺少 Key'; badge.className = 'badge warning'; }
-  }
-  function updateQuickPurposeText(){ dom.quickPurpose.textContent = getConfig().scenario || '日常闲聊'; }
-  function updatePlaceholder(){
-    dom.messageInput.placeholder = isStyleOpeningTopic() ? '输入话题方向（可选）或留空自动生成' : '输入对方原话...';
-  }
-  function updateImageBtnState(){
-    if (state.imageBase64){ dom.imageBtn.classList.add('has-image'); dom.imageBtn.textContent = '📷✓'; }
-    else { dom.imageBtn.classList.remove('has-image'); dom.imageBtn.textContent = '📷'; }
-  }
-  function updateToneUI(){
-    const tone = state.tone;
-    const label = tone < 30 ? '温柔' : tone < 70 ? '自然' : tone < 90 ? '直接' : '热烈';
-    dom.toneValue.textContent = `${tone} · ${label}`;
-    dom.toneSlider.value = tone;
-  }
-  function getToneDescription(){
-    const tone = state.tone;
-    if (tone < 20) return '非常温柔含蓄，避免强势表达，多用委婉语气词';
-    if (tone < 40) return '偏温柔，语气缓和，注意共情';
-    if (tone < 60) return '自然均衡，日常交流语气';
-    if (tone < 80) return '偏直接主动，表达清晰有主见';
-    return '直接热烈，主动积极，可适当大胆表达情感';
-  }
+const $ = id => document.getElementById(id);
+const dom = {
+  messages:$('messages'),
+  suggestions:$('suggestions'), sList:$('sList'),
+  sTitleText:$('sTitleText'), sTitleSpinner:$('sTitleSpinner'),
+  imgPreview:$('imgPreview'), previewImg:$('previewImg'), removeImg:$('removeImg'),
+  imageBtn:$('imageBtn'), fileInput:$('fileInput'),
+  input:$('input'), sendBtn:$('sendBtn'),
+  settingsBtn:$('settingsBtn'), settings:$('settings'),
+  closeSettings:$('closeSettings'), clearBtn:$('clearBtn'),
+  apiKey:$('apiKey'), detectBtn:$('detectBtn'), detectStatus:$('detectStatus'),
+  myName:$('myName'), taName:$('taName'),
+  toast:$('toast')
+};
 
-  // ==================== 存储 ====================
-  function saveToStorage(){
-    try {
-      localStorage.setItem('chat_data_v3', JSON.stringify({
-        objects: state.objects, currentObjectId: state.currentObjectId,
-        apiKey: state.apiKey, apiUrl: state.apiUrl, model: state.model, useAI: state.useAI,
-        presets: state.presets, currentPreset: state.currentPreset,
-        relations: state.relations, scenarios: state.scenarios, styles: state.styles,
-        config: state.config, tone: state.tone, myProfile: state.myProfile
-      }));
-    } catch(e){}
-  }
+let toastTimer = null;
+function toast(msg, dur=1800, type=''){
+  clearTimeout(toastTimer);
+  dom.toast.textContent = msg;
+  dom.toast.style.background = type==='error' ? 'rgba(220,38,38,0.95)'
+    : type==='success' ? 'rgba(5,150,105,0.95)'
+    : 'rgba(30,30,35,0.95)';
+  dom.toast.classList.add('show');
+  toastTimer = setTimeout(()=>dom.toast.classList.remove('show'), dur);
+}
 
-  // 迁移旧数据到 v3（话题结构）
-  function migrateObject(o){
-    const result = {
-      id: o.id || genId('o_'),
-      name: o.name || '', age: o.age || '', hobby: o.hobby || '',
-      note: o.note || '', relationship: o.relationship || '', gender: o.gender || ''
-    };
-    if (Array.isArray(o.topics) && o.topics.length > 0){
-      result.topics = o.topics.map(t => ({
-        id: t.id || genId('t_'),
-        title: t.title || '默认话题',
-        history: Array.isArray(t.history) ? t.history : [],
-        suggestions: t.suggestions || null,
-        createdAt: t.createdAt || Date.now()
-      }));
-      result.currentTopicId = o.currentTopicId || result.topics[0].id;
-    } else {
-      // 旧版（flat history）迁移
-      const tid = genId('t_');
-      result.topics = [{
-        id: tid, title: '默认话题',
-        history: Array.isArray(o.history) ? o.history : [],
-        suggestions: o.suggestions || null,
-        createdAt: Date.now()
-      }];
-      result.currentTopicId = tid;
-    }
-    return result;
-  }
+function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
+function toAscii(s){ return String(s||'').replace(/[^\x00-\x7F]/g,''); }
 
-  function loadFromStorage(){
-    try {
-      let raw = localStorage.getItem('chat_data_v3') || localStorage.getItem('chat_data_v2') || localStorage.getItem('chat_data_final');
-      if (!raw) return false;
-      const data = JSON.parse(raw);
-      state.objects = (data.objects || []).map(migrateObject);
-      state.currentObjectId = data.currentObjectId || (state.objects[0]?.id || null);
-      if (state.currentObjectId && !state.objects.find(o => o.id === state.currentObjectId)){
-        state.currentObjectId = state.objects[0]?.id || null;
-      }
-      state.apiKey = data.apiKey || '';
-      state.apiUrl = data.apiUrl || 'https://api.deepseek.com/v1/chat/completions';
-      state.model = data.model || 'deepseek-chat';
-      state.useAI = data.useAI !== undefined ? data.useAI : true;
-      state.presets = data.presets || [];
-      state.currentPreset = data.currentPreset || '';
-      state.relations = data.relations || ['朋友','同事','恋人','家人','客户','其他'];
-      state.scenarios = data.scenarios || ['日常闲聊','深入交流','正式沟通'];
-      state.styles = data.styles && data.styles.length ? data.styles : state.styles;
-      state.config = data.config || { scenario:'日常闲聊', style:'话题延伸' };
-      state.tone = typeof data.tone === 'number' ? data.tone : 50;
-      state.myProfile = Object.assign({ name:'', age:'', hobby:'', note:'', gender:'' }, data.myProfile || {});
-      if (!state.scenarios.includes(state.config.scenario)) state.config.scenario = state.scenarios[0] || '日常闲聊';
-      if (!state.styles.find(s => s.name === state.config.style)) state.config.style = state.styles[0]?.name || '话题延伸';
-      return true;
-    } catch(e){ return false; }
-  }
-  function initDefaultState(){
-    state.objects = []; state.currentObjectId = null; state.presets = []; state.currentPreset = '';
-    state.relations = ['朋友','同事','恋人','家人','客户','其他'];
-    state.scenarios = ['日常闲聊','深入交流','正式沟通'];
-    state.styles = [
-      { name:'幽默', instruction:'用轻松幽默口语回应，像朋友聊天，可自嘲调侃。', opening:false },
-      { name:'直球', instruction:'直接、自信、简洁，不绕弯子。', opening:false },
-      { name:'话题延伸', instruction:'提出开放性问题或分享经历，引导深入。', opening:false },
-      { name:'开启话题', instruction:'生成全新话题开场白，自然有趣，结合对方信息。', opening:true },
-      { name:'高情商回复', instruction:'高情商回应，注重共情、温和、体面。', opening:false }
-    ];
-    state.config = { scenario:'日常闲聊', style:'话题延伸' };
-    state.tone = 50;
-    state.myProfile = { name:'', age:'', hobby:'', note:'', gender:'' };
-  }
-
-  // ==================== 页面控制 ====================
-  function openManage(){ dom.managePage.classList.add('show'); renderManagePage(); }
-  function closeManage(){ dom.managePage.classList.remove('show'); }
-  function openSettings(){
-    dom.settingsPage.classList.add('show');
-    dom.apiKeyInput.value = state.apiKey; dom.apiUrlInput.value = state.apiUrl;
-    dom.modelInput.value = state.model; dom.useAICheckbox.checked = state.useAI;
-    renderPresets();
-  }
-  function closeSettings(){
-    state.apiKey = toAscii(dom.apiKeyInput.value.trim());
-    state.apiUrl = toAscii(dom.apiUrlInput.value.trim()) || 'https://api.deepseek.com/v1/chat/completions';
-    state.model = toAscii(dom.modelInput.value.trim()) || 'deepseek-chat';
-    state.useAI = dom.useAICheckbox.checked;
-    saveToStorage();
-    dom.settingsPage.classList.remove('show');
-    updateStatusBadge(); updateQuickPurposeText(); updatePlaceholder();
-    updateImageBtnState(); renderScenarioChips(); renderStyleChips(); loadCurrentObject();
-  }
-
-  // ==================== 话题管理 ====================
-  function createNewTopic(){
-    const o = getCurrentObject();
-    if (!o){ showToast('请先添加对象', 1200); return; }
-    const count = (o.topics || []).length + 1;
-    const input = prompt('新话题名称：', '话题 ' + count);
-    if (input === null) return;
-    const title = input.trim() || ('话题 ' + count);
-    const topic = { id: genId('t_'), title, history: [], suggestions: null, createdAt: Date.now() };
-    o.topics = o.topics || [];
-    o.topics.push(topic);
-    o.currentTopicId = topic.id;
-    saveToStorage();
-    renderTopics(); loadCurrentObject();
-    showToast(`已创建话题：${title}`, 1200, 'success');
-  }
-  function switchTopic(id){
-    const o = getCurrentObject();
-    if (!o) return;
-    if (o.currentTopicId === id) return;
-    o.currentTopicId = id;
-    saveToStorage();
-    renderTopics(); loadCurrentObject();
-    const t = getCurrentTopic();
-    showToast(`已切换到：${t?.title || '话题'}`, 1000, 'success');
-  }
-  function deleteTopic(id){
-    const o = getCurrentObject();
-    if (!o || !o.topics) return;
-    if (o.topics.length <= 1){ showToast('至少保留一个话题', 1200); return; }
-    const t = o.topics.find(x => x.id === id);
-    if (!t) return;
-    if (!confirm(`删除话题 "${t.title}" 及其聊天记录？`)) return;
-    o.topics = o.topics.filter(x => x.id !== id);
-    if (o.currentTopicId === id) o.currentTopicId = o.topics[0].id;
-    saveToStorage();
-    renderTopics(); loadCurrentObject();
-    showToast('已删除话题', 1000);
-  }
-  function renderTopics(){
-    const o = getCurrentObject();
-    const bar = dom.topicBar;
-    if (!o || !o.topics || o.topics.length === 0){ bar.innerHTML = ''; return; }
-    let html = '';
-    o.topics.forEach(t => {
-      const active = t.id === o.currentTopicId;
-      const canDel = o.topics.length > 1;
-      html += `<div class="topic-chip ${active?'active':''}" data-id="${escapeAttr(t.id)}" title="${escapeAttr(t.title)}">
-        <span>${escapeHtml(t.title)}</span>
-        ${canDel ? `<span class="del-topic" data-del="${escapeAttr(t.id)}">×</span>` : ''}
-      </div>`;
+// ============ 存储 ============
+const KEY = 'chat_simple_v1';
+function save(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      messages: state.messages,
+      apiKey: state.apiKey, apiUrl: state.apiUrl,
+      model: state.model, provider: state.provider,
+      myName: state.myName, taName: state.taName
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    Object.assign(state, {
+      messages: d.messages || [],
+      apiKey: d.apiKey || '', apiUrl: d.apiUrl || '',
+      model: d.model || '', provider: d.provider || '',
+      myName: d.myName || '', taName: d.taName || ''
     });
-    html += `<div class="topic-chip add" id="newTopicChip">＋ 新话题</div>`;
-    bar.innerHTML = html;
-    bar.querySelectorAll('.topic-chip[data-id]').forEach(chip => {
-      chip.addEventListener('click', e => {
-        if (e.target.dataset.del) return;
-        switchTopic(chip.dataset.id);
-      });
-    });
-    bar.querySelectorAll('.del-topic').forEach(x => {
-      x.addEventListener('click', e => {
-        e.stopPropagation();
-        deleteTopic(x.dataset.del);
-      });
-    });
-    const addBtn = bar.querySelector('#newTopicChip');
-    if (addBtn) addBtn.addEventListener('click', createNewTopic);
-    // 滚动到当前话题
-    const activeChip = bar.querySelector('.topic-chip.active');
-    if (activeChip) activeChip.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
-  }
+  }catch(e){}
+}
 
-  // ==================== 渲染管理页面 ====================
-  function renderManagePage(){
-    const body = dom.manageBody;
-    let html = '<div class="manage-section-title">👥 聊天对象</div>';
-    if (state.objects.length === 0){
-      html += '<div style="color:var(--gray-400);font-size:13px;padding:8px 0;text-align:center;">暂无对象，请添加</div>';
-    } else {
-      state.objects.forEach(obj => {
-        const active = obj.id === state.currentObjectId ? 'active' : '';
-        const topicCount = (obj.topics || []).length;
-        const msgCount = (obj.topics || []).reduce((s,t) => s + (t.history?.length || 0), 0);
-        const initial = (obj.name || '?')[0].toUpperCase();
-        html += `<div class="manage-object-item ${active}" data-id="${escapeAttr(obj.id)}">
-          <div class="avatar">${escapeHtml(initial)}</div>
-          <div class="info-wrap"><div class="name">${escapeHtml(obj.name||'未命名')}${obj.age?' ('+escapeHtml(obj.age)+'岁)':''}</div>
-          <div class="info">${escapeHtml(obj.relationship||'未设置关系')} · ${topicCount}话题 · ${msgCount}条</div></div>
-          <div class="check-mark">${active ? '✓' : ''}</div>
-          <button class="del-btn" data-id="${escapeAttr(obj.id)}">✕</button>
-        </div>`;
-      });
-    }
-    html += `<div class="manage-add-row"><input type="text" id="manageNewObjectName" placeholder="昵称"><button class="btn" id="manageAddObjectBtn">➕ 添加</button></div>
-    <div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:4px;">✏️ 编辑当前对象</div>
-    <div class="manage-edit-row"><input type="text" id="manageProfileName" placeholder="昵称"><input type="number" id="manageProfileAge" placeholder="年龄" min="1" max="120"></div>
-    <div class="manage-edit-row" style="margin-top:4px;"><select id="manageProfileGender" style="flex:1;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;background:#fff;">
-      <option value="">保密</option><option value="男">男</option><option value="女">女</option><option value="其他">其他</option>
-    </select></div>
-    <input type="text" id="manageProfileHobby" placeholder="爱好/职业" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
-    <input type="text" id="manageProfileNote" placeholder="备注" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
-    <div style="margin-top:6px;"><label style="font-size:12px;font-weight:600;color:var(--gray-600);display:block;">🤝 与我的关系</label>
-    <input type="text" id="manageProfileRelationship" placeholder="输入或点击下方标签" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;">
-    <div class="manage-tags" id="manageProfileRelationTags"></div></div>
-    <button class="btn-save-sm" id="manageSaveObjectBtn">💾 更新对象</button></div>`;
+// ============ 渲染 ============
+function renderMessages(){
+  if(state.messages.length === 0){
+    dom.messages.innerHTML = '<div class="empty">输入对方的话<br>获取 3 条回复建议</div>';
+    return;
+  }
+  let html = '';
+  state.messages.forEach(m=>{
+    const cls = m.role === 'ta' ? 'ta' : 'me';
+    html += '<div class="bubble '+cls+'">' + esc(m.text) + '</div>';
+  });
+  dom.messages.innerHTML = html;
+  dom.messages.scrollTop = dom.messages.scrollHeight;
+}
 
-    html += `<div class="manage-section-title" style="margin-top:20px;">🤝 关系管理</div>
-    <div class="manage-add-row"><input type="text" id="manageNewRelationInput" placeholder="关系"><button class="btn" id="manageAddRelationBtn">➕</button></div>
-    <div class="manage-tags" id="manageRelationTags"></div>`;
+function renderSuggestions(){
+  if(state.loading){
+    dom.suggestions.classList.add('show');
+    dom.sList.innerHTML = '';
+    dom.sTitleText.textContent = '生成中...';
+    dom.sTitleSpinner.style.display = 'inline-block';
+    return;
+  }
+  dom.sTitleSpinner.style.display = 'none';
+  if(!state.suggestions || state.suggestions.length === 0){
+    dom.suggestions.classList.remove('show');
+    dom.sList.innerHTML = '';
+    return;
+  }
+  dom.suggestions.classList.add('show');
+  dom.sTitleText.textContent = '点击复制发送';
+  let html = '';
+  state.suggestions.forEach((s, i)=>{
+    html += '<div class="s-card" data-idx="'+i+'">'
+      + '<div class="s-text">' + esc(s.text) + '</div>'
+      + (s.style ? '<div class="s-badge">' + esc(s.style) + '</div>' : '')
+      + '</div>';
+  });
+  dom.sList.innerHTML = html;
+  dom.sList.querySelectorAll('.s-card').forEach(card=>{
+    card.addEventListener('click', ()=>copySuggestion(parseInt(card.dataset.idx), card));
+  });
+}
 
-    html += `<div class="manage-section-title" style="margin-top:20px;">🎯 场景管理</div>
-    <div class="manage-add-row"><input type="text" id="manageNewScenarioInput" placeholder="新场景名称"><button class="btn" id="manageAddScenarioBtn">➕</button></div>
-    <div class="manage-tags" id="manageScenarioTags"></div>
-    <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">点击场景名称可切换主场景，点击 ✕ 删除</div>`;
-
-    html += `<div class="manage-section-title" style="margin-top:20px;">🎭 风格管理</div>
-    <div class="manage-add-row"><input type="text" id="manageNewStyleName" placeholder="风格名称"><input type="text" id="manageNewStyleInstruction" placeholder="指令" style="flex:2;"><label style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" id="manageNewStyleOpening"> 开启话题</label><button class="btn" id="manageAddStyleBtn">➕</button></div>
-    <div id="manageStyleList" style="margin-top:6px;"></div>`;
-
-    html += `<div class="manage-section-title" style="margin-top:20px;">🧑 我的资料</div>
-    <div class="manage-edit-row"><input type="text" id="manageMyName" placeholder="我的昵称"><input type="number" id="manageMyAge" placeholder="年龄"></div>
-    <div class="manage-edit-row" style="margin-top:4px;"><select id="manageMyGender" style="flex:1;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;background:#fff;">
-      <option value="">保密</option><option value="男">男</option><option value="女">女</option><option value="其他">其他</option>
-    </select></div>
-    <input type="text" id="manageMyHobby" placeholder="我的爱好/职业" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
-    <input type="text" id="manageMyNote" placeholder="我的备注" style="width:100%;padding:7px 11px;border-radius:20px;border:1.5px solid var(--gray-200);font-size:12px;outline:none;margin-top:4px;">
-    <button class="btn-save-sm" id="manageSaveMyProfileBtn">💾 保存我的资料</button>`;
-
-    body.innerHTML = html;
-
-    // 对象列表事件
-    body.querySelectorAll('.manage-object-item').forEach(item => {
-      item.addEventListener('click', function(e){
-        if (e.target.closest('.del-btn')) return;
-        state.currentObjectId = this.dataset.id;
-        saveToStorage(); renderTopics(); loadCurrentObject(); renderManagePage();
-        showToast(`已切换到 ${getCurrentObject()?.name||'对象'}`, 1000, 'success');
-      });
-    });
-    body.querySelectorAll('.manage-object-item .del-btn').forEach(btn => {
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        if (confirm('删除该对象及其所有聊天记录？')){ deleteObject(this.dataset.id); renderManagePage(); }
-      });
-    });
-    const addObjBtn = body.querySelector('#manageAddObjectBtn');
-    const addObjInput = body.querySelector('#manageNewObjectName');
-    if (addObjBtn){
-      addObjBtn.addEventListener('click', () => {
-        const name = addObjInput.value.trim();
-        if (!name){ showToast('请输入昵称', 1000); return; }
-        if (state.objects.some(o => o.name === name)){ showToast('已存在同名对象', 1000); return; }
-        const tid = genId('t_');
-        const n = {
-          id: genId('o_'), name, age:'', hobby:'', note:'', relationship:'', gender:'',
-          topics:[{ id:tid, title:'默认话题', history:[], suggestions:null, createdAt:Date.now() }],
-          currentTopicId: tid
-        };
-        state.objects.push(n); state.currentObjectId = n.id;
-        saveToStorage(); renderTopics(); loadCurrentObject(); renderManagePage();
-        showToast(`已添加：${name}`, 1500, 'success');
-      });
-    }
-    if (addObjInput) addObjInput.addEventListener('keydown', e => { if (e.key === 'Enter') addObjBtn.click(); });
-
-    // 编辑当前对象
-    const o = getCurrentObject();
-    const profileName = body.querySelector('#manageProfileName');
-    const profileAge = body.querySelector('#manageProfileAge');
-    const profileGender = body.querySelector('#manageProfileGender');
-    const profileHobby = body.querySelector('#manageProfileHobby');
-    const profileNote = body.querySelector('#manageProfileNote');
-    const profileRel = body.querySelector('#manageProfileRelationship');
-    if (o){
-      if (profileName) profileName.value = o.name || '';
-      if (profileAge) profileAge.value = o.age || '';
-      if (profileGender) profileGender.value = o.gender || '';
-      if (profileHobby) profileHobby.value = o.hobby || '';
-      if (profileNote) profileNote.value = o.note || '';
-      if (profileRel) profileRel.value = o.relationship || '';
-    }
-    const relTagsContainer = body.querySelector('#manageProfileRelationTags');
-    if (relTagsContainer){
-      relTagsContainer.innerHTML = state.relations.map(r => `<span class="manage-tag" data-rel="${escapeAttr(r)}">${escapeHtml(r)}</span>`).join('');
-      relTagsContainer.querySelectorAll('.manage-tag').forEach(tag => {
-        tag.addEventListener('click', () => { if (profileRel) profileRel.value = tag.dataset.rel; });
-      });
-    }
-    const saveObjBtn = body.querySelector('#manageSaveObjectBtn');
-    if (saveObjBtn){
-      saveObjBtn.addEventListener('click', () => {
-        const obj = getCurrentObject();
-        if (!obj){ showToast('请先选择对象', 1000); return; }
-        obj.name = (profileName ? profileName.value.trim() : '') || '未命名';
-        obj.age = parseInt(profileAge ? profileAge.value : '') || '';
-        obj.gender = profileGender ? profileGender.value : '';
-        obj.hobby = (profileHobby ? profileHobby.value.trim() : '');
-        obj.note = (profileNote ? profileNote.value.trim() : '');
-        const rel = (profileRel ? profileRel.value.trim() : '');
-        obj.relationship = rel;
-        if (rel && !state.relations.includes(rel)) state.relations.push(rel);
-        saveToStorage(); loadCurrentObject(); renderManagePage();
-        showToast('已更新对象信息', 1500, 'success');
-      });
-    }
-
-    // 关系管理
-    const relContainer = body.querySelector('#manageRelationTags');
-    const relInput = body.querySelector('#manageNewRelationInput');
-    const addRelBtn = body.querySelector('#manageAddRelationBtn');
-    if (relContainer){
-      relContainer.innerHTML = state.relations.map(r => `<span class="manage-tag" data-rel="${escapeAttr(r)}">${escapeHtml(r)}<button class="del-tag" data-rel="${escapeAttr(r)}">✕</button></span>`).join('');
-      relContainer.querySelectorAll('.del-tag').forEach(btn => {
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          const rel = this.dataset.rel;
-          if (confirm(`删除关系 "${rel}" ？`)){
-            state.relations = state.relations.filter(r => r !== rel);
-            saveToStorage(); renderManagePage(); showToast('已删除', 1000);
-          }
-        });
-      });
-    }
-    if (addRelBtn){
-      addRelBtn.addEventListener('click', () => {
-        const rel = relInput ? relInput.value.trim() : '';
-        if (!rel || state.relations.includes(rel)) return;
-        state.relations.push(rel);
-        saveToStorage(); renderManagePage(); showToast(`已添加：${rel}`, 1000, 'success');
-      });
-    }
-    if (relInput) relInput.addEventListener('keydown', e => { if (e.key === 'Enter') addRelBtn.click(); });
-
-    // 场景管理
-    const scContainer = body.querySelector('#manageScenarioTags');
-    const scInput = body.querySelector('#manageNewScenarioInput');
-    const addScBtn = body.querySelector('#manageAddScenarioBtn');
-    if (scContainer){
-      scContainer.innerHTML = state.scenarios.map(s => {
-        const active = s === state.config.scenario ? ' style="border-color:var(--purple-600);background:#ede9fe;"' : '';
-        return `<span class="manage-tag" data-scenario="${escapeAttr(s)}"${active}>${escapeHtml(s)}<button class="del-tag" data-scenario="${escapeAttr(s)}">✕</button></span>`;
-      }).join('');
-      scContainer.querySelectorAll('.manage-tag').forEach(tag => {
-        tag.addEventListener('click', function(e){
-          if (e.target.closest('.del-tag')) return;
-          state.config.scenario = this.dataset.scenario;
-          saveToStorage(); renderScenarioChips(); updateQuickPurposeText(); renderManagePage();
-          showToast(`场景切换为：${this.dataset.scenario}`, 1000, 'success');
-        });
-      });
-      scContainer.querySelectorAll('.del-tag').forEach(btn => {
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          const scenario = this.dataset.scenario;
-          if (state.scenarios.length <= 1){ showToast('至少保留一个场景', 1000); return; }
-          if (confirm(`删除场景 "${scenario}" ？`)){
-            state.scenarios = state.scenarios.filter(s => s !== scenario);
-            if (state.config.scenario === scenario) state.config.scenario = state.scenarios[0];
-            saveToStorage(); renderScenarioChips(); updateQuickPurposeText(); renderManagePage(); showToast('已删除', 1000);
-          }
-        });
-      });
-    }
-    if (addScBtn){
-      addScBtn.addEventListener('click', () => {
-        const name = scInput ? scInput.value.trim() : '';
-        if (!name){ showToast('请输入场景名称', 1000); return; }
-        if (state.scenarios.includes(name)){ showToast('已存在', 1000); return; }
-        state.scenarios.push(name);
-        if (!state.config.scenario) state.config.scenario = name;
-        saveToStorage(); renderScenarioChips(); updateQuickPurposeText(); renderManagePage();
-        showToast(`已添加场景：${name}`, 1000, 'success');
-      });
-    }
-    if (scInput) scInput.addEventListener('keydown', e => { if (e.key === 'Enter') addScBtn.click(); });
-
-    // 风格管理
-    const styleListDiv = body.querySelector('#manageStyleList');
-    const addStyleBtn = body.querySelector('#manageAddStyleBtn');
-    const styleNameInput = body.querySelector('#manageNewStyleName');
-    const styleInstructionInput = body.querySelector('#manageNewStyleInstruction');
-    const styleOpeningCheck = body.querySelector('#manageNewStyleOpening');
-    function renderStyleList(){
-      if (!styleListDiv) return;
-      let h = '';
-      state.styles.forEach((style, index) => {
-        const active = style.name === state.config.style ? ' style="border-color:var(--purple-600);background:#ede9fe;"' : '';
-        h += `<div class="manage-tag" data-index="${index}"${active}>${escapeHtml(style.name)}${style.opening ? ' 🆕' : ''}<button class="del-tag" data-index="${index}">✕</button></div>`;
-        h += `<div style="margin:2px 0 8px 10px;display:flex;gap:4px;align-items:center;">
-          <input type="text" class="style-instruction-edit" data-index="${index}" value="${escapeAttr(style.instruction)}" style="flex:1;padding:4px 8px;border-radius:12px;border:1px solid var(--gray-200);font-size:11px;">
-          <label style="font-size:11px;white-space:nowrap;"><input type="checkbox" class="style-opening-edit" data-index="${index}" ${style.opening ? 'checked' : ''}> 开启话题</label>
-        </div>`;
-      });
-      styleListDiv.innerHTML = h;
-      styleListDiv.querySelectorAll('.style-instruction-edit').forEach(input => {
-        input.addEventListener('change', function(){
-          state.styles[parseInt(this.dataset.index)].instruction = this.value.trim();
-          saveToStorage(); renderStyleChips();
-        });
-      });
-      styleListDiv.querySelectorAll('.style-opening-edit').forEach(checkbox => {
-        checkbox.addEventListener('change', function(){
-          state.styles[parseInt(this.dataset.index)].opening = this.checked;
-          saveToStorage(); renderStyleChips(); updatePlaceholder();
-        });
-      });
-      styleListDiv.querySelectorAll('.del-tag').forEach(btn => {
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          const index = parseInt(this.dataset.index);
-          if (state.styles.length <= 1){ showToast('至少保留一个风格', 1000); return; }
-          const name = state.styles[index].name;
-          if (confirm(`删除风格 "${name}" ？`)){
-            state.styles.splice(index, 1);
-            if (state.config.style === name) state.config.style = state.styles[0].name;
-            saveToStorage(); renderStyleChips(); updatePlaceholder(); renderManagePage(); showToast('已删除', 1000);
-          }
-        });
-      });
-    }
-    renderStyleList();
-    if (addStyleBtn){
-      addStyleBtn.addEventListener('click', () => {
-        const name = styleNameInput.value.trim();
-        const instruction = styleInstructionInput.value.trim();
-        if (!name){ showToast('请输入风格名称', 1000); return; }
-        if (!instruction){ showToast('请输入指令', 1000); return; }
-        if (state.styles.some(s => s.name === name)){ showToast('风格名称已存在', 1000); return; }
-        state.styles.push({ name, instruction, opening: styleOpeningCheck.checked });
-        if (!state.config.style) state.config.style = name;
-        saveToStorage(); renderStyleChips(); updatePlaceholder(); renderManagePage();
-        styleNameInput.value = ''; styleInstructionInput.value = ''; styleOpeningCheck.checked = false;
-        showToast(`已添加风格：${name}`, 1000, 'success');
-      });
-    }
-
-    // 我的资料
-    const myName = body.querySelector('#manageMyName');
-    const myAge = body.querySelector('#manageMyAge');
-    const myGender = body.querySelector('#manageMyGender');
-    const myHobby = body.querySelector('#manageMyHobby');
-    const myNote = body.querySelector('#manageMyNote');
-    if (myName) myName.value = state.myProfile.name || '';
-    if (myAge) myAge.value = state.myProfile.age || '';
-    if (myGender) myGender.value = state.myProfile.gender || '';
-    if (myHobby) myHobby.value = state.myProfile.hobby || '';
-    if (myNote) myNote.value = state.myProfile.note || '';
-    const saveMyBtn = body.querySelector('#manageSaveMyProfileBtn');
-    if (saveMyBtn){
-      saveMyBtn.addEventListener('click', () => {
-        state.myProfile.name = myName ? myName.value.trim() : '';
-        state.myProfile.age = parseInt(myAge ? myAge.value : '') || '';
-        state.myProfile.gender = myGender ? myGender.value : '';
-        state.myProfile.hobby = myHobby ? myHobby.value.trim() : '';
-        state.myProfile.note = myNote ? myNote.value.trim() : '';
-        saveToStorage(); showToast('我的资料已保存', 1500, 'success');
-      });
-    }
-  }
-
-  // ==================== 核心函数 ====================
-  function deleteObject(id){
-    state.objects = state.objects.filter(o => o.id !== id);
-    if (state.currentObjectId === id){
-      state.currentObjectId = state.objects.length > 0 ? state.objects[0].id : null;
-    }
-    saveToStorage(); renderTopics(); loadCurrentObject();
-  }
-  function loadCurrentObject(){
-    renderHistory(); renderTopics();
-    updateProfileTag(); updateQuickBar(); renderSuggestionsPanel();
-  }
-  function updateProfileTag(){
-    const o = getCurrentObject();
-    dom.profileTag.textContent = o
-      ? `👤 ${o.name||'未命名'}${o.gender?' · '+o.gender:''}${o.age?' · '+o.age+'岁':''}${o.hobby?' · '+o.hobby:''}`
-      : '👤 选择对象';
-  }
-  function updateQuickBar(){
-    const o = getCurrentObject();
-    if (o){
-      const initial = (o.name || '?')[0].toUpperCase();
-      dom.quickRelation.innerHTML = `<span class="mini-avatar">${escapeHtml(initial)}</span> ${escapeHtml(o.relationship || '未设置')}`;
-    } else dom.quickRelation.textContent = '未设置';
-    updateQuickPurposeText();
-  }
-  function renderScenarioChips(){
-    dom.scenarioGroup.innerHTML = '';
-    state.scenarios.forEach(s => {
-      const chip = document.createElement('button');
-      chip.className = 'chip' + (s === state.config.scenario ? ' active' : '');
-      chip.dataset.value = s; chip.textContent = s;
-      chip.addEventListener('click', function(){
-        document.querySelectorAll('#scenarioGroup .chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        state.config.scenario = this.dataset.value;
-        updateQuickPurposeText(); saveToStorage();
-        const h = getCurrentHistory();
-        if (h.some(m => m.role === 'girl')) regenerateSuggestions();
-        showToast(`场景：${this.dataset.value}`, 1000, 'success');
-      });
-      dom.scenarioGroup.appendChild(chip);
-    });
-  }
-  function renderStyleChips(){
-    dom.styleGroup.innerHTML = '';
-    state.styles.forEach(style => {
-      const chip = document.createElement('button');
-      chip.className = 'chip' + (style.name === state.config.style ? ' active' : '');
-      chip.dataset.value = style.name; chip.textContent = style.name + (style.opening ? ' 🆕' : '');
-      chip.addEventListener('click', function(){
-        document.querySelectorAll('#styleGroup .chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        state.config.style = this.dataset.value;
-        updatePlaceholder(); saveToStorage();
-        const h = getCurrentHistory();
-        if (h.some(m => m.role === 'girl')) regenerateSuggestions();
-        showToast(`风格：${this.dataset.value}`, 1000, 'success');
-      });
-      dom.styleGroup.appendChild(chip);
-    });
-  }
-  function renderPresets(){
-    if (state.presets.length === 0){
-      dom.presetList.innerHTML = '<div style="color:#9ca3af;font-size:12px;padding:4px 0;">暂无预设</div>';
-      return;
-    }
-    let html = '';
-    state.presets.forEach(p => {
-      const active = p.name === state.currentPreset ? '▶️ ' : '';
-      html += `<div class="preset-item"><span class="name" data-name="${escapeAttr(p.name)}">${active}${escapeHtml(p.name)}</span><button class="del-preset" data-name="${escapeAttr(p.name)}">✕</button></div>`;
-    });
-    dom.presetList.innerHTML = html;
-    dom.presetList.querySelectorAll('.name').forEach(el => {
-      el.addEventListener('click', function(){
-        const name = this.dataset.name;
-        const preset = state.presets.find(p => p.name === name);
-        if (preset){
-          state.apiKey = preset.apiKey; state.apiUrl = preset.apiUrl; state.model = preset.model; state.currentPreset = name;
-          dom.apiKeyInput.value = preset.apiKey; dom.apiUrlInput.value = preset.apiUrl; dom.modelInput.value = preset.model;
-          saveToStorage(); updateStatusBadge(); showToast(`已切换：${name}`, 1500, 'success'); renderPresets();
-        }
-      });
-    });
-    dom.presetList.querySelectorAll('.del-preset').forEach(btn => {
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        const name = this.dataset.name;
-        if (confirm(`删除预设 "${name}" ？`)){
-          state.presets = state.presets.filter(p => p.name !== name);
-          if (state.currentPreset === name) state.currentPreset = '';
-          saveToStorage(); renderPresets(); showToast('已删除', 1000);
-        }
-      });
-    });
-  }
-  function saveCurrentAsPreset(name){
-    if (!name.trim()){ showToast('请输入名称', 1000); return; }
-    const key = toAscii(dom.apiKeyInput.value.trim());
-    const url = toAscii(dom.apiUrlInput.value.trim()) || 'https://api.deepseek.com/v1/chat/completions';
-    const model = toAscii(dom.modelInput.value.trim()) || 'deepseek-chat';
-    if (!key){ showToast('API Key不能为空', 1000); return; }
-    if (state.presets.some(p => p.name === name.trim()) && !confirm(`覆盖 "${name.trim()}" ？`)) return;
-    state.presets = state.presets.filter(p => p.name !== name.trim());
-    state.presets.push({ name: name.trim(), apiKey:key, apiUrl:url, model });
-    state.currentPreset = name.trim(); state.apiKey = key; state.apiUrl = url; state.model = model;
-    dom.apiKeyInput.value = key; dom.apiUrlInput.value = url; dom.modelInput.value = model;
-    saveToStorage(); renderPresets(); updateStatusBadge(); showToast(`已保存：${name.trim()}`, 1500, 'success');
-  }
-  function pushHistory(r, c){
-    const t = getCurrentTopic();
-    if (!t) return;
-    if (!t.history) t.history = [];
-    t.history.push({ role:r, content:c });
-    saveToStorage(); renderHistory();
-  }
-  function renderHistory(){
-    const o = getCurrentObject();
-    const h = getCurrentHistory();
-    if (!o){
-      dom.historyArea.innerHTML = '<div class="history-empty">💬 添加对象开始聊天</div>';
-      return;
-    }
-    if (h.length === 0){
-      const t = getCurrentTopic();
-      dom.historyArea.innerHTML = `<div class="history-empty">💬 ${escapeHtml(t?.title||'话题')} · 开始对话吧</div>`;
-      return;
-    }
-    let html = '';
-    h.forEach(msg => {
-      const cls = msg.role === 'girl' ? 'msg-girl' : 'msg-guy';
-      const label = msg.role === 'girl' ? '🗣️ 对方' : '🧑 我';
-      html += `<div class="msg-bubble ${cls}"><div class="msg-label">${label}</div>${escapeHtml(msg.content)}</div>`;
-    });
-    dom.historyArea.innerHTML = html;
-    dom.historyArea.scrollTop = dom.historyArea.scrollHeight;
-  }
-  function renderSuggestionsPanel(){
-    const s = getCurrentSuggestions();
-    if (!s || !s.suggestions || s.suggestions.length === 0){
-      dom.suggestionsPanel.classList.remove('show','expanded');
-      dom.expandSuggestionsBtn.textContent = '🔍';
-      dom.suggestionsContent.innerHTML = '';
-      return;
-    }
-    dom.suggestionsPanel.classList.add('show');
-    let html = '';
-    s.suggestions.forEach((item, idx) => {
-      html += `<div class="suggestion-card" data-text="${encodeURIComponent(item.text||'')}"><div class="s-num">${idx+1}</div><div class="s-body"><div class="s-text">${escapeHtml(item.text||'')}</div><div class="s-meta"><span>💡 ${escapeHtml(item.reason||'推荐')}</span><span>📈 ${escapeHtml(item.expectedEffect||'预期效果')}</span></div></div><div class="s-copy-hint">👆 点击复制</div></div>`;
-    });
-    dom.suggestionsContent.innerHTML = html;
-    dom.suggestionsContent.querySelectorAll('.suggestion-card').forEach(card => {
-      card.addEventListener('click', function(){ copySuggestionFromPanel(this); });
-    });
-    dom.suggestionsPanel.scrollTop = 0;
-  }
-  function copySuggestionFromPanel(card){
-    const text = decodeURIComponent(card.dataset.text);
-    if (!text) return;
-    if (navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(text).then(() => onSuggestionCopied(card, text)).catch(() => fallbackCopyPanel(text, card));
-    } else fallbackCopyPanel(text, card);
-  }
-  function fallbackCopyPanel(t, card){
-    const ta = document.createElement('textarea');
-    ta.value = t; ta.style.position='fixed'; ta.style.left='-9999px';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); onSuggestionCopied(card, t); }
-    catch(e){ showToast('⚠️ 复制失败', 2000, 'error'); }
-    document.body.removeChild(ta);
-  }
-  function onSuggestionCopied(card, text){
+function copySuggestion(idx, card){
+  const s = state.suggestions[idx];
+  if(!s) return;
+  const text = s.text;
+  const done = ()=>{
     card.classList.add('copied');
-    const hint = card.querySelector('.s-copy-hint');
-    if (hint) hint.textContent = '✅ 已复制';
-    pushHistory('guy', text);
-    showToast('✅ 已复制并记录', 1200, 'success');
-    setTimeout(() => closeSuggestionsPanel(), 800);
+    state.messages.push({role:'me', text});
+    state.suggestions = [];
+    save();
+    setTimeout(()=>{
+      renderMessages();
+      renderSuggestions();
+      toast('✅ 已复制', 1200, 'success');
+    }, 200);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
   }
-  function closeSuggestionsPanel(){
-    setCurrentSuggestions(null);
-    dom.suggestionsPanel.classList.remove('show','expanded');
-    dom.expandSuggestionsBtn.textContent = '🔍';
-    renderSuggestionsPanel();
-  }
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); cb(); }
+  catch(e){ toast('复制失败', 1500, 'error'); }
+  document.body.removeChild(ta);
+}
 
-  // ==================== 图片处理 ====================
-  function compressImage(dataUrl, maxBytes = 800*1024){
-    return new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        const maxDim = 2048;
-        if (w > maxDim || h > maxDim){
-          const ratio = Math.min(maxDim/w, maxDim/h);
-          w = Math.round(w*ratio); h = Math.round(h*ratio);
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        const tryCompress = (q) => {
-          const result = canvas.toDataURL('image/jpeg', q);
-          if (result.length < maxBytes || q < 0.1) resolve(result);
-          else tryCompress(q - 0.05);
-        };
-        tryCompress(0.9);
-      };
-      img.onerror = () => resolve(dataUrl);
-      img.src = dataUrl;
-    });
+// ============ 发送 ============
+async function handleSend(){
+  if(state.loading) return;
+  const text = dom.input.value.trim();
+  if(!text && !state.imageBase64){ toast('请输入内容', 1200); return; }
+  if(!state.apiKey || !state.apiUrl || !state.model){
+    toast('请先配置 API Key', 1800, 'error');
+    openSettings();
+    return;
   }
-  function handleImageSelect(file){
-    if (!file) return;
-    if (!file.type.startsWith('image/')){ showToast('请选择图片文件', 1000, 'error'); return; }
-    if (file.size > 20*1024*1024){ showToast('图片最大20MB', 2000, 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = async e => {
-      try {
-        const compressed = await compressImage(e.target.result);
-        state.imageBase64 = compressed; dom.previewImg.src = compressed;
-        dom.imagePreview.style.display = 'flex'; updateImageBtnState();
-        showToast('✅ 图片已加载', 1000, 'success');
-      } catch(err){ showToast('❌ 图片处理失败', 2000, 'error'); }
-    };
-    reader.onerror = () => showToast('❌ 读取图片失败', 2000, 'error');
-    reader.readAsDataURL(file);
-  }
-  function clearImage(){
-    state.imageBase64 = null;
-    dom.imagePreview.style.display = 'none';
-    dom.previewImg.src = '';
-    dom.fileInput.value = '';
-    updateImageBtnState();
-  }
-  function showImageModal(src){
-    const modal = document.createElement('div');
-    modal.className = 'image-modal';
-    modal.innerHTML = '<img src="' + src + '" alt="大图预览">';
-    modal.addEventListener('click', () => modal.remove());
-    document.body.appendChild(modal);
-  }
+  const finalText = text || '请描述这张图片';
+  state.messages.push({role:'ta', text: finalText});
+  dom.input.value = '';
+  save();
+  renderMessages();
 
-  // ==================== AI 调用 ====================
-  async function callAI(history, config, imageBase64, relation, isOpening = false){
-    const cleanKey = toAscii(state.apiKey).trim();
-    if (!cleanKey) throw new Error('API Key 无效');
-    const cleanUrl = toAscii(state.apiUrl).trim();
-    if (!cleanUrl || !cleanUrl.startsWith('http')) throw new Error('API 地址无效');
-    let cleanModel = toAscii(state.model).trim() || 'deepseek-chat';
-    const isDeepSeek = cleanUrl.includes('deepseek.com');
-    let imageData = null;
-    if (imageBase64){
-      imageData = imageBase64.startsWith('data:image') ? imageBase64 : 'data:image/jpeg;base64,' + imageBase64;
-      if (isDeepSeek) cleanModel = 'deepseek-vl2';
+  state.loading = true;
+  renderSuggestions();
+  dom.sendBtn.disabled = true;
+
+  try{
+    const result = await callAI();
+    state.suggestions = result.suggestions || [];
+    state.loading = false;
+    save();
+    renderSuggestions();
+    if(state.imageBase64) clearImage();
+  }catch(err){
+    state.loading = false;
+    // 回滚最后一条
+    if(state.messages.length > 0 && state.messages[state.messages.length-1].role === 'ta'){
+      state.messages.pop();
+      save();
+      renderMessages();
     }
-    const o = getCurrentObject();
-    const profileText = o
-      ? `对方信息：${o.name||'未命名'}${o.gender?'，性别 '+o.gender:''}${o.age?'，'+o.age+'岁':''}${o.hobby?'，喜欢/从事 '+o.hobby:''}${o.note?'，备注：'+o.note:''}`
-      : '';
-    const my = state.myProfile;
-    const myText = my.name
-      ? `我（${my.name}${my.gender?'，性别 '+my.gender:''}${my.age?'，'+my.age+'岁':''}${my.hobby?'，爱好/职业 '+my.hobby:''}${my.note?'，备注：'+my.note:''}）`
-      : '我';
-    const styleObj = state.styles.find(s => s.name === config.style);
-    const styleInstruction = styleObj ? styleObj.instruction : '自然口语化回应。';
-    const toneDesc = getToneDescription();
-    let systemPrompt = `你是一位聊天高手。回答要口语化、有语气词。\n${profileText}\n我的信息：${myText}\n关系：${relation}\n场景：${config.scenario}\n风格：${config.style}\n语气强度：${state.tone}/100（${toneDesc}）\n要求：${styleInstruction}\n禁止书面语、说教。每条建议像微信原话，不超过30字。\n输出纯JSON，含"analysis"和"suggestions"(3条，每条含text,reason,expectedEffect)。`;
-    if (isOpening) systemPrompt += `\n当前为"开启话题"风格，生成3个有趣开场白。`;
+    renderSuggestions();
+    toast('❌ ' + err.message, 3000, 'error');
+  }finally{
+    dom.sendBtn.disabled = false;
+  }
+}
 
-    const messages = [{ role:'system', content: systemPrompt }];
-
-    // 传入历史对话（最近20条）
-    const recent = (history || []).slice(-20);
-    recent.forEach((m, i) => {
-      const isLast = i === recent.length - 1;
-      const text = String(m.content || '');
-      if (m.role === 'girl'){
-        if (isLast && imageData){
-          messages.push({ role:'user', content: [
-            { type:'text', text: text || '请描述这张图片' },
-            { type:'image_url', image_url:{ url: imageData } }
-          ]});
-        } else {
-          messages.push({ role:'user', content: text });
-        }
-      } else {
-        messages.push({ role:'assistant', content: text });
+// ============ 图片 ============
+function compressImage(dataUrl, maxBytes = 500*1024){
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.onload = ()=>{
+      let w = img.width, h = img.height;
+      const maxDim = 1600;
+      if(w > maxDim || h > maxDim){
+        const r = Math.min(maxDim/w, maxDim/h);
+        w = Math.round(w*r); h = Math.round(h*r);
       }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      const tryC = q => {
+        const result = c.toDataURL('image/jpeg', q);
+        if(result.length < maxBytes || q < 0.1) resolve(result);
+        else tryC(q - 0.05);
+      };
+      tryC(0.9);
+    };
+    img.onerror = ()=>resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+function handleImageSelect(file){
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ toast('请选择图片', 1200, 'error'); return; }
+  if(file.size > 20*1024*1024){ toast('图片过大（>20MB）', 1500, 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try{
+      const compressed = await compressImage(e.target.result);
+      state.imageBase64 = compressed;
+      dom.previewImg.src = compressed;
+      dom.imgPreview.classList.add('show');
+      toast('图片已加载', 1000, 'success');
+    }catch(err){ toast('图片处理失败', 1500, 'error'); }
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(){
+  state.imageBase64 = null;
+  dom.previewImg.src = '';
+  dom.imgPreview.classList.remove('show');
+  dom.fileInput.value = '';
+}
+function showImageModal(src){
+  const m = document.createElement('div');
+  m.className = 'img-modal';
+  m.innerHTML = '<img src="'+src+'">';
+  m.addEventListener('click', ()=>m.remove());
+  document.body.appendChild(m);
+}
+
+// ============ API Key 识别 ============
+function detectByPrefix(key){
+  const k = (key||'').trim();
+  if(!k) return null;
+  if(k.startsWith('sk-ant-')) return {provider:'anthropic', high:true};
+  if(k.startsWith('AIza') || k.startsWith('AQ.')) return {provider:'google', high:true};
+  if(k.startsWith('sk-ws-') || k.startsWith('sk-sp-')) return {provider:'qwen', high:true};
+  if(k.startsWith('sk-kimi-')) return {provider:'kimi', high:true};
+  if(k.startsWith('sk-proj-') || k.startsWith('sk-svcacct-')) return {provider:'openai', high:true};
+  if(k.startsWith('sk-')) return {high:false};
+  return {high:false};
+}
+
+async function probeOne(pid, key){
+  const p = PROVIDERS[pid];
+  if(!p) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 9000);
+  try{
+    const resp = await fetch(p.url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body: JSON.stringify({ model:p.model, messages:[{role:'user',content:'hi'}], max_tokens:1 }),
+      signal: ctrl.signal
     });
-    if (messages.length === 1 || messages[messages.length-1].role !== 'user'){
-      const text = isOpening ? '请生成3个开场白建议' : '请给出建议';
+    if(resp.ok) return 'valid';
+    if(resp.status === 401 || resp.status === 403) return 'format-match';
+    return null;
+  }catch(e){ return null; }
+  finally{ clearTimeout(timer); }
+}
+
+async function probeAll(key){
+  const results = await Promise.all(
+    PROBE_CANDIDATES.map(async id => ({id, r: await probeOne(id, key)}))
+  );
+  const valid = results.find(x=>x.r === 'valid');
+  if(valid) return {provider:valid.id, valid:true};
+  const fmt = results.find(x=>x.r === 'format-match');
+  if(fmt) return {provider:fmt.id, valid:false};
+  return null;
+}
+
+async function autoDetect(key){
+  const k = (key||'').trim();
+  if(!k) return null;
+  const p = detectByPrefix(k);
+  if(p && p.high && p.provider) return {providerId:p.provider, key:k, valid:true};
+  const probed = await probeAll(k);
+  if(probed) return {providerId:probed.provider, key:k, valid:probed.valid};
+  return null;
+}
+
+function setStatus(msg, cls){
+  dom.detectStatus.textContent = msg || '';
+  dom.detectStatus.className = 'status-text' + (cls ? ' '+cls : '');
+}
+
+// ============ 请求构造 ============
+function buildRequest({provider, apiUrl, model, messages, imageData, apiKey, temperature, maxTokens}){
+  const p = PROVIDERS[provider];
+  const format = p ? p.format : 'openai';
+
+  if(format === 'anthropic'){
+    const sys = messages.find(m=>m.role==='system');
+    const others = messages.filter(m=>m.role!=='system');
+    const anthMsgs = others.map(m=>{
+      let blocks;
+      if(typeof m.content === 'string'){
+        blocks = [{type:'text', text:m.content}];
+      } else {
+        blocks = m.content.map(c=>{
+          if(c.type === 'text') return {type:'text', text:c.text};
+          if(c.type === 'image_url'){
+            const dataUrl = c.image_url.url || '';
+            const [meta, b64] = dataUrl.split(',');
+            const mm = meta && meta.match(/data:(.*?);/);
+            return {type:'image', source:{type:'base64', media_type: mm?mm[1]:'image/jpeg', data:b64||''}};
+          }
+          return {type:'text', text:''};
+        });
+      }
+      return {role: m.role==='assistant'?'assistant':'user', content:blocks};
+    });
+    return {
+      url: apiUrl,
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:{
+        model, max_tokens:maxTokens, temperature,
+        system: sys ? sys.content : '',
+        messages: anthMsgs
+      },
+      parse: d => (d && d.content && d.content[0] && d.content[0].text) || ''
+    };
+  }
+
+  if(format === 'google'){
+    const sys = messages.find(m=>m.role==='system');
+    const others = messages.filter(m=>m.role!=='system');
+    const contents = others.map(m=>{
+      const parts = [];
+      if(typeof m.content === 'string') parts.push({text: m.content});
+      else m.content.forEach(c=>{
+        if(c.type === 'text') parts.push({text:c.text});
+        else if(c.type === 'image_url'){
+          const dataUrl = c.image_url.url || '';
+          const [meta, b64] = dataUrl.split(',');
+          const mm = meta && meta.match(/data:(.*?);/);
+          parts.push({inline_data:{mime_type: mm?mm[1]:'image/jpeg', data:b64||''}});
+        }
+      });
+      return {role: m.role==='assistant'?'model':'user', parts};
+    });
+    const url = apiUrl.replace(/\/$/, '') + '/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+    return {
+      url,
+      headers:{'Content-Type':'application/json'},
+      body:{
+        system_instruction: sys ? {parts:[{text:sys.content}]} : undefined,
+        contents,
+        generationConfig:{temperature, maxOutputTokens:maxTokens}
+      },
+      parse: d => {
+        try{ return d.candidates[0].content.parts.map(x=>x.text||'').join(''); }
+        catch(e){ return ''; }
+      }
+    };
+  }
+
+  // OpenAI 兼容
+  return {
+    url: apiUrl,
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + apiKey
+    },
+    body:{model, messages, temperature, max_tokens:maxTokens},
+    parse: d => {
+      try{ return d.choices[0].message.content || ''; }
+      catch(e){ return ''; }
+    }
+  };
+}
+
+// ============ AI 调用 ============
+async function callAI(){
+  const key = toAscii(state.apiKey).trim();
+  const url = toAscii(state.apiUrl).trim();
+  if(!key) throw new Error('API Key 无效');
+  if(!url || !url.startsWith('http')) throw new Error('API 地址无效');
+
+  const pid = state.provider;
+  const pConf = PROVIDERS[pid];
+  let model = toAscii(state.model).trim() || (pConf ? pConf.model : 'deepseek-chat');
+
+  let imageData = null;
+  if(state.imageBase64){
+    imageData = state.imageBase64.startsWith('data:image')
+      ? state.imageBase64
+      : 'data:image/jpeg;base64,' + state.imageBase64;
+    if(pConf && pConf.visionModel) model = pConf.visionModel;
+    else if(pConf && !pConf.visionModel) throw new Error((pConf.name||'该服务商') + ' 不支持图片');
+  }
+
+  const my = state.myName ? '我（'+state.myName+'）' : '我';
+  const ta = state.taName ? '对方（'+state.taName+'）' : '对方';
+
+  const systemPrompt = `你是聊天高手。${ta}会发来消息，你需要生成 3 条不同的回复建议，覆盖不同风格：
+- 第1条：幽默轻松，可调侃自嘲，让人会心一笑
+- 第2条：走心共情，温柔体贴，关注情绪
+- 第3条：直接坦诚，简明有力，不绕弯
+
+每条建议口语化，像微信原话，不超过 40 字。禁止书面语、说教。使用简体中文。
+输出纯 JSON：{"suggestions":[{"text":"...","style":"幽默"},{"text":"...","style":"走心"},{"text":"...","style":"直球"}]}`;
+
+  const messages = [{role:'system', content: systemPrompt}];
+  state.messages.slice(-10).forEach((m, i, arr)=>{
+    const isLast = i === arr.length - 1;
+    const role = m.role === 'ta' ? 'user' : 'assistant';
+    if(isLast && m.role === 'ta' && imageData){
       messages.push({
         role:'user',
-        content: imageData
-          ? [{ type:'text', text }, { type:'image_url', image_url:{ url: imageData } }]
-          : text
+        content:[
+          {type:'text', text: m.text || '请描述图片'},
+          {type:'image_url', image_url:{url:imageData}}
+        ]
       });
+    } else {
+      messages.push({role, content: m.text});
     }
+  });
 
-    const payload = { model: cleanModel, messages, temperature: 1.0, max_tokens: 1200 };
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 60000);
-    let resp;
-    try {
-      resp = await fetch(cleanUrl, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${cleanKey}` },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-    } catch(fetchErr){
-      if (fetchErr.name === 'AbortError') throw new Error('请求超时（60秒）');
-      throw new Error('网络错误：' + fetchErr.message);
-    } finally { clearTimeout(timer); }
-    if (!resp.ok){
-      let errText = await resp.text();
-      try { const errJson = JSON.parse(errText); errText = errJson.error?.message || errJson.message || errText; } catch(e){}
-      if (resp.status === 400) throw new Error(`请求参数错误(400)：${errText.substring(0,200)}`);
-      if (resp.status === 401) throw new Error('API Key无效');
-      if (resp.status === 429) throw new Error('请求过于频繁，请稍后');
-      throw new Error(`API错误(${resp.status}): ${errText.substring(0,150)}`);
+  const req = buildRequest({
+    provider: pid, apiUrl: url, model, messages, imageData,
+    apiKey: key, temperature: 1.0, maxTokens: 800
+  });
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 60000);
+  let resp;
+  try{
+    resp = await fetch(req.url, {
+      method:'POST',
+      headers: req.headers,
+      body: JSON.stringify(req.body),
+      signal: ctrl.signal
+    });
+  }catch(e){
+    if(e.name === 'AbortError') throw new Error('请求超时');
+    throw new Error('网络错误：' + e.message);
+  } finally { clearTimeout(timer); }
+
+  if(!resp.ok){
+    let t = await resp.text();
+    try{ const j = JSON.parse(t); t = (j.error && j.error.message) || j.message || t; }catch(e){}
+    if(resp.status === 400) throw new Error('请求错误：' + t.substring(0, 120));
+    if(resp.status === 401) throw new Error('API Key 无效');
+    if(resp.status === 403) throw new Error('访问被拒绝（可能额度不足或地区限制）');
+    if(resp.status === 429) throw new Error('请求过于频繁，稍后再试');
+    throw new Error('API错误(' + resp.status + ')：' + t.substring(0, 100));
+  }
+
+  const data = await resp.json();
+  const content = req.parse(data) || '';
+  let parsed;
+  try{ parsed = JSON.parse(content); }
+  catch(e1){
+    const m = content.match(/```json\s*([\s\S]*?)\s*```/);
+    if(m) try{ parsed = JSON.parse(m[1]); }catch(e2){}
+    if(!parsed){
+      const b = content.match(/\{[\s\S]*\}/);
+      if(b) try{ parsed = JSON.parse(b[0]); }catch(e3){}
     }
-    const data = await resp.json();
-    const content = data.choices?.[0]?.message?.content || '';
-    let parsed;
-    try { parsed = JSON.parse(content); }
-    catch(e1){
-      const m = content.match(/```json\s*([\s\S]*?)\s*```/);
-      if (m) try { parsed = JSON.parse(m[1]); } catch(e2){}
-      if (!parsed){ const b = content.match(/\{[\s\S]*\}/); if (b) try { parsed = JSON.parse(b[0]); } catch(e3){} }
-      if (!parsed) throw new Error('AI返回格式错误');
+    if(!parsed) throw new Error('AI 返回格式错误');
+  }
+  if(!parsed.suggestions || parsed.suggestions.length === 0) throw new Error('AI 未生成建议');
+  return parsed;
+}
+
+// ============ 设置面板 ============
+function openSettings(){
+  dom.settings.classList.add('show');
+  dom.apiKey.value = state.apiKey;
+  dom.myName.value = state.myName;
+  dom.taName.value = state.taName;
+  if(state.provider && PROVIDERS[state.provider]){
+    setStatus(PROVIDERS[state.provider].icon + ' 当前：' + PROVIDERS[state.provider].name, 'ok');
+  } else {
+    setStatus('');
+  }
+}
+function closeSettings(){
+  state.apiKey = dom.apiKey.value.trim();
+  state.myName = dom.myName.value.trim();
+  state.taName = dom.taName.value.trim();
+  save();
+  dom.settings.classList.remove('show');
+}
+
+// ============ 事件 ============
+function bindEvents(){
+  dom.settingsBtn.addEventListener('click', openSettings);
+  dom.closeSettings.addEventListener('click', closeSettings);
+  dom.sendBtn.addEventListener('click', handleSend);
+  dom.input.addEventListener('keydown', e=>{
+    if(e.key === 'Enter'){ e.preventDefault(); handleSend(); }
+  });
+  dom.imageBtn.addEventListener('click', ()=>dom.fileInput.click());
+  dom.fileInput.addEventListener('change', e=>{
+    if(e.target.files.length) handleImageSelect(e.target.files[0]);
+  });
+  dom.removeImg.addEventListener('click', clearImage);
+  dom.previewImg.addEventListener('click', ()=>{
+    if(dom.previewImg.src && dom.previewImg.src.startsWith('data:image')){
+      showImageModal(dom.previewImg.src);
     }
-    if (!parsed.suggestions || parsed.suggestions.length < 1) throw new Error('AI未生成足够建议');
-    return parsed;
-  }
+  });
+  dom.clearBtn.addEventListener('click', ()=>{
+    if(confirm('清空所有对话记录？')){
+      state.messages = [];
+      state.suggestions = [];
+      save();
+      renderMessages();
+      renderSuggestions();
+      toast('已清空', 1200, 'success');
+    }
+  });
 
-  async function regenerateSuggestions(){
-    const obj = getCurrentObject();
-    if (!obj){ showToast('请先选择对象', 1000); return; }
-    const history = getCurrentHistory();
-    const hasGirl = history.some(m => m.role === 'girl');
-    if (!hasGirl && !isStyleOpeningTopic()){ showToast('暂无对方消息', 1500); return; }
-    if (!state.useAI || !state.apiKey){ showToast('AI未启用或无Key', 2000, 'error'); return; }
-    await executeAICall(history, { rollbackOnError:false });
-  }
-
-  async function handleSend(){
-    if (state.isLoading) return;
-    const obj = getCurrentObject();
-    if (!obj){ showToast('请先添加对象', 1500); return; }
-    const input = dom.messageInput.value.trim();
-    const isOpening = isStyleOpeningTopic();
-    if (!input && !state.imageBase64 && !isOpening){ showToast('请输入文字或上传图片', 1000); return; }
-    if (!state.useAI || !state.apiKey){ showToast('AI未启用或无Key', 2000, 'error'); return; }
-
-    const finalText = input || (state.imageBase64 ? '请描述这张图片' : '请生成开场白');
-    pushHistory('girl', finalText);
-    dom.messageInput.value = '';
-    renderHistory();
-
-    const ok = await executeAICall(getCurrentHistory(), { rollbackOnError:true });
-    if (ok) clearImage();
-  }
-
-  function handleManualSend(){
-    const obj = getCurrentObject();
-    if (!obj){ showToast('请先添加对象', 1500); return; }
-    const input = dom.messageInput.value.trim();
-    if (!input){ showToast('请输入我发送的内容', 1000); return; }
-    pushHistory('guy', input);
-    dom.messageInput.value = '';
-    showToast('✅ 已记录我的消息', 1000, 'success');
-  }
-
-  async function executeAICall(history, { rollbackOnError = false } = {}){
-    state.isLoading = true;
-    dom.sendBtn.disabled = true;
-    dom.sendBtn.innerHTML = '<span class="loader"></span>生成中';
-    dom.suggestionsPanel.classList.add('show');
-    dom.suggestionsContent.innerHTML = '<div class="suggestions-loader"><span class="loader"></span>AI 正在生成建议...</div>';
-
-    const config = getConfig();
-    const o = getCurrentObject();
-    const relation = o?.relationship || '未设置';
-    const isOpening = isStyleOpeningTopic();
-    const topicAtStart = getCurrentTopic()?.id;
-
-    try {
-      const r = await callAI(history, config, state.imageBase64, relation, isOpening);
-      // 若用户中途切换了话题，丢弃结果
-      if (getCurrentTopic()?.id !== topicAtStart) return false;
-      setCurrentSuggestions({ suggestions: r.suggestions, analysis: r.analysis });
-      renderSuggestionsPanel();
-      showToast('💡 已生成候选回复', 1000, 'success');
-      return true;
-    } catch(err){
-      showToast('❌ ' + err.message, 4000, 'error');
-      if (rollbackOnError){
-        const t = getCurrentTopic();
-        if (t && t.history && t.history.length > 0 && t.history[t.history.length-1].role === 'girl'){
-          t.history.pop();
-          renderHistory(); saveToStorage();
-        }
+  dom.detectBtn.addEventListener('click', async ()=>{
+    const key = dom.apiKey.value.trim();
+    if(!key){ setStatus('请先粘贴 API Key', 'err'); return; }
+    dom.detectBtn.disabled = true;
+    dom.detectBtn.textContent = '识别中';
+    setStatus('正在识别...', 'info');
+    try{
+      const r = await autoDetect(key);
+      if(r && r.providerId && PROVIDERS[r.providerId]){
+        const p = PROVIDERS[r.providerId];
+        state.apiKey = r.key;
+        state.provider = r.providerId;
+        state.apiUrl = p.url;
+        state.model = p.model;
+        save();
+        const warn = r.valid === false ? '（Key 格式匹配但可能无效）' : '';
+        setStatus(p.icon + ' 已识别：' + p.name + warn, r.valid === false ? 'info' : 'ok');
+        toast('✅ ' + p.name, 1200, 'success');
+      } else {
+        setStatus('⚠️ 无法识别，请检查 Key 是否正确', 'err');
+        toast('识别失败', 1500, 'error');
       }
-      if (getCurrentTopic()?.id === topicAtStart){
-        setCurrentSuggestions(null);
-        renderSuggestionsPanel();
-      }
-      return false;
+    }catch(e){
+      setStatus('识别出错：' + e.message, 'err');
     } finally {
-      state.isLoading = false;
-      dom.sendBtn.disabled = false;
-      dom.sendBtn.innerHTML = '🚀 获取';
-      if (!getCurrentSuggestions()) dom.suggestionsPanel.classList.remove('show','expanded');
+      dom.detectBtn.disabled = false;
+      dom.detectBtn.textContent = '识别';
     }
-  }
+  });
+}
 
-  // ==================== 事件绑定 ====================
-  function bindEvents(){
-    dom.profileTag.addEventListener('click', openManage);
-    dom.manageCloseBtn.addEventListener('click', closeManage);
-    dom.settingsToggle.addEventListener('click', openSettings);
-    dom.settingsCloseBtn.addEventListener('click', closeSettings);
-    dom.apiKeyInput.addEventListener('input', () => { state.apiKey = toAscii(dom.apiKeyInput.value.trim()); updateStatusBadge(); });
-    dom.apiUrlInput.addEventListener('input', () => { state.apiUrl = toAscii(dom.apiUrlInput.value.trim()) || 'https://api.deepseek.com/v1/chat/completions'; });
-    dom.modelInput.addEventListener('input', () => { state.model = toAscii(dom.modelInput.value.trim()) || 'deepseek-chat'; });
-    dom.useAICheckbox.addEventListener('change', () => { state.useAI = dom.useAICheckbox.checked; updateStatusBadge(); saveToStorage(); });
-    dom.saveSettingsBtn.addEventListener('click', () => saveCurrentAsPreset(dom.newPresetName.value.trim() || '默认配置'));
-    dom.addPresetBtn.addEventListener('click', () => {
-      const n = dom.newPresetName.value.trim();
-      if (!n){ showToast('请输入名称', 1000); return; }
-      saveCurrentAsPreset(n); dom.newPresetName.value = '';
-    });
-    dom.clearHistoryBtn.addEventListener('click', () => {
-      if (confirm('清除当前话题的所有聊天记录？')){
-        const t = getCurrentTopic();
-        if (t){ t.history = []; t.suggestions = null; renderHistory(); renderSuggestionsPanel(); saveToStorage(); showToast('已清除', 1000, 'success'); }
-      }
-    });
-    dom.sendBtn.addEventListener('click', handleSend);
-    dom.manualBtn.addEventListener('click', handleManualSend);
-    dom.messageInput.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); handleSend(); } });
-    dom.imageBtn.addEventListener('click', () => dom.fileInput.click());
-    dom.fileInput.addEventListener('change', e => { if (e.target.files.length > 0) handleImageSelect(e.target.files[0]); });
-    dom.removeImgBtn.addEventListener('click', clearImage);
-    dom.previewImg.addEventListener('click', () => { if (dom.previewImg.src?.startsWith('data:image')) showImageModal(dom.previewImg.src); });
-    dom.closeSuggestionsBtn.addEventListener('click', closeSuggestionsPanel);
-    dom.expandSuggestionsBtn.addEventListener('click', () => {
-      dom.suggestionsPanel.classList.toggle('expanded');
-      dom.expandSuggestionsBtn.textContent = dom.suggestionsPanel.classList.contains('expanded') ? '🔎' : '🔍';
-    });
-    // 语气滑块
-    dom.toneSlider.addEventListener('input', e => {
-      state.tone = parseInt(e.target.value) || 0;
-      updateToneUI();
-    });
-    dom.toneSlider.addEventListener('change', () => {
-      saveToStorage();
-      showToast(`语气：${getToneDescription()}`, 1000, 'success');
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape'){
-        if (dom.managePage.classList.contains('show')) closeManage();
-        else if (dom.settingsPage.classList.contains('show')) closeSettings();
-        else closeSuggestionsPanel();
-      }
-    });
+// ============ 初始化 ============
+function init(){
+  load();
+  renderMessages();
+  renderSuggestions();
+  bindEvents();
+  if(!state.apiKey){
+    setTimeout(()=>{ if(!state.apiKey) openSettings(); }, 500);
   }
-
-  // ==================== 初始化 ====================
-  function checkSplash(){
-    dom.splash.classList.remove('hidden');
-    dom.app.classList.add('hidden');
-    dom.enterAppBtn.addEventListener('click', () => {
-      dom.splash.classList.add('hidden');
-      dom.app.classList.remove('hidden');
-      initApp();
-    });
-  }
-  function initApp(){
-    if (!loadFromStorage()) initDefaultState();
-    dom.apiKeyInput.value = state.apiKey;
-    dom.apiUrlInput.value = state.apiUrl;
-    dom.modelInput.value = state.model;
-    dom.useAICheckbox.checked = state.useAI;
-    updateToneUI();
-    loadCurrentObject(); updateStatusBadge(); renderPresets();
-    renderScenarioChips(); renderStyleChips(); updateQuickPurposeText();
-    updatePlaceholder(); updateImageBtnState();
-    bindEvents(); saveToStorage();
-  }
-  checkSplash();
+}
+init();
 })();
 </script>
 </body>
