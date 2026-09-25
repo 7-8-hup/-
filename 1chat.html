@@ -9,15 +9,18 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
   background:#fff;color:#1a1a1a;font-size:15px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased;}
 #app{max-width:520px;margin:0 auto;height:100vh;height:100dvh;background:#fff;display:flex;flex-direction:column;}
-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #ebebf0;flex-shrink:0;}
-header h1{font-size:16px;font-weight:600;letter-spacing:-0.2px;}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ebebf0;flex-shrink:0;gap:8px;}
+header h1{font-size:15px;font-weight:600;letter-spacing:-0.2px;flex:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:0 4px;}
 .icon-btn{width:36px;height:36px;border:none;background:transparent;border-radius:50%;font-size:18px;cursor:pointer;
   color:#666;display:inline-flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
 .icon-btn:hover{background:#f5f5f7;}
 main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;}
 .empty{margin:auto;color:#999;text-align:center;font-size:14px;line-height:1.8;}
-.bubble{max-width:80%;padding:9px 14px;border-radius:18px;font-size:15px;line-height:1.45;word-break:break-word;animation:pop .2s ease;}
+.bubble{max-width:80%;padding:9px 14px;border-radius:18px;font-size:15px;line-height:1.45;word-break:break-word;
+  animation:pop .2s ease;position:relative;transition:transform .15s,filter .15s;user-select:text;}
 @keyframes pop{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.bubble.pressing{transform:scale(0.97);filter:brightness(0.95);}
 .bubble.ta{align-self:flex-start;background:#f5f5f7;color:#1a1a1a;border-bottom-left-radius:6px;}
 .bubble.me{align-self:flex-end;background:#7c5cff;color:#fff;border-bottom-right-radius:6px;}
 .suggestions{flex-shrink:0;padding:0 18px 12px;display:none;flex-direction:column;gap:8px;}
@@ -33,6 +36,24 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-card .s-text{flex:1;min-width:0;}
 .s-card .s-badge{font-size:11px;color:#999;background:#fff;padding:2px 8px;border-radius:8px;flex-shrink:0;font-weight:500;}
 .s-card.copied .s-badge{color:#059669;background:#d1fae5;}
+
+/* ============ 情境栏 ============ */
+.status-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#fffbeb;
+  border-top:1px solid #fef3c7;font-size:12px;color:#92400e;cursor:pointer;flex-shrink:0;
+  transition:background .15s;min-height:36px;}
+.status-bar:hover{background:#fef3c7;}
+.status-bar.empty .status-text{color:#b45309;opacity:0.75;}
+.status-bar .status-icon{font-size:14px;flex-shrink:0;line-height:1;}
+.status-bar .status-content{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;}
+.status-bar .status-text{color:#92400e;font-weight:500;}
+.status-bar .status-text.placeholder{font-weight:400;}
+.status-bar .status-edit{border:none;background:transparent;color:#b45309;font-size:13px;cursor:pointer;
+  padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
+.status-bar .status-edit:hover{background:#fde68a;}
+.status-bar .status-input{flex:1;min-width:0;border:none;background:transparent;font-size:13px;
+  font-family:inherit;color:#78350f;outline:none;font-weight:500;padding:0;}
+.status-bar .status-input::placeholder{color:#b45309;opacity:0.6;font-weight:400;}
+
 .composer{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;
   display:flex;align-items:center;gap:8px;background:#fff;}
 .composer input{flex:1;min-width:0;height:40px;padding:0 14px;border:none;background:#f5f5f7;border-radius:20px;
@@ -48,6 +69,67 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .img-preview.show{display:flex;}
 .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px;}
 .img-preview button{border:none;background:transparent;color:#999;font-size:16px;cursor:pointer;padding:4px;}
+
+/* ============ 长按菜单 ============ */
+.action-sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;opacity:0;pointer-events:none;
+  transition:opacity .2s;}
+.action-sheet-mask.show{opacity:1;pointer-events:auto;}
+.action-sheet{position:fixed;bottom:0;left:0;right:0;z-index:501;
+  transform:translateY(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);
+  padding:0 12px calc(12px + env(safe-area-inset-bottom));
+  max-width:520px;margin:0 auto;box-sizing:border-box;}
+.action-sheet.show{transform:translateY(0);}
+.action-sheet-inner{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,0.1);}
+.action-sheet .preview{padding:14px 18px;font-size:12px;color:#666;border-bottom:1px solid #ebebf0;
+  max-height:100px;overflow:hidden;line-height:1.5;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.action-sheet .preview .pv-who{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px;}
+.action-sheet .btn-item{display:block;width:100%;padding:15px;border:none;background:transparent;
+  font-size:16px;font-family:inherit;color:#1a1a1a;cursor:pointer;text-align:center;
+  border-bottom:1px solid #ebebf0;font-weight:500;transition:background .15s;}
+.action-sheet .btn-item:last-child{border-bottom:none;}
+.action-sheet .btn-item:hover{background:#f5f5f7;}
+.action-sheet .btn-item:active{background:#ebebf0;}
+.action-sheet .btn-item.danger{color:#dc2626;}
+.action-sheet .btn-item.cancel{color:#666;font-weight:400;}
+
+/* 对话抽屉 */
+.drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;opacity:0;pointer-events:none;
+  transition:opacity .25s;}
+.drawer-mask.show{opacity:1;pointer-events:auto;}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:82%;max-width:340px;background:#fff;z-index:201;
+  transform:translateX(-100%);transition:transform .28s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,0.08);}
+.drawer.show{transform:translateX(0);}
+.drawer-header{padding:16px 16px 12px;border-bottom:1px solid #ebebf0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.drawer-header h2{font-size:16px;font-weight:600;}
+.new-chat-btn{padding:8px 14px;border:none;border-radius:10px;background:#7c5cff;color:#fff;
+  font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;
+  transition:background .15s;}
+.new-chat-btn:hover{background:#6a4ae6;}
+.new-chat-btn:active{transform:scale(0.96);}
+.session-list{flex:1;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;}
+.session-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;
+  cursor:pointer;transition:background .15s;position:relative;margin-bottom:2px;}
+.session-item:hover{background:#f5f5f7;}
+.session-item.active{background:#f0ecff;}
+.session-item.active .session-title{color:#5b3dd6;font-weight:600;}
+.session-item .s-body{flex:1;min-width:0;}
+.session-item .session-title{font-size:14px;font-weight:500;color:#1a1a1a;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.session-item .session-meta{font-size:11px;color:#999;margin-top:3px;
+  display:flex;align-items:center;gap:6px;}
+.session-item .session-meta .pin{color:#d97706;}
+.session-item .session-del{width:26px;height:26px;border:none;background:transparent;color:#c0c0c8;
+  font-size:15px;cursor:pointer;border-radius:50%;flex-shrink:0;transition:all .15s;
+  display:inline-flex;align-items:center;justify-content:center;opacity:0;}
+.session-item:hover .session-del{opacity:1;}
+.session-item.active .session-del{opacity:0.6;}
+.session-item .session-del:hover{background:#fee2e2;color:#dc2626;opacity:1 !important;}
+.session-empty{color:#999;font-size:13px;text-align:center;padding:30px 0;}
+
+/* 设置面板 */
 .settings-panel{position:fixed;inset:0;background:#fff;z-index:100;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .settings-panel.show{transform:translateX(0);}
@@ -58,8 +140,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
 .section-title{font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
 .section-title .sub{font-weight:400;color:#999;font-size:11px;margin-left:4px;}
-
-/* API 输入行 */
 .api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:10px 12px;margin-bottom:10px;
   transition:border-color .15s,background .15s;}
 .api-row.has-key{background:#fff;border-color:#d8d8e3;}
@@ -78,16 +158,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   font-size:13px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;transition:border-color .15s;}
 .api-row input:focus{border-color:#7c5cff;}
 .api-row input::placeholder{color:#bbb;font-family:inherit;}
-
 .field{margin-bottom:24px;}
 .field > label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
 .field input[type=text]{width:100%;height:44px;padding:0 14px;border:1px solid #ebebf0;
   background:#fff;border-radius:12px;font-size:15px;outline:none;color:#1a1a1a;font-family:inherit;transition:border-color .15s;}
 .field input[type=text]:focus{border-color:#7c5cff;}
 .hint{font-size:12px;color:#999;line-height:1.6;margin-top:8px;}
-.clear-btn{width:100%;height:44px;border:1px solid #ebebf0;background:transparent;color:#dc2626;
-  font-size:15px;border-radius:12px;cursor:pointer;font-family:inherit;}
-.clear-btn:hover{background:#fef2f2;}
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
   transform:translateX(-50%) translateY(8px);background:rgba(30,30,35,0.95);color:#fff;
   padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;
@@ -101,11 +177,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <body>
 <div id="app">
   <header>
-    <h1>聊天助手</h1>
+    <button class="icon-btn" id="drawerBtn" aria-label="对话列表">☰</button>
+    <h1 id="headerTitle">聊天助手</h1>
     <button class="icon-btn" id="settingsBtn" aria-label="设置">⚙️</button>
   </header>
   <main id="messages">
-    <div class="empty">输入对方的话<br>获取 3 条回复建议</div>
+    <div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">长按消息可删除</span></div>
   </main>
   <section class="suggestions" id="suggestions">
     <div class="s-title">
@@ -114,6 +191,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     </div>
     <div id="sList"></div>
   </section>
+
+  <!-- ★ 情境栏 -->
+  <div class="status-bar empty" id="statusBar"></div>
+
   <div class="img-preview" id="imgPreview">
     <img id="previewImg" alt="">
     <button id="removeImg" aria-label="移除">✕</button>
@@ -126,6 +207,27 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
 
+<!-- 长按操作面板 -->
+<div class="action-sheet-mask" id="sheetMask"></div>
+<div class="action-sheet" id="sheet">
+  <div class="action-sheet-inner">
+    <div class="preview" id="sheetPreview"></div>
+    <button class="btn-item danger" id="sheetDelete">🗑️ 删除这条消息</button>
+    <button class="btn-item cancel" id="sheetCancel">取消</button>
+  </div>
+</div>
+
+<!-- 对话抽屉 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>对话</h2>
+    <button class="new-chat-btn" id="newChatBtn">+ 新对话</button>
+  </div>
+  <div class="session-list" id="sessionList"></div>
+</aside>
+
+<!-- 设置面板 -->
 <div class="settings-panel" id="settings">
   <div class="sp-header">
     <h2>设置</h2>
@@ -145,9 +247,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
       <label>对方昵称（可选）</label>
       <input type="text" id="taName" placeholder="让 AI 更懂你们的关系" autocomplete="off">
     </div>
-    <div class="field">
-      <button class="clear-btn" id="clearBtn">清空对话记录</button>
-    </div>
   </div>
 </div>
 
@@ -157,7 +256,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 (function(){
 'use strict';
 
-// ============ 服务商配置 ============
 const PROVIDERS = {
   deepseek:  { name:'DeepSeek',  icon:'🐋', url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', visionModel:null, format:'openai', vision:false },
   zhipu:     { name:'智谱 GLM',  icon:'🧠', url:'https://open.bigmodel.cn/api/paas/v4/chat/completions', model:'glm-4-air', visionModel:'glm-4v', format:'openai', vision:true, jsonMode:true },
@@ -168,19 +266,17 @@ const PROVIDERS = {
   anthropic: { name:'Claude',    icon:'🅰️', url:'https://api.anthropic.com/v1/messages', model:'claude-3-5-sonnet-20241022', visionModel:'claude-3-5-sonnet-20241022', format:'anthropic', vision:true },
   google:    { name:'Gemini',    icon:'🔷', url:'https://generativelanguage.googleapis.com/v1beta/models', model:'gemini-2.0-flash', visionModel:'gemini-2.0-flash', format:'google', vision:true }
 };
-
 const PROVIDER_ORDER = ['deepseek','qwen','kimi','zhipu','openai','doubao','anthropic','google'];
 
-// ============ 状态 ============
-const state = {
-  messages: [], suggestions: [],
-  apiKeys: {},           // { deepseek: 'sk-xxx', qwen: 'sk-ws-xxx', ... }
-  defaultProvider: '',   // 默认用哪家的
-  myName:'', taName:'',
-  imageBase64:null, loading:false
-};
+function genId(){ return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-// 初始化空的 key 表
+const state = {
+  sessions: [], currentSessionId: '',
+  apiKeys: {}, defaultProvider: '',
+  myName:'', taName:'',
+  imageBase64:null, loading:false,
+  pendingDeleteIdx: -1
+};
 PROVIDER_ORDER.forEach(pid => { state.apiKeys[pid] = ''; });
 
 const $ = id => document.getElementById(id);
@@ -190,9 +286,15 @@ const dom = {
   imgPreview:$('imgPreview'), previewImg:$('previewImg'), removeImg:$('removeImg'),
   imageBtn:$('imageBtn'), fileInput:$('fileInput'),
   input:$('input'), sendBtn:$('sendBtn'),
+  headerTitle:$('headerTitle'),
+  statusBar:$('statusBar'),
+  drawerBtn:$('drawerBtn'), drawer:$('drawer'), drawerMask:$('drawerMask'),
+  newChatBtn:$('newChatBtn'), sessionList:$('sessionList'),
   settingsBtn:$('settingsBtn'), settings:$('settings'),
-  closeSettings:$('closeSettings'), clearBtn:$('clearBtn'),
-  apiForm:$('apiForm'), myName:$('myName'), taName:$('taName'), toast:$('toast')
+  closeSettings:$('closeSettings'),
+  apiForm:$('apiForm'), myName:$('myName'), taName:$('taName'), toast:$('toast'),
+  sheet:$('sheet'), sheetMask:$('sheetMask'), sheetPreview:$('sheetPreview'),
+  sheetDelete:$('sheetDelete'), sheetCancel:$('sheetCancel')
 };
 
 let toastTimer = null;
@@ -205,51 +307,98 @@ function toast(msg, dur=1800, type=''){
   dom.toast.classList.add('show');
   toastTimer = setTimeout(()=>dom.toast.classList.remove('show'), dur);
 }
-
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
 function toAscii(s){ return String(s||'').replace(/[^\x00-\x7F]/g,''); }
 
+// ============ 会话 ============
+function getCurrentSession(){
+  if(!state.currentSessionId || state.sessions.length === 0){
+    if(state.sessions.length === 0) createSession(false);
+    state.currentSessionId = state.sessions[0].id;
+  }
+  return state.sessions.find(s => s.id === state.currentSessionId) || state.sessions[0];
+}
+function createSession(switchTo = true){
+  const session = {
+    id: genId(),
+    messages: [],
+    status: '',   // ★ 情境描述
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  state.sessions.unshift(session);
+  if(switchTo) state.currentSessionId = session.id;
+  return session;
+}
+function generateSessionTitle(session){
+  if(!session || !session.messages || session.messages.length === 0) return '新对话';
+  const first = session.messages.find(m => m.role === 'ta') || session.messages[0];
+  const text = String(first.text || '').trim().replace(/\s+/g, ' ');
+  if(!text) return '新对话';
+  return text.length > 18 ? text.slice(0, 18) + '…' : text;
+}
+function formatTime(ts){
+  if(!ts) return '';
+  const now = Date.now();
+  const diff = now - ts;
+  if(diff < 60*1000) return '刚刚';
+  if(diff < 60*60*1000) return Math.floor(diff/60000) + '分钟前';
+  if(diff < 24*60*60*1000) return Math.floor(diff/3600000) + '小时前';
+  if(diff < 7*24*60*60*1000) return Math.floor(diff/86400000) + '天前';
+  const d = new Date(ts);
+  return (d.getMonth()+1) + '月' + d.getDate() + '日';
+}
+
 // ============ 存储 ============
-const KEY = 'chat_multi_v2';
-const OLD_KEYS = ['chat_multi_v1','chat_simple_v4','chat_simple_v3','chat_simple_v2','chat_simple_v1'];
+const KEY = 'chat_multi_v4';
+const OLD_KEYS = ['chat_multi_v3','chat_multi_v2','chat_multi_v1','chat_simple_v4','chat_simple_v3','chat_simple_v2','chat_simple_v1'];
 
 function save(){
   try{
     localStorage.setItem(KEY, JSON.stringify({
-      messages: state.messages,
+      sessions: state.sessions,
+      currentSessionId: state.currentSessionId,
       apiKeys: state.apiKeys,
       defaultProvider: state.defaultProvider,
       myName: state.myName, taName: state.taName
     }));
   }catch(e){ console.warn('保存失败', e); }
 }
-
 function load(){
   try{
     let raw = localStorage.getItem(KEY);
     if(!raw){
-      // 从旧版本迁移
       for(const k of OLD_KEYS){
         const old = localStorage.getItem(k);
         if(old){
           try{
             const d = JSON.parse(old);
-            // v1 有 apis 数组
             if(Array.isArray(d.apis)){
-              d.apis.forEach(a => {
-                if(a.provider && a.apiKey) state.apiKeys[a.provider] = a.apiKey;
-              });
+              d.apis.forEach(a => { if(a.provider && a.apiKey) state.apiKeys[a.provider] = a.apiKey; });
               const active = d.apis.find(a => a.id === d.activeApiId);
               if(active) state.defaultProvider = active.provider;
             }
-            // 更老版本有单一 apiKey + provider
             if(d.apiKey && d.provider) state.apiKeys[d.provider] = d.apiKey;
-            state.messages = d.messages || [];
+            if(d.apiKeys) Object.assign(state.apiKeys, d.apiKeys);
+            if(d.defaultProvider) state.defaultProvider = d.defaultProvider;
+
+            // 会话迁移
+            if(Array.isArray(d.sessions)){
+              state.sessions = d.sessions.map(s => ({
+                id: s.id || genId(),
+                messages: s.messages || [],
+                status: s.status || '',
+                createdAt: s.createdAt || Date.now(),
+                updatedAt: s.updatedAt || Date.now()
+              }));
+              state.currentSessionId = d.currentSessionId || (state.sessions[0]?.id || '');
+            } else if(Array.isArray(d.messages) && d.messages.length > 0){
+              const s = { id: genId(), messages: d.messages, status: '', createdAt: Date.now(), updatedAt: Date.now() };
+              state.sessions = [s];
+              state.currentSessionId = s.id;
+            }
             state.myName = d.myName || '';
             state.taName = d.taName || '';
-            if(!state.defaultProvider){
-              state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
-            }
             save();
           }catch(e){}
           return;
@@ -258,17 +407,27 @@ function load(){
       return;
     }
     const d = JSON.parse(raw);
-    state.messages = d.messages || [];
+    state.sessions = Array.isArray(d.sessions) ? d.sessions.map(s => ({
+      id: s.id || genId(),
+      messages: s.messages || [],
+      status: s.status || '',
+      createdAt: s.createdAt || Date.now(),
+      updatedAt: s.updatedAt || Date.now()
+    })) : [];
+    state.currentSessionId = d.currentSessionId || '';
     state.apiKeys = Object.assign({}, state.apiKeys, d.apiKeys || {});
     state.defaultProvider = d.defaultProvider || '';
     state.myName = d.myName || '';
     state.taName = d.taName || '';
-    // 校验默认
-    if(state.defaultProvider && !state.apiKeys[state.defaultProvider]){
-      state.defaultProvider = '';
-    }
+
+    if(state.defaultProvider && !state.apiKeys[state.defaultProvider]) state.defaultProvider = '';
     if(!state.defaultProvider){
       state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
+    }
+    if(state.sessions.length === 0){
+      createSession(true);
+    } else if(!state.currentSessionId || !state.sessions.find(s => s.id === state.currentSessionId)){
+      state.currentSessionId = state.sessions[0].id;
     }
   }catch(e){}
 }
@@ -277,17 +436,13 @@ function load(){
 function getDefaultApi(){
   const pid = state.defaultProvider;
   if(pid && state.apiKeys[pid]) return { provider: pid, apiKey: state.apiKeys[pid] };
-  // 兜底：第一个填了 key 的
   const first = PROVIDER_ORDER.find(p => state.apiKeys[p]);
   if(first) return { provider: first, apiKey: state.apiKeys[first] };
   return null;
 }
-
 function getImageApi(){
-  // 优先用默认（如果支持 vision）
   const def = getDefaultApi();
   if(def && PROVIDERS[def.provider].vision) return def;
-  // 否则找第一个支持 vision 的
   for(const pid of PROVIDER_ORDER){
     if(state.apiKeys[pid] && PROVIDERS[pid].vision){
       return { provider: pid, apiKey: state.apiKeys[pid] };
@@ -297,18 +452,157 @@ function getImageApi(){
 }
 
 // ============ 渲染 ============
+function renderHeader(){
+  const s = getCurrentSession();
+  const title = generateSessionTitle(s);
+  dom.headerTitle.textContent = (title === '新对话' || !title) ? '聊天助手' : title;
+  dom.headerTitle.title = title;
+}
+
+// ★ 情境栏渲染
+function renderStatusBar(){
+  const session = getCurrentSession();
+  const status = (session && session.status) || '';
+  if (status){
+    dom.statusBar.classList.remove('empty');
+    dom.statusBar.innerHTML =
+      '<span class="status-icon">📌</span>'
+      + '<div class="status-content"><span class="status-text">' + esc(status) + '</span></div>'
+      + '<button class="status-edit" aria-label="编辑">✎</button>';
+  } else {
+    dom.statusBar.classList.add('empty');
+    dom.statusBar.innerHTML =
+      '<span class="status-icon">📌</span>'
+      + '<div class="status-content"><span class="status-text placeholder">添加情境描述（可选）</span></div>'
+      + '<button class="status-edit" aria-label="编辑">✎</button>';
+  }
+}
+
+// ★ 进入编辑状态
+function editStatus(){
+  const session = getCurrentSession();
+  if(!session) return;
+  const cur = session.status || '';
+  dom.statusBar.classList.remove('empty');
+  dom.statusBar.innerHTML =
+    '<span class="status-icon">📌</span>'
+    + '<input type="text" class="status-input" id="statusInput" value="' + esc(cur) + '" placeholder="例如：对方刚加班完很累，心情不好" maxlength="200">';
+  const input = $('statusInput');
+  input.focus();
+  try { input.setSelectionRange(cur.length, cur.length); } catch(e){}
+
+  let done = false;
+  const finish = (saveVal) => {
+    if(done) return;
+    done = true;
+    const val = (typeof saveVal === 'string') ? saveVal : input.value.trim();
+    session.status = val;
+    session.updatedAt = Date.now();
+    save();
+    renderStatusBar();
+    if (val !== cur){
+      toast(val ? '已更新情境' : '已清除情境', 1000, 'success');
+    }
+  };
+  input.addEventListener('blur', () => finish());
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){ e.preventDefault(); input.blur(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); finish(cur); }
+  });
+}
+
 function renderMessages(){
-  if(state.messages.length === 0){
-    dom.messages.innerHTML = '<div class="empty">输入对方的话<br>获取 3 条回复建议</div>';
+  const session = getCurrentSession();
+  const msgs = session.messages || [];
+  if(msgs.length === 0){
+    dom.messages.innerHTML = '<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">长按消息可删除</span></div>';
     return;
   }
   let html = '';
-  state.messages.forEach(m=>{
+  msgs.forEach((m, i)=>{
     const cls = m.role === 'ta' ? 'ta' : 'me';
-    html += '<div class="bubble '+cls+'">'+esc(m.text)+'</div>';
+    html += '<div class="bubble '+cls+'" data-idx="'+i+'">'+esc(m.text)+'</div>';
   });
   dom.messages.innerHTML = html;
+  // ★ 绑定长按删除
+  dom.messages.querySelectorAll('.bubble').forEach(bubble => {
+    attachBubbleLongPress(bubble);
+  });
   dom.messages.scrollTop = dom.messages.scrollHeight;
+}
+
+// ★ 长按 / 右键 → 弹出操作面板
+function attachBubbleLongPress(bubble){
+  const idx = parseInt(bubble.dataset.idx);
+  let timer = null;
+  let triggered = false;
+
+  const startPress = () => {
+    triggered = false;
+    bubble.classList.add('pressing');
+    timer = setTimeout(() => {
+      triggered = true;
+      bubble.classList.remove('pressing');
+      openActionSheet(idx);
+      if (navigator.vibrate) { try { navigator.vibrate(30); } catch(e){} }
+    }, 550);
+  };
+  const cancelPress = () => {
+    clearTimeout(timer);
+    bubble.classList.remove('pressing');
+  };
+
+  bubble.addEventListener('touchstart', startPress, { passive: true });
+  bubble.addEventListener('touchend', cancelPress);
+  bubble.addEventListener('touchcancel', cancelPress);
+  bubble.addEventListener('touchmove', cancelPress, { passive: true });
+
+  bubble.addEventListener('mousedown', startPress);
+  bubble.addEventListener('mouseup', cancelPress);
+  bubble.addEventListener('mouseleave', cancelPress);
+
+  // 右键（桌面端）
+  bubble.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    openActionSheet(idx);
+  });
+}
+
+// ★ 弹出操作面板
+function openActionSheet(idx){
+  const session = getCurrentSession();
+  const msg = session.messages[idx];
+  if (!msg) return;
+  state.pendingDeleteIdx = idx;
+  const who = msg.role === 'ta' ? '对方' : '我';
+  dom.sheetPreview.innerHTML = '<span class="pv-who">' + who + '：</span>' + esc(msg.text);
+  dom.sheetMask.classList.add('show');
+  dom.sheet.classList.add('show');
+}
+
+function closeActionSheet(){
+  dom.sheetMask.classList.remove('show');
+  dom.sheet.classList.remove('show');
+  state.pendingDeleteIdx = -1;
+}
+
+// ★ 删除消息
+function deletePendingMessage(){
+  const idx = state.pendingDeleteIdx;
+  const session = getCurrentSession();
+  if (!session || idx < 0 || !session.messages[idx]){ closeActionSheet(); return; }
+  session.messages.splice(idx, 1);
+  session.updatedAt = Date.now();
+  // 删除消息后清空旧建议，避免上下文错乱
+  state.suggestions = [];
+  state.loading = false;
+  save();
+  closeActionSheet();
+  renderMessages();
+  renderSuggestions();
+  renderHeader();
+  renderStatusBar();
+  toast('已删除', 1000, 'success');
 }
 
 function renderSuggestions(){
@@ -346,12 +640,15 @@ function copySuggestion(idx, card){
   const text = s.text;
   const done = ()=>{
     card.classList.add('copied');
-    state.messages.push({role:'me', text});
+    const session = getCurrentSession();
+    session.messages.push({role:'me', text});
+    session.updatedAt = Date.now();
     state.suggestions = [];
     save();
     setTimeout(()=>{
       renderMessages();
       renderSuggestions();
+      renderHeader();
       toast('已复制', 1200, 'success');
     }, 200);
   };
@@ -368,127 +665,111 @@ function fallbackCopy(text, cb){
   document.body.removeChild(ta);
 }
 
-// ============ ★ 核心：API 输入表单 ============
-function renderApiForm(){
+// ============ 对话抽屉 ============
+function openDrawer(){
+  renderSessionList();
+  dom.drawerMask.classList.add('show');
+  dom.drawer.classList.add('show');
+}
+function closeDrawer(){
+  dom.drawerMask.classList.remove('show');
+  dom.drawer.classList.remove('show');
+}
+function renderSessionList(){
+  if(state.sessions.length === 0){
+    dom.sessionList.innerHTML = '<div class="session-empty">还没有对话</div>';
+    return;
+  }
+  const sorted = [...state.sessions].sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   let html = '';
-  PROVIDER_ORDER.forEach(pid => {
-    const p = PROVIDERS[pid];
-    const key = state.apiKeys[pid] || '';
-    const hasKey = !!key;
-    const isDefault = state.defaultProvider === pid && hasKey;
-
-    const visionTag = p.vision
-      ? '<span class="api-tag vision">📷 支持图片</span>'
-      : '<span class="api-tag no-vision">无图片</span>';
-
-    const defaultBtn = hasKey
-      ? (isDefault
-          ? '<button class="default-btn active" data-pid="'+pid+'" data-act="unset">✓ 默认</button>'
-          : '<button class="default-btn" data-pid="'+pid+'" data-act="set">设为默认</button>')
-      : '';
-
-    const rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '');
-
-    html += '<div class="'+rowCls+'" data-pid="'+pid+'">'
-      + '<div class="api-row-header">'
-      +   '<span class="api-icon">'+p.icon+'</span>'
-      +   '<span class="api-name">'+esc(p.name)+'</span>'
-      +   visionTag
-      +   defaultBtn
+  sorted.forEach(s => {
+    const isActive = s.id === state.currentSessionId;
+    const title = generateSessionTitle(s);
+    const count = (s.messages || []).length;
+    const hasStatus = !!s.status;
+    const meta = count > 0
+      ? count + ' 条消息 · ' + formatTime(s.updatedAt)
+      : (hasStatus ? '情境已设置' : '空对话');
+    const pin = hasStatus ? '<span class="pin" title="已设置情境">📌</span>' : '';
+    html += '<div class="session-item'+(isActive?' active':'')+'" data-id="'+s.id+'">'
+      + '<div class="s-body">'
+      +   '<div class="session-title">'+esc(title)+'</div>'
+      +   '<div class="session-meta">'+ pin + esc(meta) +'</div>'
       + '</div>'
-      + '<input type="text" class="api-key-input" data-pid="'+pid+'" '
-      +   'value="'+esc(key)+'" '
-      +   'placeholder="粘贴 API Key（可留空）" '
-      +   'autocomplete="off" spellcheck="false">'
+      + '<button class="session-del" data-del="'+s.id+'" aria-label="删除">✕</button>'
       + '</div>';
   });
-  dom.apiForm.innerHTML = html;
+  dom.sessionList.innerHTML = html;
 
-  // 输入事件 → 立即保存
-  dom.apiForm.querySelectorAll('.api-key-input').forEach(input => {
-    input.addEventListener('input', e => {
-      const pid = e.target.dataset.pid;
-      const val = e.target.value.trim();
-      const hadKey = !!state.apiKeys[pid];
-      state.apiKeys[pid] = val;
-      const hasKey = !!val;
-
-      // ★ 第一次填 key 且没有默认 → 自动设为默认
-      if (hasKey && !hadKey && !state.defaultProvider){
-        state.defaultProvider = pid;
-      }
-      // ★ 清空了默认的 key → 换一个或清空默认
-      if (!hasKey && state.defaultProvider === pid){
-        state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
-      }
-
-      save();
-      updateRowStyle(pid, val);
-    });
-
-    // 失焦再保存一次（防移动端丢事件）
-    input.addEventListener('blur', e => {
-      const pid = e.target.dataset.pid;
-      state.apiKeys[pid] = e.target.value.trim();
-      save();
+  dom.sessionList.querySelectorAll('.session-item').forEach(item => {
+    item.addEventListener('click', e => {
+      if(e.target.closest('.session-del')) return;
+      switchSession(item.dataset.id);
     });
   });
-
-  // 默认按钮
-  dom.apiForm.querySelectorAll('.default-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const pid = btn.dataset.pid;
-      if (btn.dataset.act === 'unset'){
-        state.defaultProvider = '';
-      } else {
-        state.defaultProvider = pid;
-      }
-      save();
-      renderApiForm();
+  dom.sessionList.querySelectorAll('.session-del').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteSession(btn.dataset.del);
     });
   });
 }
+function switchSession(id){
+  if(state.currentSessionId === id){ closeDrawer(); return; }
+  state.currentSessionId = id;
+  state.suggestions = [];
+  state.loading = false;
+  save();
+  renderHeader();
+  renderMessages();
+  renderSuggestions();
+  renderStatusBar();
+  closeDrawer();
+  setTimeout(() => { dom.messages.scrollTop = dom.messages.scrollHeight; }, 50);
+}
+function deleteSession(id){
+  const session = state.sessions.find(s => s.id === id);
+  if(!session) return;
+  const count = (session.messages || []).length;
+  const msg = count > 0
+    ? '删除该对话及 ' + count + ' 条消息？'
+    : '删除这个空对话？';
+  if(!confirm(msg)) return;
 
-// 只更新单行样式（避免每次输入都重绘整个表单丢失焦点）
-function updateRowStyle(pid, key){
-  const row = dom.apiForm.querySelector('.api-row[data-pid="'+pid+'"]');
-  if(!row) return;
-  const hasKey = !!key;
-  const isDefault = state.defaultProvider === pid && hasKey;
-  row.classList.toggle('has-key', hasKey);
-  row.classList.toggle('is-default', isDefault);
-
-  // 更新按钮
-  const header = row.querySelector('.api-row-header');
-  const oldBtn = header.querySelector('.default-btn');
-  if(oldBtn) oldBtn.remove();
-  if(hasKey){
-    const btn = document.createElement('button');
-    btn.className = 'default-btn' + (isDefault ? ' active' : '');
-    btn.dataset.pid = pid;
-    btn.dataset.act = isDefault ? 'unset' : 'set';
-    btn.textContent = isDefault ? '✓ 默认' : '设为默认';
-    btn.addEventListener('click', () => {
-      if (btn.dataset.act === 'unset'){
-        state.defaultProvider = '';
-      } else {
-        state.defaultProvider = pid;
-      }
-      save();
-      renderApiForm();
-    });
-    header.appendChild(btn);
+  state.sessions = state.sessions.filter(s => s.id !== id);
+  if(state.sessions.length === 0){
+    createSession(true);
+  } else if(state.currentSessionId === id){
+    state.currentSessionId = state.sessions[0].id;
+    state.suggestions = [];
+    state.loading = false;
   }
-
-  // 如果默认变了，同步其他行的样式
-  if (isDefault || (!isDefault && state.defaultProvider !== pid)){
-    dom.apiForm.querySelectorAll('.api-row').forEach(r => {
-      const rp = r.dataset.pid;
-      const rHasKey = !!state.apiKeys[rp];
-      const rIsDefault = state.defaultProvider === rp && rHasKey;
-      r.classList.toggle('is-default', rIsDefault);
-    });
+  save();
+  renderSessionList();
+  renderHeader();
+  renderMessages();
+  renderSuggestions();
+  renderStatusBar();
+  toast('已删除', 1000);
+}
+function handleNewChat(){
+  const cur = getCurrentSession();
+  if(cur && (cur.messages || []).length === 0 && !cur.status){
+    closeDrawer();
+    toast('当前已经是新对话', 1200);
+    return;
   }
+  createSession(true);
+  state.suggestions = [];
+  state.loading = false;
+  save();
+  renderHeader();
+  renderMessages();
+  renderSuggestions();
+  renderStatusBar();
+  closeDrawer();
+  dom.input.focus();
+  toast('已新建对话', 1000, 'success');
 }
 
 // ============ 发送 ============
@@ -497,7 +778,6 @@ async function handleSend(){
   const text = dom.input.value.trim();
   if(!text && !state.imageBase64){ toast('请输入内容', 1200); return; }
 
-  // 选择 API
   let usedApi;
   let switchedForImage = false;
   if(state.imageBase64){
@@ -517,18 +797,21 @@ async function handleSend(){
     }
   }
 
+  const session = getCurrentSession();
   const finalText = text || '请描述这张图片';
-  state.messages.push({role:'ta', text: finalText});
+  session.messages.push({role:'ta', text: finalText});
+  session.updatedAt = Date.now();
   dom.input.value = '';
   save();
   renderMessages();
+  renderHeader();
 
   state.loading = true;
   renderSuggestions();
   dom.sendBtn.disabled = true;
 
   try{
-    const result = await callAI(usedApi);
+    const result = await callAI(usedApi, session);
     state.suggestions = result.suggestions || [];
     state.loading = false;
     save();
@@ -540,8 +823,9 @@ async function handleSend(){
     }
   }catch(err){
     state.loading = false;
-    if(state.messages.length > 0 && state.messages[state.messages.length-1].role === 'ta'){
-      state.messages.pop();
+    if(session.messages.length > 0 && session.messages[session.messages.length-1].role === 'ta'){
+      session.messages.pop();
+      session.updatedAt = Date.now();
       save();
       renderMessages();
     }
@@ -611,7 +895,7 @@ function showImageModal(src){
   document.body.appendChild(m);
 }
 
-// ============ JSON 容错解析 ============
+// ============ JSON 容错 ============
 function extractJSON(content){
   if(!content || typeof content !== 'string') return null;
   const text = content.trim();
@@ -635,15 +919,12 @@ function extractJSON(content){
   }
   return null;
 }
-
 function textFallback(content){
   if (!content) return null;
   const styles = ['幽默', '走心', '直球'];
   const lines = content.split(/\n+/).map(l => l.trim()
-    .replace(/^[\s\-\*#>`]+/, '')
-    .replace(/^\d+[\.\)、:：]\s*/, '')
-    .replace(/^["「『]+|["」』]+$/g, '')
-    .trim()
+    .replace(/^[\s\-\*#>`]+/, '').replace(/^\d+[\.\)、:：]\s*/, '')
+    .replace(/^["「『]+|["」』]+$/g, '').trim()
   ).filter(l => {
     if (l.length < 2 || l.length > 100) return false;
     if (/^(以下是|下面是|建议如下|回复建议|响应)[:：]?$/.test(l)) return false;
@@ -679,15 +960,12 @@ function buildRequest({provider, model, messages, apiKey, temperature, maxTokens
     });
     return {
       url: apiUrl,
-      headers:{
-        'Content-Type':'application/json','x-api-key': apiKey,
-        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'
-      },
+      headers:{'Content-Type':'application/json','x-api-key': apiKey,
+        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:{ model, max_tokens:maxTokens, temperature, system: sys ? sys.content : '', messages: anthMsgs },
       parse: d => (d && d.content && d.content[0] && d.content[0].text) || ''
     };
   }
-
   if(format === 'google'){
     const sys = messages.find(m=>m.role==='system');
     const others = messages.filter(m=>m.role!=='system');
@@ -710,14 +988,11 @@ function buildRequest({provider, model, messages, apiKey, temperature, maxTokens
       url, headers:{'Content-Type':'application/json'},
       body:{
         system_instruction: sys ? {parts:[{text:sys.content}]} : undefined,
-        contents,
-        generationConfig:{temperature, maxOutputTokens:maxTokens}
+        contents, generationConfig:{temperature, maxOutputTokens:maxTokens}
       },
       parse: d => { try{ return d.candidates[0].content.parts.map(x=>x.text||'').join(''); }catch(e){ return ''; } }
     };
   }
-
-  // OpenAI 兼容
   const body = {model, messages, temperature, max_tokens:maxTokens};
   if (p.jsonMode && !hasImage) body.response_format = { type: 'json_object' };
   return {
@@ -729,7 +1004,7 @@ function buildRequest({provider, model, messages, apiKey, temperature, maxTokens
 }
 
 // ============ AI 调用 ============
-async function callAI(apiEntry){
+async function callAI(apiEntry, session){
   const pConf = PROVIDERS[apiEntry.provider];
   if(!pConf) throw new Error('未知服务商');
 
@@ -749,12 +1024,16 @@ async function callAI(apiEntry){
   const my = state.myName ? '我（'+state.myName+'）' : '我';
   const ta = state.taName ? '对方（'+state.taName+'）' : '对方';
 
+  // ★ 情境描述拼到 system prompt 里
+  const statusLine = session.status ? `\n【当前情境】${session.status}` : '';
+
   const systemPrompt = `你是聊天高手。${ta}会发来消息，你需要生成 3 条不同的回复建议，覆盖不同风格：
 - 第1条：幽默轻松，可调侃自嘲，让人会心一笑
 - 第2条：走心共情，温柔体贴，关注情绪
 - 第3条：直接坦诚，简明有力，不绕弯
-
+${statusLine}
 每条建议口语化，像微信原话，不超过 40 字。禁止书面语、说教。使用简体中文。
+${statusLine ? '⚠️ 请结合【当前情境】调整语气和内容。' : ''}
 
 【重要】你只输出 JSON，不要任何其他内容。
 - 不要加\`\`\`json\`\`\`代码块
@@ -766,7 +1045,7 @@ JSON 格式：
 {"suggestions":[{"text":"第1条建议","style":"幽默"},{"text":"第2条建议","style":"走心"},{"text":"第3条建议","style":"直球"}]}`;
 
   const messages = [{role:'system', content: systemPrompt}];
-  state.messages.slice(-10).forEach((m, i, arr)=>{
+  (session.messages || []).slice(-10).forEach((m, i, arr)=>{
     const isLast = i === arr.length - 1;
     const role = m.role === 'ta' ? 'user' : 'assistant';
     if(isLast && m.role === 'ta' && imageData){
@@ -829,9 +1108,98 @@ JSON 格式：
       text: String(s.text).trim(),
       style: s.style || ['幽默','走心','直球'][i] || '建议'
     }));
-
   if (parsed.suggestions.length === 0) throw new Error('AI 未生成有效建议');
   return parsed;
+}
+
+// ============ API 表单 ============
+function renderApiForm(){
+  let html = '';
+  PROVIDER_ORDER.forEach(pid => {
+    const p = PROVIDERS[pid];
+    const key = state.apiKeys[pid] || '';
+    const hasKey = !!key;
+    const isDefault = state.defaultProvider === pid && hasKey;
+    const visionTag = p.vision
+      ? '<span class="api-tag vision">📷 支持图片</span>'
+      : '<span class="api-tag no-vision">无图片</span>';
+    const defaultBtn = hasKey
+      ? (isDefault
+          ? '<button class="default-btn active" data-pid="'+pid+'" data-act="unset">✓ 默认</button>'
+          : '<button class="default-btn" data-pid="'+pid+'" data-act="set">设为默认</button>')
+      : '';
+    const rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '');
+    html += '<div class="'+rowCls+'" data-pid="'+pid+'">'
+      + '<div class="api-row-header">'
+      +   '<span class="api-icon">'+p.icon+'</span>'
+      +   '<span class="api-name">'+esc(p.name)+'</span>'
+      +   visionTag + defaultBtn
+      + '</div>'
+      + '<input type="text" class="api-key-input" data-pid="'+pid+'" '
+      +   'value="'+esc(key)+'" placeholder="粘贴 API Key（可留空）" '
+      +   'autocomplete="off" spellcheck="false">'
+      + '</div>';
+  });
+  dom.apiForm.innerHTML = html;
+
+  dom.apiForm.querySelectorAll('.api-key-input').forEach(input => {
+    input.addEventListener('input', e => {
+      const pid = e.target.dataset.pid;
+      const val = e.target.value.trim();
+      const hadKey = !!state.apiKeys[pid];
+      state.apiKeys[pid] = val;
+      const hasKey = !!val;
+      if (hasKey && !hadKey && !state.defaultProvider) state.defaultProvider = pid;
+      if (!hasKey && state.defaultProvider === pid){
+        state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
+      }
+      save();
+      updateRowStyle(pid, val);
+    });
+    input.addEventListener('blur', e => {
+      state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
+      save();
+    });
+  });
+  dom.apiForm.querySelectorAll('.default-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pid = btn.dataset.pid;
+      state.defaultProvider = btn.dataset.act === 'unset' ? '' : pid;
+      save();
+      renderApiForm();
+    });
+  });
+}
+function updateRowStyle(pid, key){
+  const row = dom.apiForm.querySelector('.api-row[data-pid="'+pid+'"]');
+  if(!row) return;
+  const hasKey = !!key;
+  const isDefault = state.defaultProvider === pid && hasKey;
+  row.classList.toggle('has-key', hasKey);
+  row.classList.toggle('is-default', isDefault);
+
+  const header = row.querySelector('.api-row-header');
+  const oldBtn = header.querySelector('.default-btn');
+  if(oldBtn) oldBtn.remove();
+  if(hasKey){
+    const btn = document.createElement('button');
+    btn.className = 'default-btn' + (isDefault ? ' active' : '');
+    btn.dataset.pid = pid;
+    btn.dataset.act = isDefault ? 'unset' : 'set';
+    btn.textContent = isDefault ? '✓ 默认' : '设为默认';
+    btn.addEventListener('click', () => {
+      state.defaultProvider = btn.dataset.act === 'unset' ? '' : pid;
+      save();
+      renderApiForm();
+    });
+    header.appendChild(btn);
+  }
+  dom.apiForm.querySelectorAll('.api-row').forEach(r => {
+    const rp = r.dataset.pid;
+    const rHas = !!state.apiKeys[rp];
+    const rDef = state.defaultProvider === rp && rHas;
+    r.classList.toggle('is-default', rDef);
+  });
 }
 
 // ============ 设置面板 ============
@@ -842,7 +1210,6 @@ function openSettings(){
   renderApiForm();
 }
 function closeSettings(){
-  // 兜底保存
   state.myName = dom.myName.value.trim();
   state.taName = dom.taName.value.trim();
   save();
@@ -853,6 +1220,16 @@ function closeSettings(){
 function bindEvents(){
   dom.settingsBtn.addEventListener('click', openSettings);
   dom.closeSettings.addEventListener('click', closeSettings);
+  dom.drawerBtn.addEventListener('click', openDrawer);
+  dom.drawerMask.addEventListener('click', closeDrawer);
+  dom.newChatBtn.addEventListener('click', handleNewChat);
+
+  // ★ 情境栏点击 → 编辑
+  dom.statusBar.addEventListener('click', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    editStatus();
+  });
+
   dom.sendBtn.addEventListener('click', handleSend);
   dom.input.addEventListener('keydown', e=>{
     if(e.key === 'Enter'){ e.preventDefault(); handleSend(); }
@@ -867,20 +1244,22 @@ function bindEvents(){
       showImageModal(dom.previewImg.src);
     }
   });
-  dom.clearBtn.addEventListener('click', ()=>{
-    if(confirm('清空所有对话记录？（不影响 API 设置）')){
-      state.messages = [];
-      state.suggestions = [];
-      save();
-      renderMessages();
-      renderSuggestions();
-      toast('已清空', 1200, 'success');
-    }
-  });
   dom.myName.addEventListener('input', ()=>{ state.myName = dom.myName.value.trim(); save(); });
   dom.taName.addEventListener('input', ()=>{ state.taName = dom.taName.value.trim(); save(); });
 
-  // ★ 页面隐藏/关闭时兜底保存
+  // ★ 操作面板
+  dom.sheetMask.addEventListener('click', closeActionSheet);
+  dom.sheetCancel.addEventListener('click', closeActionSheet);
+  dom.sheetDelete.addEventListener('click', deletePendingMessage);
+
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape'){
+      if(dom.sheet.classList.contains('show')) closeActionSheet();
+      else if(dom.drawer.classList.contains('show')) closeDrawer();
+      else if(dom.settings.classList.contains('show')) closeSettings();
+    }
+  });
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') save();
   });
@@ -890,17 +1269,19 @@ function bindEvents(){
 // ============ 初始化 ============
 function init(){
   load();
+  if(state.sessions.length === 0) createSession(true);
+  renderHeader();
   renderMessages();
   renderSuggestions();
+  renderStatusBar();
   bindEvents();
 
-  // 首次无任何 key 时打开设置
   const hasAny = PROVIDER_ORDER.some(p => state.apiKeys[p]);
   if (!hasAny){
-    const guided = localStorage.getItem('chat_guided_v2');
+    const guided = localStorage.getItem('chat_guided_v4');
     if (!guided){
       setTimeout(openSettings, 400);
-      try { localStorage.setItem('chat_guided_v2', '1'); } catch(e){}
+      try { localStorage.setItem('chat_guided_v4', '1'); } catch(e){}
     }
   }
 }
