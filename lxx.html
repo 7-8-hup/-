@@ -206,6 +206,105 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
 .section-title{font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
 .section-title .sub{font-weight:400;color:#999;font-size:11px;margin-left:4px;}
+.field{margin-bottom:24px;}
+.field > label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
+.field input[type=text],.field input[type=password],.field textarea{width:100%;padding:11px 14px;
+  border:1px solid #ebebf0;background:#fff;border-radius:12px;font-size:15px;outline:none;
+  color:#1a1a1a;font-family:inherit;transition:border-color .15s;line-height:1.5;}
+.field input[type=text],.field input[type=password]{height:44px;padding:0 14px;}
+.field textarea{min-height:88px;resize:vertical;}
+.field input:focus,.field textarea:focus{border-color:#7c5cff;}
+.hint{font-size:12px;color:#999;line-height:1.6;margin-top:8px;}
+
+/* ★★★ 折叠卡片 ★★★ */
+.collapse-card{
+  border:1.5px solid #e2e8f0;
+  border-radius:14px;
+  margin-bottom:16px;
+  background:#fff;
+  overflow:hidden;
+  transition:border-color .15s, box-shadow .15s;
+}
+.collapse-card.expanded{
+  box-shadow:0 2px 12px rgba(124,58,237,0.08);
+}
+.collapse-card.sync-theme{border-color:#bae6fd;background:#f8fcff;}
+.collapse-card.api-theme{border-color:#ddd6fe;background:#fbfaff;}
+
+.collapse-head{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;
+  cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.collapse-head:hover{background:rgba(0,0,0,0.02);}
+.collapse-head .ch-icon{font-size:18px;flex-shrink:0;line-height:1;}
+.collapse-head .ch-title{
+  flex:1;min-width:0;
+  font-size:14px;font-weight:700;
+  color:#334155;
+  display:flex;align-items:center;gap:8px;
+}
+.collapse-card.sync-theme .ch-title{color:#0369a1;}
+.collapse-card.api-theme .ch-title{color:#5b21b6;}
+.collapse-head .ch-badge{
+  font-size:11px;padding:2px 9px;border-radius:8px;font-weight:600;
+  flex-shrink:0;line-height:1.6;
+}
+.collapse-head .ch-badge.ok{background:#dcfce7;color:#166534;}
+.collapse-head .ch-badge.warn{background:#fef3c7;color:#92400e;}
+.collapse-head .ch-badge.err{background:#fee2e2;color:#dc2626;}
+.collapse-head .ch-badge.info{background:#e0f2fe;color:#0369a1;}
+.collapse-head .ch-chev{
+  font-size:12px;color:#94a3b8;flex-shrink:0;
+  transition:transform .22s cubic-bezier(0.4,0,0.2,1);
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;
+}
+.collapse-card.expanded .ch-chev{transform:rotate(90deg);color:#7c5cff;}
+
+.collapse-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .28s cubic-bezier(0.4,0,0.2,1);
+}
+.collapse-card.expanded .collapse-body{
+  max-height:2000px;
+}
+.collapse-body-inner{
+  padding:0 16px 16px;
+  border-top:1px solid #f1f5f9;
+  margin-top:0;
+  padding-top:14px;
+}
+
+/* 同步面板内的字段 */
+.sync-field{margin-bottom:10px;}
+.sync-field label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:0.3px;}
+.sync-field input{width:100%;height:36px;padding:0 12px;border:1px solid #cbd5e1;background:#fff;
+  border-radius:10px;font-size:13px;outline:none;color:#1a1a1a;font-family:inherit;}
+.sync-field input:focus{border-color:#7c5cff;}
+.sync-field input::placeholder{color:#cbd5e1;}
+.sync-actions{display:flex;gap:8px;margin-top:12px;}
+.sync-actions button{flex:1;height:40px;border-radius:10px;font-size:13px;
+  cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;}
+.btn-sync-up{border:none;background:#7c5cff;color:#fff;}
+.btn-sync-up:hover{background:#6a4ae6;}
+.btn-sync-down{border:1.5px solid #7c5cff;background:#fff;color:#7c5cff;}
+.btn-sync-down:hover{background:#f5f2ff;}
+.sync-actions button:disabled{opacity:0.5;cursor:not-allowed;}
+.sync-toggle{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:#475569;
+  padding-top:12px;border-top:1px dashed #cbd5e1;}
+.sync-toggle input{width:18px;height:18px;accent-color:#7c5cff;cursor:pointer;}
+.sync-toggle label{cursor:pointer;font-weight:500;}
+.sync-log{font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.5;min-height:16px;}
+.sync-log.ok{color:#059669;}
+.sync-log.err{color:#dc2626;}
+.sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;
+  border-top:1px dashed #cbd5e1;}
+
+/* API 面板内的行 */
 .api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:10px 12px;margin-bottom:10px;
   transition:border-color .15s,background .15s;}
 .api-row.has-key{background:#fff;border-color:#d8d8e3;}
@@ -224,17 +323,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   font-size:13px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;}
 .api-row input:focus{border-color:#7c5cff;}
 .api-row input::placeholder{color:#bbb;font-family:inherit;}
-.field{margin-bottom:24px;}
-.field > label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
-.field input[type=text],.field input[type=password],.field textarea{width:100%;padding:11px 14px;
-  border:1px solid #ebebf0;background:#fff;border-radius:12px;font-size:15px;outline:none;
-  color:#1a1a1a;font-family:inherit;transition:border-color .15s;line-height:1.5;}
-.field input[type=text],.field input[type=password]{height:44px;padding:0 14px;}
-.field textarea{min-height:88px;resize:vertical;}
-.field input:focus,.field textarea:focus{border-color:#7c5cff;}
-.hint{font-size:12px;color:#999;line-height:1.6;margin-top:8px;}
+
+/* 画像面板 */
 .profile-panel{background:linear-gradient(135deg,#f0f9ff,#ecfeff);border:1.5px solid #bae6fd;
-  border-radius:14px;padding:16px;margin-bottom:24px;}
+  border-radius:14px;padding:16px;margin-bottom:16px;}
 .profile-panel .pp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .profile-panel .pp-head .pp-title{font-size:14px;font-weight:700;color:#0369a1;
   display:flex;align-items:center;gap:6px;}
@@ -261,38 +353,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .profile-panel .pp-btn-clear:hover{background:#e0f2fe;border-color:#7dd3fc;}
 .profile-panel .pp-btn-view{border:1px solid #fde68a;background:#fffbeb;color:#d97706;}
 .profile-panel .pp-btn-view:hover{background:#fef3c7;}
-.sync-panel{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:24px;}
-.sync-panel .sync-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.sync-panel .sync-head .sync-title{font-size:14px;font-weight:700;color:#475569;
-  display:flex;align-items:center;gap:6px;}
-.sync-panel .sync-head .sync-status{font-size:11px;padding:3px 10px;border-radius:8px;font-weight:600;}
-.sync-panel .sync-head .sync-status.on{background:#dcfce7;color:#166534;}
-.sync-panel .sync-head .sync-status.off{background:#f1f5f9;color:#94a3b8;}
-.sync-panel .sync-head .sync-status.err{background:#fee2e2;color:#dc2626;}
-.sync-panel .sync-field{margin-bottom:10px;}
-.sync-panel .sync-field label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;
-  text-transform:uppercase;letter-spacing:0.3px;}
-.sync-panel .sync-field input{width:100%;height:36px;padding:0 12px;border:1px solid #cbd5e1;background:#fff;
-  border-radius:10px;font-size:13px;outline:none;color:#1a1a1a;font-family:inherit;}
-.sync-panel .sync-field input:focus{border-color:#7c5cff;}
-.sync-panel .sync-field input::placeholder{color:#cbd5e1;}
-.sync-panel .sync-actions{display:flex;gap:8px;margin-top:12px;}
-.sync-panel .sync-actions button{flex:1;height:40px;border-radius:10px;font-size:13px;
-  cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;}
-.sync-panel .btn-sync-up{border:none;background:#7c5cff;color:#fff;}
-.sync-panel .btn-sync-up:hover{background:#6a4ae6;}
-.sync-panel .btn-sync-down{border:1.5px solid #7c5cff;background:#fff;color:#7c5cff;}
-.sync-panel .btn-sync-down:hover{background:#f5f2ff;}
-.sync-panel .sync-actions button:disabled{opacity:0.5;cursor:not-allowed;}
-.sync-panel .sync-toggle{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:#475569;
-  padding-top:12px;border-top:1px dashed #cbd5e1;}
-.sync-panel .sync-toggle input{width:18px;height:18px;accent-color:#7c5cff;cursor:pointer;}
-.sync-panel .sync-toggle label{cursor:pointer;font-weight:500;}
-.sync-panel .sync-log{font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.5;min-height:16px;}
-.sync-panel .sync-log.ok{color:#059669;}
-.sync-panel .sync-log.err{color:#dc2626;}
-.sync-panel .sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;
-  border-top:1px dashed #cbd5e1;}
+
 .samples-modal{position:fixed;inset:0;background:#fff;z-index:300;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .samples-modal.show{transform:translateX(0);}
@@ -310,6 +371,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sample-item .si-meta{font-size:11px;color:#999;margin-top:6px;}
 .sample-item.no-ctx{border-left-color:#cbd5e1;}
 .sample-item.no-ctx .si-me{color:#1a1a1a;}
+
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
   transform:translateX(-50%) translateY(8px);background:rgba(30,30,35,0.95);color:#fff;
   padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;
@@ -401,71 +463,99 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <div class="samples-body" id="samplesBody"></div>
 </div>
+
 <div class="settings-panel" id="settings">
   <div class="sp-header">
     <h2>设置</h2>
     <button class="icon-btn" id="closeSettings" aria-label="关闭">✕</button>
   </div>
   <div class="sp-body">
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:42px;margin-bottom:6px;">🧬</div>
-      <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px;">我的综合画像</div>
-      <div style="font-size:12px;color:#999;line-height:1.6;">
-        所有对话里你说过的话，汇总成一份完整档案
-      </div>
-    </div>
+
     <div class="profile-panel" id="profilePanel"></div>
-    <div class="sync-panel" id="syncPanel">
-      <div class="sync-head">
-        <div class="sync-title">☁️ 数据胶囊同步</div>
-        <div class="sync-status off" id="syncStatus">未配置</div>
+
+    <!-- ★ 折叠：数据同步 -->
+    <div class="collapse-card sync-theme" id="cardSync">
+      <div class="collapse-head" data-toggle="sync">
+        <span class="ch-icon">☁️</span>
+        <span class="ch-title">数据同步</span>
+        <span class="ch-badge info" id="syncHeadBadge">未配置</span>
+        <span class="ch-chev">▶</span>
       </div>
-      <div class="sync-field">
-        <label>服务器地址</label>
-        <input type="text" id="syncUrl" placeholder="https://data.cstcloud.cn/dav" autocomplete="off">
-      </div>
-      <div class="sync-field">
-        <label>WebDAV 账号</label>
-        <input type="text" id="syncUser" placeholder="在客户端访问中设置的专属账号" autocomplete="off">
-      </div>
-      <div class="sync-field">
-        <label>WebDAV 密码</label>
-        <input type="password" id="syncPass" placeholder="WebDAV 专属密码（非登录密码）" autocomplete="off">
-      </div>
-      <div class="sync-field">
-        <label>远程路径</label>
-        <input type="text" id="syncPath" placeholder="chat-assistant/data.json" autocomplete="off">
-      </div>
-      <div class="sync-actions">
-        <button class="btn-sync-up" id="syncUpBtn">⬆️ 立即上传</button>
-        <button class="btn-sync-down" id="syncDownBtn">⬇️ 立即拉取</button>
-      </div>
-      <div class="sync-toggle">
-        <input type="checkbox" id="syncAuto">
-        <label for="syncAuto">自动同步（改动后 5 秒自动上传）</label>
-      </div>
-      <div class="sync-log" id="syncLog"></div>
-      <div class="sync-help">
-        💡 数据胶囊注册后：进入“我的数据” → 点击“客户端访问” → 在“WebDAV客户端”处<b>设置专属账号密码</b>。<br>
-        用那对账号密码填上面的“WebDAV 账号”和“WebDAV 密码”。
+      <div class="collapse-body">
+        <div class="collapse-body-inner">
+          <div class="sync-field">
+            <label>服务器地址</label>
+            <input type="text" id="syncUrl" placeholder="https://data.cstcloud.cn/dav" autocomplete="off">
+          </div>
+          <div class="sync-field">
+            <label>WebDAV 账号</label>
+            <input type="text" id="syncUser" placeholder="在客户端访问中设置的专属账号" autocomplete="off">
+          </div>
+          <div class="sync-field">
+            <label>WebDAV 密码</label>
+            <input type="password" id="syncPass" placeholder="WebDAV 专属密码（非登录密码）" autocomplete="off">
+          </div>
+          <div class="sync-field">
+            <label>远程路径</label>
+            <input type="text" id="syncPath" placeholder="chat-assistant/data.json" autocomplete="off">
+          </div>
+          <div class="sync-actions">
+            <button class="btn-sync-up" id="syncUpBtn">⬆️ 立即上传</button>
+            <button class="btn-sync-down" id="syncDownBtn">⬇️ 立即拉取</button>
+          </div>
+          <div class="sync-toggle">
+            <input type="checkbox" id="syncAuto">
+            <label for="syncAuto">自动同步（改动后 5 秒自动上传）</label>
+          </div>
+          <div class="sync-log" id="syncLog"></div>
+          <div class="sync-help">
+            💡 数据胶囊注册后：进入"我的数据" → 点击"客户端访问" → 在"WebDAV客户端"处<b>设置专属账号密码</b>。
+          </div>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <div class="section-title">🎭 补充说明 <span class="sub">可选</span></div>
-      <textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea>
+
+    <!-- ★ 折叠：API 配置 -->
+    <div class="collapse-card api-theme" id="cardApi">
+      <div class="collapse-head" data-toggle="api">
+        <span class="ch-icon">🔑</span>
+        <span class="ch-title">API 配置</span>
+        <span class="ch-badge info" id="apiHeadBadge">未配置</span>
+        <span class="ch-chev">▶</span>
+      </div>
+      <div class="collapse-body">
+        <div class="collapse-body-inner">
+          <div id="apiForm"></div>
+          <div class="hint" style="margin-top:2px;">💡 发文字用「默认」的 API；发图片自动切换到支持图片的（带 📷）。</div>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <div class="section-title">我的 API <span class="sub">填几个用几个</span></div>
-      <div id="apiForm"></div>
+
+    <!-- 折叠：个性化 -->
+    <div class="collapse-card" id="cardStyle" style="border-color:#fde68a;background:#fffef9;">
+      <div class="collapse-head" data-toggle="style">
+        <span class="ch-icon">🎭</span>
+        <span class="ch-title">个性化设置</span>
+        <span class="ch-chev">▶</span>
+      </div>
+      <div class="collapse-body">
+        <div class="collapse-body-inner">
+          <div class="field" style="margin-bottom:16px;">
+            <label>补充说明（可选）</label>
+            <textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:16px;">
+            <label>我的昵称（可选）</label>
+            <input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>对方昵称（可选）</label>
+            <input type="text" id="taName" placeholder="让 AI 更懂你们的关系" autocomplete="off">
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="field">
-      <label>我的昵称（可选）</label>
-      <input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>对方昵称（可选）</label>
-      <input type="text" id="taName" placeholder="让 AI 更懂你们的关系" autocomplete="off">
-    </div>
+
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -490,6 +580,7 @@ const state = {
   myName:'', taName:'', myStyle:'',
   styleSamples: [],
   webdav: { url:'https://data.cstcloud.cn/dav', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
+  uiOpen: { sync:false, api:false, style:false },
   imageBase64:null, loading:false,
   pendingDeleteIdx: -1,
   currentSpeakIdx: -1
@@ -518,9 +609,11 @@ const dom = {
   samplesModal:$('samplesModal'), samplesBody:$('samplesBody'), closeSamples:$('closeSamples'),
   speakPanel:$('speakPanel'), speakText:$('speakText'), speakClose:$('speakClose'),
   speakCopy:$('speakCopy'), speakPlay:$('speakPlay'), speakSaid:$('speakSaid'),
-  syncPanel:$('syncPanel'), syncUrl:$('syncUrl'), syncUser:$('syncUser'), syncPass:$('syncPass'),
+  syncUrl:$('syncUrl'), syncUser:$('syncUser'), syncPass:$('syncPass'),
   syncPath:$('syncPath'), syncUpBtn:$('syncUpBtn'), syncDownBtn:$('syncDownBtn'),
-  syncAuto:$('syncAuto'), syncStatus:$('syncStatus'), syncLog:$('syncLog')
+  syncAuto:$('syncAuto'), syncStatus:$('syncStatus'), syncLog:$('syncLog'),
+  syncHeadBadge:$('syncHeadBadge'), apiHeadBadge:$('apiHeadBadge'),
+  cardSync:$('cardSync'), cardApi:$('cardApi'), cardStyle:$('cardStyle')
 };
 let toastTimer = null;
 function toast(msg, dur=1800, type=''){
@@ -653,16 +746,17 @@ function formatTime(ts){
   const d = new Date(ts);
   return (d.getMonth()+1) + '月' + d.getDate() + '日';
 }
-const KEY = 'chat_multi_v10';
-const OLD_KEYS = ['chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
+const KEY = 'chat_multi_v11';
+const OLD_KEYS = ['chat_multi_v10','chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
 function serialize(){
   return {
-    version: 10,
+    version: 11,
     exportedAt: Date.now(),
     sessions: state.sessions, currentSessionId: state.currentSessionId,
     apiKeys: state.apiKeys, defaultProvider: state.defaultProvider,
     myName: state.myName, taName: state.taName, myStyle: state.myStyle,
     styleSamples: state.styleSamples,
+    uiOpen: state.uiOpen,
     webdav: { url: state.webdav.url, user: state.webdav.user, pass: state.webdav.pass, path: state.webdav.path, auto: state.webdav.auto }
   };
 }
@@ -681,6 +775,7 @@ function deserialize(d){
   if (Array.isArray(d.styleSamples)) state.styleSamples = d.styleSamples.slice(-100);
   else if (Array.isArray(d.myReplies)) state.styleSamples = d.myReplies.map(t => ({ myText:t, taText:'', timestamp: Date.now() }));
   else state.styleSamples = [];
+  if (d.uiOpen) state.uiOpen = Object.assign({ sync:false, api:false, style:false }, d.uiOpen);
   if (d.webdav){
     state.webdav.url = d.webdav.url || 'https://data.cstcloud.cn/dav';
     state.webdav.user = d.webdav.user || '';
@@ -730,10 +825,10 @@ function syncLog(msg, type){
   dom.syncLog.textContent = msg || '';
   dom.syncLog.className = 'sync-log' + (type ? ' ' + type : '');
 }
-function syncStatusSet(text, cls){
-  if (!dom.syncStatus) return;
-  dom.syncStatus.textContent = text;
-  dom.syncStatus.className = 'sync-status ' + cls;
+function setHeadBadge(el, text, cls){
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'ch-badge ' + cls;
 }
 function webdavConfigOk(){
   return state.webdav.url && state.webdav.user && state.webdav.pass && state.webdav.path;
@@ -754,72 +849,58 @@ async function webdavEnsureDir(){
   for (const seg of dir){
     cur += '/' + seg;
     try {
-      await fetch(cur, {
-        method: 'MKCOL',
-        headers: { 'Authorization': webdavAuth() }
-      });
+      await fetch(cur, { method:'MKCOL', headers:{ 'Authorization': webdavAuth() } });
     } catch(e){ /* 忽略 */ }
   }
 }
 async function webdavUpload(silent){
   if (!webdavConfigOk()) throw new Error('请先填写 WebDAV 配置');
-  if (!silent){ syncLog('上传中...'); syncStatusSet('同步中', 'off'); }
+  if (!silent){ syncLog('上传中...'); setHeadBadge(dom.syncHeadBadge, '同步中', 'info'); }
   const data = JSON.stringify(serialize(), null, 2);
   const url = webdavFullPath();
   let resp = await fetch(url, {
     method: 'PUT',
-    headers: {
-      'Authorization': webdavAuth(),
-      'Content-Type': 'application/json;charset=utf-8'
-    },
+    headers: { 'Authorization': webdavAuth(), 'Content-Type': 'application/json;charset=utf-8' },
     body: data
   });
-  if (!resp.ok){
-    if (resp.status === 409 || resp.status === 404){
-      await webdavEnsureDir();
-      resp = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': webdavAuth(),
-          'Content-Type': 'application/json;charset=utf-8'
-        },
-        body: data
-      });
-    }
+  if (!resp.ok && (resp.status === 409 || resp.status === 404)){
+    await webdavEnsureDir();
+    resp = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Authorization': webdavAuth(), 'Content-Type': 'application/json;charset=utf-8' },
+      body: data
+    });
   }
   if (!resp.ok){
-    if (!silent){ syncLog('上传失败：' + resp.status, 'err'); syncStatusSet('同步失败', 'err'); }
+    if (!silent){ syncLog('上传失败：' + resp.status, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); }
     throw new Error('上传失败(' + resp.status + ')');
   }
-  const now = new Date();
-  const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  const t = new Date();
+  const timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
   if (!silent){ syncLog('✅ 上传成功 · ' + timeStr, 'ok'); }
-  syncStatusSet('已同步', 'on');
-  if (!silent) toast('已上传到数据胶囊', 1500, 'success');
+  setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
+  if (!silent) toast('已上传', 1500, 'success');
 }
 async function webdavDownload(){
   if (!webdavConfigOk()){ toast('请先填写 WebDAV 配置', 1800, 'error'); return; }
-  syncLog('拉取中...'); syncStatusSet('同步中', 'off');
+  syncLog('拉取中...'); setHeadBadge(dom.syncHeadBadge, '同步中', 'info');
   try {
-    const resp = await fetch(webdavFullPath(), {
-      method: 'GET',
-      headers: { 'Authorization': webdavAuth() }
-    });
-    if (resp.status === 404){ syncLog('云端没有数据', 'err'); syncStatusSet('未同步', 'off'); toast('云端暂无数据', 1800, 'error'); return; }
-    if (!resp.ok){ syncLog('拉取失败：' + resp.status, 'err'); syncStatusSet('同步失败', 'err'); toast('拉取失败', 1800, 'error'); return; }
+    const resp = await fetch(webdavFullPath(), { method: 'GET', headers: { 'Authorization': webdavAuth() } });
+    if (resp.status === 404){ syncLog('云端没有数据', 'err'); setHeadBadge(dom.syncHeadBadge, '未同步', 'info'); toast('云端暂无数据', 1800, 'error'); return; }
+    if (!resp.ok){ syncLog('拉取失败：' + resp.status, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); toast('拉取失败', 1800, 'error'); return; }
     const d = JSON.parse(await resp.text());
     if (!confirm('云端数据将覆盖本地，确定拉取？')){ syncLog('已取消'); return; }
     deserialize(d);
     save();
     updateProfileCache();
     renderHeader(); renderMessages(); renderSuggestions(); renderStatusBar();
-    renderProfilePanel(); renderApiForm();
-    const now = new Date();
-    const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-    syncLog('✅ 拉取成功 · ' + timeStr, 'ok'); syncStatusSet('已同步', 'on');
-    toast('已从数据胶囊拉取', 1500, 'success');
+    renderProfilePanel(); renderApiForm(); renderSyncPanel();
+    const t = new Date();
+    const timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+    syncLog('✅ 拉取成功 · ' + timeStr, 'ok'); setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
+    toast('已拉取', 1500, 'success');
   } catch(e){
-    syncLog('拉取出错：' + e.message, 'err'); syncStatusSet('同步失败', 'err');
+    syncLog('拉取出错：' + e.message, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
     toast('拉取出错', 1800, 'error');
   }
 }
@@ -830,9 +911,9 @@ function renderSyncPanel(){
   dom.syncPath.value = state.webdav.path || 'chat-assistant/data.json';
   dom.syncAuto.checked = !!state.webdav.auto;
   if (webdavConfigOk()){
-    syncStatusSet(state.webdav.auto ? '自动同步' : '已配置', state.webdav.auto ? 'on' : 'off');
+    setHeadBadge(dom.syncHeadBadge, state.webdav.auto ? '自动' : '已配置', state.webdav.auto ? 'ok' : 'info');
   } else {
-    syncStatusSet('未配置', 'off');
+    setHeadBadge(dom.syncHeadBadge, '未配置', 'info');
   }
 }
 function getDefaultApi(){
@@ -986,7 +1067,7 @@ function openMeInput(){
   const isReal = (session.mode || 'chat') === 'real';
   if (lastTa){
     dom.meInputCtx.style.display = 'block';
-    dom.meInputCtx.innerHTML = '<span class="pv-who">' + (isReal ? '对方刚说：' : '对方刚说：') + '</span>' + esc(lastTa.length > 60 ? lastTa.slice(0,60)+'…' : lastTa);
+    dom.meInputCtx.innerHTML = '<span class="pv-who">对方刚说：</span>' + esc(lastTa.length > 60 ? lastTa.slice(0,60)+'…' : lastTa);
   } else {
     dom.meInputCtx.style.display = 'none';
   }
@@ -1008,8 +1089,7 @@ function saveMeInput(){
   addStyleSample(text, lastTa);
   save(); closeMeInput();
   renderMessages(); renderSuggestions(); renderHeader();
-  const count = state.styleSamples.length;
-  toast(`✅ 已记录 (样本 ${count} 条)`, 1400, 'success');
+  toast(`✅ 已记录 (样本 ${state.styleSamples.length} 条)`, 1400, 'success');
 }
 function renderSuggestions(){
   const session = getCurrentSession();
@@ -1033,19 +1113,11 @@ function renderSuggestions(){
   dom.sTitleTip.style.display = 'inline';
   let html = '';
   state.suggestions.forEach((s, i)=>{
-    if (mode === 'real'){
-      html += '<div class="s-card" data-idx="'+i+'">'
-        + '<div class="s-text" data-idx="'+i+'" style="cursor:pointer;">'+esc(s.text)+'</div>'
-        + (s.style ? '<div class="s-badge">'+esc(s.style)+'</div>' : '')
-        + '<button class="s-edit" data-idx="'+i+'" aria-label="编辑">✎</button>'
-        + '</div>';
-    } else {
-      html += '<div class="s-card" data-idx="'+i+'">'
-        + '<div class="s-text" data-idx="'+i+'">'+esc(s.text)+'</div>'
-        + (s.style ? '<div class="s-badge">'+esc(s.style)+'</div>' : '')
-        + '<button class="s-edit" data-idx="'+i+'" aria-label="编辑">✎</button>'
-        + '</div>';
-    }
+    html += '<div class="s-card" data-idx="'+i+'">'
+      + '<div class="s-text" data-idx="'+i+'"' + (mode === 'real' ? ' style="cursor:pointer;"' : '') + '>'+esc(s.text)+'</div>'
+      + (s.style ? '<div class="s-badge">'+esc(s.style)+'</div>' : '')
+      + '<button class="s-edit" data-idx="'+i+'" aria-label="编辑">✎</button>'
+      + '</div>';
   });
   dom.sList.innerHTML = html;
   dom.sList.querySelectorAll('.s-text').forEach(el => {
@@ -1090,11 +1162,7 @@ function enterEditMode(idx){
       const changed = val !== origText;
       toast(changed ? '已记录（已学习）' : '已记录', 1800, 'success');
     };
-    if (isReal){
-      afterAction();
-    } else {
-      copyText(val, afterAction);
-    }
+    if (isReal){ afterAction(); } else { copyText(val, afterAction); }
   };
   const cancel = () => { renderSuggestions(); };
   card.querySelector('.btn-ok').addEventListener('click', confirm);
@@ -1582,7 +1650,7 @@ function renderApiForm(){
       if (!hasKey && state.defaultProvider === pid){
         state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
       }
-      save(); updateRowStyle(pid, val);
+      save(); updateRowStyle(pid, val); updateApiHeadBadge();
     });
     input.addEventListener('blur', e => {
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim(); save();
@@ -1591,9 +1659,20 @@ function renderApiForm(){
   dom.apiForm.querySelectorAll('.default-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       state.defaultProvider = btn.dataset.act === 'unset' ? '' : btn.dataset.pid;
-      save(); renderApiForm();
+      save(); renderApiForm(); updateApiHeadBadge();
     });
   });
+  updateApiHeadBadge();
+}
+function updateApiHeadBadge(){
+  const count = PROVIDER_ORDER.filter(p => state.apiKeys[p]).length;
+  if (count === 0){
+    setHeadBadge(dom.apiHeadBadge, '未配置', 'info');
+  } else {
+    const pid = state.defaultProvider || PROVIDER_ORDER.find(p => state.apiKeys[p]);
+    const p = PROVIDERS[pid];
+    setHeadBadge(dom.apiHeadBadge, p.icon + ' ' + p.name + (count > 1 ? ' +'+(count-1) : ''), 'ok');
+  }
 }
 function updateRowStyle(pid, key){
   const row = dom.apiForm.querySelector('.api-row[data-pid="'+pid+'"]');
@@ -1613,7 +1692,7 @@ function updateRowStyle(pid, key){
     btn.textContent = isDefault ? '✓ 默认' : '设为默认';
     btn.addEventListener('click', () => {
       state.defaultProvider = btn.dataset.act === 'unset' ? '' : pid;
-      save(); renderApiForm();
+      save(); renderApiForm(); updateApiHeadBadge();
     });
     header.appendChild(btn);
   }
@@ -1711,6 +1790,19 @@ function openSamplesModal(){
   dom.samplesModal.classList.add('show');
 }
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
+
+// ★ 折叠逻辑
+function applyCollapse(){
+  dom.cardSync.classList.toggle('expanded', !!state.uiOpen.sync);
+  dom.cardApi.classList.toggle('expanded', !!state.uiOpen.api);
+  dom.cardStyle.classList.toggle('expanded', !!state.uiOpen.style);
+}
+function toggleCollapse(key){
+  state.uiOpen[key] = !state.uiOpen[key];
+  save();
+  applyCollapse();
+}
+
 function openSettings(){
   dom.settings.classList.add('show');
   dom.myName.value = state.myName;
@@ -1719,6 +1811,7 @@ function openSettings(){
   renderProfilePanel();
   renderSyncPanel();
   renderApiForm();
+  applyCollapse();
 }
 function closeSettings(){
   state.myName = dom.myName.value.trim();
@@ -1787,6 +1880,12 @@ function bindEvents(){
   dom.sheetMask.addEventListener('click', closeActionSheet);
   dom.sheetCancel.addEventListener('click', closeActionSheet);
   dom.sheetDelete.addEventListener('click', deletePendingMessage);
+
+  // ★ 折叠事件
+  dom.cardSync.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('sync'));
+  dom.cardApi.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('api'));
+  dom.cardStyle.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('style'));
+
   dom.syncUrl.addEventListener('input', ()=>{ state.webdav.url = dom.syncUrl.value.trim(); save(); renderSyncPanel(); });
   dom.syncUser.addEventListener('input', ()=>{ state.webdav.user = dom.syncUser.value.trim(); save(); renderSyncPanel(); });
   dom.syncPass.addEventListener('input', ()=>{ state.webdav.pass = dom.syncPass.value; save(); renderSyncPanel(); });
@@ -1795,7 +1894,7 @@ function bindEvents(){
   dom.syncUpBtn.addEventListener('click', async () => {
     dom.syncUpBtn.disabled = true;
     try { await webdavUpload(false); }
-    catch(e){ syncLog('❌ ' + e.message, 'err'); syncStatusSet('同步失败', 'err'); toast(e.message, 2500, 'error'); }
+    catch(e){ syncLog('❌ ' + e.message, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); toast(e.message, 2500, 'error'); }
     finally { dom.syncUpBtn.disabled = false; }
   });
   dom.syncDownBtn.addEventListener('click', async () => {
@@ -1826,10 +1925,10 @@ function init(){
   bindEvents();
   const hasAny = PROVIDER_ORDER.some(p => state.apiKeys[p]);
   if (!hasAny){
-    const guided = localStorage.getItem('chat_guided_v10');
+    const guided = localStorage.getItem('chat_guided_v11');
     if (!guided){
-      setTimeout(openSettings, 400);
-      try { localStorage.setItem('chat_guided_v10', '1'); } catch(e){}
+      setTimeout(() => { openSettings(); state.uiOpen.api = true; applyCollapse(); }, 400);
+      try { localStorage.setItem('chat_guided_v11', '1'); } catch(e){}
     }
   }
 }
