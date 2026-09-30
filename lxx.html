@@ -58,6 +58,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-card .edit-actions .btn-cancel:hover{background:#fee2e2;color:#dc2626;}
 .s-card.copied{background:#ecfdf5;}
 .s-card.copied .s-badge{color:#059669;background:#d1fae5;}
+
+/* 情境栏（现在显示对方+情境） */
 .status-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#fffbeb;
   border-top:1px solid #fef3c7;font-size:12px;color:#92400e;cursor:pointer;flex-shrink:0;
   transition:background .15s;min-height:36px;}
@@ -67,12 +69,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .status-bar .status-content{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;}
 .status-bar .status-text{color:#92400e;font-weight:500;}
 .status-bar .status-text.placeholder{font-weight:400;}
+.status-bar .ta-name{font-weight:700;color:#d97706;}
+.status-bar .sep{color:#d97706;opacity:0.5;margin:0 2px;}
 .status-bar .status-edit{border:none;background:transparent;color:#b45309;font-size:13px;cursor:pointer;
   padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
 .status-bar .status-edit:hover{background:#fde68a;}
-.status-bar .status-input{flex:1;min-width:0;border:none;background:transparent;font-size:13px;
-  font-family:inherit;color:#78350f;outline:none;font-weight:500;padding:0;}
-.status-bar .status-input::placeholder{color:#b45309;opacity:0.6;font-weight:400;}
+
 .composer{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;
   display:flex;align-items:center;gap:6px;background:#fff;}
 .composer input{flex:1;min-width:0;height:40px;padding:0 14px;border:none;background:#f5f5f7;border-radius:20px;
@@ -93,6 +95,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .img-preview.show{display:flex;}
 .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px;}
 .img-preview button{border:none;background:transparent;color:#999;font-size:16px;cursor:pointer;padding:4px;}
+
+/* 通用底部弹窗 */
 .action-sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .action-sheet-mask.show{opacity:1;pointer-events:auto;}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;z-index:501;
@@ -112,6 +116,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .action-sheet .btn-item:hover{background:#f5f5f7;}
 .action-sheet .btn-item.danger{color:#dc2626;}
 .action-sheet .btn-item.cancel{color:#666;font-weight:400;}
+
+/* 「我发了」输入 */
 .me-input-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .me-input-mask.show{opacity:1;pointer-events:auto;}
 .me-input-panel{position:fixed;left:0;right:0;bottom:0;z-index:501;
@@ -138,6 +144,35 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .me-btn-save{flex:2;height:44px;border:none;background:#10b981;color:#fff;
   font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600;}
 .me-btn-save:hover{background:#059669;}
+
+/* ★ 对话信息编辑面板 */
+.profile-dialog-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:502;opacity:0;pointer-events:none;transition:opacity .2s;}
+.profile-dialog-mask.show{opacity:1;pointer-events:auto;}
+.profile-dialog{position:fixed;left:0;right:0;bottom:0;z-index:503;
+  transform:translateY(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);
+  padding:0 12px calc(12px + env(safe-area-inset-bottom));
+  max-width:520px;margin:0 auto;box-sizing:border-box;}
+.profile-dialog.show{transform:translateY(0);}
+.profile-dialog-inner{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,0.12);padding:18px 18px 16px;}
+.profile-dialog-title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;}
+.profile-dialog-title .hint{font-size:11px;color:#999;font-weight:400;margin-left:auto;}
+.profile-field{margin-bottom:14px;}
+.profile-field label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;}
+.profile-field input{width:100%;height:42px;padding:0 12px;border:1.5px solid #ebebf0;background:#fff;border-radius:11px;
+  font-size:15px;outline:none;color:#1a1a1a;font-family:inherit;transition:border-color .15s;box-sizing:border-box;}
+.profile-field input:focus{border-color:#7c5cff;}
+.profile-field input::placeholder{color:#bbb;}
+.profile-field .sub-hint{font-size:11px;color:#999;margin-top:4px;line-height:1.4;}
+.profile-dialog-actions{display:flex;gap:8px;margin-top:16px;}
+.profile-btn-cancel{flex:1;height:44px;border:1.5px solid #ebebf0;background:#fff;color:#666;
+  font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:500;}
+.profile-btn-cancel:hover{background:#f5f5f7;}
+.profile-btn-save{flex:2;height:44px;border:none;background:#7c5cff;color:#fff;
+  font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600;}
+.profile-btn-save:hover{background:#6a4ae6;}
+
+/* 朗读面板 */
 .speak-panel{position:fixed;inset:0;background:#fff;z-index:600;display:none;
   flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
 .speak-panel.show{display:flex;}
@@ -157,6 +192,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sp-btn-said:hover{background:#059669;}
 .sp-btn-copy{border:1.5px solid #ebebf0;background:#fff;color:#666;}
 .sp-btn-copy:hover{background:#f5f5f7;}
+
+/* 抽屉 */
 .drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;}
 .drawer-mask.show{opacity:1;pointer-events:auto;}
 .drawer{position:fixed;top:0;bottom:0;left:0;width:82%;max-width:340px;background:#fff;z-index:201;
@@ -183,8 +220,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   font-weight:600;flex-shrink:0;line-height:1.5;}
 .session-item .session-title .m-tag.real{background:#dcfce7;color:#166534;}
 .session-item .session-title .m-tag.chat{background:#ede9fe;color:#5b21b6;}
-.session-item .session-meta{font-size:11px;color:#999;margin-top:3px;display:flex;align-items:center;gap:6px;}
-.session-item .session-meta .pin{color:#d97706;}
+.session-item .session-meta{font-size:11px;color:#999;margin-top:3px;display:flex;align-items:center;gap:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.session-item .session-meta .pin{color:#d97706;flex-shrink:0;}
+.session-item .session-meta .ta-tag{color:#d97706;font-weight:600;flex-shrink:0;}
 .session-item .session-del{width:26px;height:26px;border:none;background:transparent;color:#c0c0c8;
   font-size:15px;cursor:pointer;border-radius:50%;flex-shrink:0;display:inline-flex;
   align-items:center;justify-content:center;opacity:0;transition:all .15s;}
@@ -196,6 +235,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   border-radius:12px;font-size:12px;font-family:inherit;color:#666;cursor:pointer;
   font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
 .new-chat-row .ncr-btn:hover{border-color:#7c5cff;color:#7c5cff;background:#faf8ff;}
+
+/* 设置面板 */
 .settings-panel{position:fixed;inset:0;background:#fff;z-index:100;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .settings-panel.show{transform:translateX(0);}
@@ -263,8 +304,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sync-log.err{color:#dc2626;}
 .sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;
   border-top:1px dashed #cbd5e1;}
-
-/* API 行 */
 .api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:11px 12px;margin-bottom:10px;
   transition:border-color .15s,background .15s;}
 .api-row.has-key{background:#fff;border-color:#d8d8e3;}
@@ -281,8 +320,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   background:#fff;color:#999;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0;transition:all .15s;}
 .api-row-header .default-btn:hover{border-color:#7c5cff;color:#7c5cff;}
 .api-row-header .default-btn.active{background:#7c5cff;color:#fff;border-color:#7c5cff;}
-
-/* 勾选开关 */
 .toggle-wrap{position:relative;flex-shrink:0;display:inline-flex;align-items:center;cursor:pointer;}
 .toggle-wrap input{position:absolute;opacity:0;width:0;height:0;}
 .toggle-track{width:34px;height:20px;background:#d1d5db;border-radius:20px;
@@ -293,22 +330,19 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .toggle-wrap input:checked + .toggle-track{background:#7c5cff;}
 .toggle-wrap input:checked + .toggle-track::after{transform:translateX(14px);}
 .toggle-wrap:hover .toggle-track{opacity:0.85;}
-
 .api-row input.api-key-input{width:100%;height:38px;padding:0 12px;border:1px solid #ebebf0;background:#fff;
   border-radius:10px;font-size:13px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;
-  transition:border-color .15s;}
+  transition:border-color .15s;box-sizing:border-box;}
 .api-row input.api-key-input:focus{border-color:#7c5cff;}
 .api-row input.api-key-input::placeholder{color:#bbb;font-family:inherit;}
 .api-row input.api-model-input{width:100%;height:38px;padding:0 12px;border:1px solid #ebebf0;background:#fcfcff;
   border-radius:10px;font-size:12px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;
-  transition:border-color .15s;}
+  transition:border-color .15s;box-sizing:border-box;}
 .api-row input.api-model-input:focus{border-color:#7c5cff;}
 .api-row input.api-model-input::placeholder{color:#bbb;font-family:inherit;font-size:12px;}
-
 .model-warn{font-size:11px;color:#dc2626;margin-top:4px;padding-left:2px;}
 .api-help{font-size:11px;color:#999;line-height:1.6;margin-top:4px;padding:8px 10px;
   background:#f8fafc;border-radius:8px;border-left:3px solid #cbd5e1;}
-
 .profile-panel{background:linear-gradient(135deg,#f0f9ff,#ecfeff);border:1.5px solid #bae6fd;
   border-radius:14px;padding:16px;margin-bottom:16px;}
 .profile-panel .pp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -395,6 +429,29 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
+
+<!-- ★ 对话信息编辑 -->
+<div class="profile-dialog-mask" id="profileDialogMask"></div>
+<div class="profile-dialog" id="profileDialog">
+  <div class="profile-dialog-inner">
+    <div class="profile-dialog-title">✏️ 对话信息 <span class="hint">仅对当前对话生效</span></div>
+    <div class="profile-field">
+      <label>对方昵称</label>
+      <input type="text" id="pdTaName" placeholder="例如：小明、老婆、张总" maxlength="30" autocomplete="off">
+    </div>
+    <div class="profile-field">
+      <label>对方状态 / 情境（可选）</label>
+      <input type="text" id="pdStatus" placeholder="例如：刚加班完很累，心情不好" maxlength="200" autocomplete="off">
+      <div class="sub-hint">告诉 AI 对方现在什么状态，能让回复更贴合</div>
+    </div>
+    <div class="profile-dialog-actions">
+      <button class="profile-btn-cancel" id="pdCancel">取消</button>
+      <button class="profile-btn-save" id="pdSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 朗读面板 -->
 <div class="speak-panel" id="speakPanel">
   <button class="sp-close" id="speakClose">✕</button>
   <div class="sp-hint">💬 你可以在现实中说这句</div>
@@ -405,6 +462,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     <button class="sp-btn-said" id="speakSaid">✓ 我说了</button>
   </div>
 </div>
+
+<!-- 长按操作 -->
 <div class="action-sheet-mask" id="sheetMask"></div>
 <div class="action-sheet" id="sheet">
   <div class="action-sheet-inner">
@@ -413,6 +472,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     <button class="btn-item cancel" id="sheetCancel">取消</button>
   </div>
 </div>
+
+<!-- 我发了 -->
 <div class="me-input-mask" id="meInputMask"></div>
 <div class="me-input-panel" id="meInputPanel">
   <div class="me-input-inner">
@@ -425,6 +486,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     </div>
   </div>
 </div>
+
+<!-- 抽屉 -->
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-header">
@@ -437,6 +500,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <div class="session-list" id="sessionList"></div>
 </aside>
+
+<!-- 学习样本 -->
 <div class="samples-modal" id="samplesModal">
   <div class="samples-header">
     <h2>我所有的学习样本</h2>
@@ -445,6 +510,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   <div class="samples-body" id="samplesBody"></div>
 </div>
 
+<!-- 设置 -->
 <div class="settings-panel" id="settings">
   <div class="sp-header">
     <h2>设置</h2>
@@ -454,7 +520,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 
     <div class="profile-panel" id="profilePanel"></div>
 
-    <!-- API 配置 -->
     <div class="collapse-card api-theme" id="cardApi">
       <div class="collapse-head" data-toggle="api">
         <span class="ch-icon">🔑</span>
@@ -474,7 +539,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
       </div>
     </div>
 
-    <!-- 数据同步 -->
     <div class="collapse-card sync-theme" id="cardSync">
       <div class="collapse-head" data-toggle="sync">
         <span class="ch-icon">☁️</span>
@@ -516,26 +580,25 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
       </div>
     </div>
 
-    <!-- 个性化 -->
+    <!-- 个性化（现在只剩"我的"信息） -->
     <div class="collapse-card" id="cardStyle" style="border-color:#fde68a;background:#fffef9;">
       <div class="collapse-head" data-toggle="style">
         <span class="ch-icon">🎭</span>
-        <span class="ch-title">个性化设置</span>
+        <span class="ch-title">我的资料</span>
         <span class="ch-chev">▶</span>
       </div>
       <div class="collapse-body">
         <div class="collapse-body-inner">
           <div class="field" style="margin-bottom:16px;">
-            <label>补充说明（可选）</label>
-            <textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea>
-          </div>
-          <div class="field" style="margin-bottom:16px;">
-            <label>我的昵称（可选）</label>
+            <label>我的昵称</label>
             <input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off">
           </div>
           <div class="field" style="margin-bottom:0;">
-            <label>对方昵称（可选）</label>
-            <input type="text" id="taName" placeholder="让 AI 更懂你们的关系" autocomplete="off">
+            <label>补充说明（可选）</label>
+            <textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea>
+          </div>
+          <div class="hint" style="margin-top:10px;padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">
+            💡 对方昵称和情境是<b>每个对话独立</b>的，请在对话页面上方黄色栏里设置。
           </div>
         </div>
       </div>
@@ -563,7 +626,7 @@ const state = {
   apiModels: { deepseek:'', zhipu:'', doubao:'' },
   apiEnabled: { deepseek:true, zhipu:true, doubao:true },
   defaultProvider: '',
-  myName:'', taName:'', myStyle:'',
+  myName:'', myStyle:'',
   styleSamples: [],
   webdav: { url:'https://data.cstcloud.cn/dav', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
   uiOpen: { sync:false, api:false, style:false },
@@ -586,7 +649,7 @@ const dom = {
   sessionList:$('sessionList'),
   settingsBtn:$('settingsBtn'), settings:$('settings'),
   closeSettings:$('closeSettings'),
-  apiForm:$('apiForm'), myName:$('myName'), taName:$('taName'), myStyle:$('myStyle'),
+  apiForm:$('apiForm'), myName:$('myName'), myStyle:$('myStyle'),
   profilePanel:$('profilePanel'), toast:$('toast'),
   sheet:$('sheet'), sheetMask:$('sheetMask'), sheetPreview:$('sheetPreview'),
   sheetDelete:$('sheetDelete'), sheetCancel:$('sheetCancel'),
@@ -600,7 +663,9 @@ const dom = {
   syncPath:$('syncPath'), syncUpBtn:$('syncUpBtn'), syncDownBtn:$('syncDownBtn'),
   syncAuto:$('syncAuto'), syncStatus:$('syncStatus'), syncLog:$('syncLog'),
   syncHeadBadge:$('syncHeadBadge'), apiHeadBadge:$('apiHeadBadge'),
-  cardSync:$('cardSync'), cardApi:$('cardApi'), cardStyle:$('cardStyle')
+  cardSync:$('cardSync'), cardApi:$('cardApi'), cardStyle:$('cardStyle'),
+  profileDialog:$('profileDialog'), profileDialogMask:$('profileDialogMask'),
+  pdTaName:$('pdTaName'), pdStatus:$('pdStatus'), pdCancel:$('pdCancel'), pdSave:$('pdSave')
 };
 
 let toastTimer = null;
@@ -615,7 +680,7 @@ function toast(msg, dur=1800, type=''){
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
 function toAscii(s){ return String(s||'').replace(/[^\x00-\x7F]/g,''); }
 
-// ============ 画像分析 ============
+// ============ 画像 ============
 function analyzeLangStyle(samples){
   const texts = samples.map(s => s.myText).filter(t => t && t.trim().length > 0);
   if (texts.length < 3) return null;
@@ -707,7 +772,7 @@ function addStyleSample(myText, taText){
   updateProfileCache();
 }
 
-// ============ 会话 ============
+// ============ 会话（★ 每个 session 有 taName）============
 function getCurrentSession(){
   if(!state.currentSessionId || state.sessions.length === 0){
     if(state.sessions.length === 0) createSession(true, 'chat');
@@ -716,12 +781,20 @@ function getCurrentSession(){
   return state.sessions.find(s => s.id === state.currentSessionId) || state.sessions[0];
 }
 function createSession(switchTo = true, mode = 'chat'){
-  const session = { id: genId(), messages: [], status: '', mode, createdAt: Date.now(), updatedAt: Date.now() };
+  const session = {
+    id: genId(), messages: [], status: '', mode,
+    taName: '',       // ★ 每个对话独立的对方昵称
+    createdAt: Date.now(), updatedAt: Date.now()
+  };
   state.sessions.unshift(session);
   if(switchTo) state.currentSessionId = session.id;
   return session;
 }
 function generateSessionTitle(session){
+  // ★ 优先用 taName
+  if (session && session.taName && session.taName.trim()){
+    return session.taName.trim();
+  }
   if(!session || !session.messages || session.messages.length === 0) return '新对话';
   const first = session.messages.find(m => m.role === 'ta') || session.messages[0];
   const text = String(first.text || '').trim().replace(/\s+/g, ' ');
@@ -740,30 +813,39 @@ function formatTime(ts){
 }
 
 // ============ 存储 ============
-const KEY = 'chat_multi_v13';
-const OLD_KEYS = ['chat_multi_v12','chat_multi_v11','chat_multi_v10','chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
+const KEY = 'chat_multi_v14';
+const OLD_KEYS = ['chat_multi_v13','chat_multi_v12','chat_multi_v11','chat_multi_v10','chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
 
 function serialize(){
   return {
-    version: 13,
+    version: 14,
     exportedAt: Date.now(),
     sessions: state.sessions, currentSessionId: state.currentSessionId,
     apiKeys: state.apiKeys,
     apiModels: state.apiModels,
     apiEnabled: state.apiEnabled,
     defaultProvider: state.defaultProvider,
-    myName: state.myName, taName: state.taName, myStyle: state.myStyle,
+    myName: state.myName, myStyle: state.myStyle,
     styleSamples: state.styleSamples,
     uiOpen: state.uiOpen,
     webdav: { url: state.webdav.url, user: state.webdav.user, pass: state.webdav.pass, path: state.webdav.path, auto: state.webdav.auto }
   };
 }
 function deserialize(d){
+  // ★ 迁移：如果旧数据有全局 taName，把它当作"默认对方名"给所有 session 一份
+  const oldGlobalTaName = d.taName || '';
   state.sessions = Array.isArray(d.sessions) ? d.sessions.map(s => ({
     id: s.id || genId(), messages: s.messages || [], status: s.status || '',
     mode: s.mode || 'chat',
+    taName: s.taName || '',    // ★ session 自带 taName
     createdAt: s.createdAt || Date.now(), updatedAt: s.updatedAt || Date.now()
   })) : [];
+  // 老数据没有 session.taName，用全局的补一下
+  if (oldGlobalTaName){
+    state.sessions.forEach(s => {
+      if (!s.taName && (s.messages || []).length > 0) s.taName = oldGlobalTaName;
+    });
+  }
   state.currentSessionId = d.currentSessionId || '';
   state.apiKeys = { deepseek:'', zhipu:'', doubao:'' };
   if (d.apiKeys){
@@ -789,7 +871,6 @@ function deserialize(d){
     state.defaultProvider = PROVIDER_ORDER.find(p => state.apiKeys[p]) || '';
   }
   state.myName = d.myName || '';
-  state.taName = d.taName || '';
   state.myStyle = d.myStyle || '';
   if (Array.isArray(d.styleSamples)) state.styleSamples = d.styleSamples.slice(-100);
   else if (Array.isArray(d.myReplies)) state.styleSamples = d.myReplies.map(t => ({ myText:t, taText:'', timestamp: Date.now() }));
@@ -929,18 +1010,12 @@ function renderSyncPanel(){
 }
 
 // ============ API 选择 ============
-function isEnabled(pid){
-  return state.apiEnabled[pid] !== false;
-}
+function isEnabled(pid){ return state.apiEnabled[pid] !== false; }
 function getDefaultApi(){
   const pid = state.defaultProvider;
-  if (pid && state.apiKeys[pid] && isEnabled(pid)){
-    return { provider: pid, apiKey: state.apiKeys[pid] };
-  }
+  if (pid && state.apiKeys[pid] && isEnabled(pid)) return { provider: pid, apiKey: state.apiKeys[pid] };
   for (const p of PROVIDER_ORDER){
-    if (state.apiKeys[p] && isEnabled(p)){
-      return { provider: p, apiKey: state.apiKeys[p] };
-    }
+    if (state.apiKeys[p] && isEnabled(p)) return { provider: p, apiKey: state.apiKeys[p] };
   }
   return null;
 }
@@ -966,43 +1041,60 @@ function renderHeader(){
 }
 function renderStatusBar(){
   const session = getCurrentSession();
+  const taName = (session && session.taName) || '';
   const status = (session && session.status) || '';
-  if (status){
+
+  // 有内容就显示内容，没内容显示提示
+  if (taName || status){
     dom.statusBar.classList.remove('empty');
-    dom.statusBar.innerHTML = '<span class="status-icon">📌</span>'
-      + '<div class="status-content"><span class="status-text">' + esc(status) + '</span></div>'
-      + '<button class="status-edit" aria-label="编辑">✎</button>';
+    let inner = '<span class="status-icon">📌</span><div class="status-content">';
+    if (taName){
+      inner += '<span class="ta-name">' + esc(taName) + '</span>';
+    }
+    if (taName && status){
+      inner += '<span class="sep">·</span>';
+    }
+    if (status){
+      inner += '<span class="status-text">' + esc(status) + '</span>';
+    }
+    inner += '</div><button class="status-edit" aria-label="编辑">✎</button>';
+    dom.statusBar.innerHTML = inner;
   } else {
     dom.statusBar.classList.add('empty');
     dom.statusBar.innerHTML = '<span class="status-icon">📌</span>'
-      + '<div class="status-content"><span class="status-text placeholder">添加情境描述（可选）</span></div>'
+      + '<div class="status-content"><span class="status-text placeholder">点这里设置对方昵称和情境</span></div>'
       + '<button class="status-edit" aria-label="编辑">✎</button>';
   }
 }
-function editStatus(){
+// ★ 打开对话信息编辑面板
+function openProfileDialog(){
   const session = getCurrentSession();
-  if(!session) return;
-  const cur = session.status || '';
-  dom.statusBar.classList.remove('empty');
-  dom.statusBar.innerHTML = '<span class="status-icon">📌</span>'
-    + '<input type="text" class="status-input" id="statusInput" value="' + esc(cur) + '" placeholder="例如：对方刚加班完很累，心情不好" maxlength="200">';
-  const input = $('statusInput');
-  input.focus();
-  try { input.setSelectionRange(cur.length, cur.length); } catch(e){}
-  let done = false;
-  const finish = (saveVal) => {
-    if(done) return; done = true;
-    const val = (typeof saveVal === 'string') ? saveVal : input.value.trim();
-    session.status = val;
-    session.updatedAt = Date.now();
-    save(); renderStatusBar();
-    if (val !== cur) toast(val ? '已更新情境' : '已清除情境', 1000, 'success');
-  };
-  input.addEventListener('blur', () => finish());
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter'){ e.preventDefault(); input.blur(); }
-    else if (e.key === 'Escape'){ e.preventDefault(); finish(cur); }
-  });
+  if (!session) return;
+  dom.pdTaName.value = session.taName || '';
+  dom.pdStatus.value = session.status || '';
+  dom.profileDialogMask.classList.add('show');
+  dom.profileDialog.classList.add('show');
+  setTimeout(() => { try { dom.pdTaName.focus(); } catch(e){} }, 120);
+}
+function closeProfileDialog(){
+  dom.profileDialogMask.classList.remove('show');
+  dom.profileDialog.classList.remove('show');
+}
+function saveProfileDialog(){
+  const session = getCurrentSession();
+  if (!session) return;
+  const newTaName = dom.pdTaName.value.trim();
+  const newStatus = dom.pdStatus.value.trim();
+  const changed = (newTaName !== (session.taName||'')) || (newStatus !== (session.status||''));
+  session.taName = newTaName;
+  session.status = newStatus;
+  if (changed) session.updatedAt = Date.now();
+  save();
+  closeProfileDialog();
+  renderStatusBar();
+  renderHeader();
+  renderSessionList();  // 更新抽屉里显示的对方名
+  if (changed) toast('已保存', 1000, 'success');
 }
 function updateModeBtn(){
   const session = getCurrentSession();
@@ -1261,14 +1353,19 @@ function renderSessionList(){
     const title = generateSessionTitle(s);
     const count = (s.messages || []).length;
     const hasStatus = !!s.status;
+    const taName = s.taName || '';
     const mode = s.mode || 'chat';
     const modeTag = mode === 'real' ? '<span class="m-tag real">现实</span>' : '';
-    const meta = count > 0 ? count + ' 条消息 · ' + formatTime(s.updatedAt) : (hasStatus ? '情境已设置' : '空对话');
-    const pin = hasStatus ? '<span class="pin">📌</span>' : '';
+    // meta 里显示对方名字（如果标题不是对方名的话）
+    let metaParts = [];
+    if (taName && title !== taName) metaParts.push('👤 ' + taName);
+    if (hasStatus) metaParts.push('📌 有情境');
+    metaParts.push(count > 0 ? count + ' 条 · ' + formatTime(s.updatedAt) : '空对话');
+    const meta = metaParts.join(' · ');
     html += '<div class="session-item'+(isActive?' active':'')+'" data-id="'+s.id+'">'
       + '<div class="s-body">'
       +   '<div class="session-title">'+modeTag+esc(title)+'</div>'
-      +   '<div class="session-meta">'+pin+esc(meta)+'</div>'
+      +   '<div class="session-meta">'+esc(meta)+'</div>'
       + '</div>'
       + '<button class="session-del" data-del="'+s.id+'">✕</button>'
       + '</div>';
@@ -1310,7 +1407,7 @@ function deleteSession(id){
 }
 function handleNewChat(mode){
   const cur = getCurrentSession();
-  if(cur && (cur.messages || []).length === 0 && !cur.status && (cur.mode || 'chat') === mode){
+  if(cur && (cur.messages || []).length === 0 && !cur.status && !cur.taName && (cur.mode || 'chat') === mode){
     closeDrawer(); toast('当前已经是新对话', 1200); return;
   }
   createSession(true, mode);
@@ -1471,10 +1568,7 @@ async function callAI(apiEntry, session){
   const key = toAscii(apiEntry.apiKey).trim();
   if(!key) throw new Error('API Key 无效');
 
-  // ★ 优先用自定义模型/接入点，否则用默认
   let model = state.apiModels[apiEntry.provider] || pConf.model;
-
-  // 豆包必须要有 Endpoint ID
   if (apiEntry.provider === 'doubao' && !model){
     throw new Error('豆包需要填接入点 ID（ep-开头），请到设置里填写');
   }
@@ -1483,7 +1577,6 @@ async function callAI(apiEntry, session){
   if(state.imageBase64){
     imageData = state.imageBase64.startsWith('data:image')
       ? state.imageBase64 : 'data:image/jpeg;base64,' + state.imageBase64;
-    // 豆包图片也用同一个 endpoint
     if (apiEntry.provider === 'doubao'){
       if (!model) throw new Error('豆包需要填接入点 ID 才能发图片');
     } else if(pConf.visionModel){
@@ -1501,10 +1594,14 @@ async function callAI(apiEntry, session){
   const statusLine = session.status ? `\n【当前情境】${session.status}` : '';
   const extraStyle = state.myStyle ? `\n【我自己的补充说明】\n${state.myStyle}` : '';
   const my = state.myName ? `我（${state.myName}）` : '我';
-  const ta = state.taName ? `对方（${state.taName}）` : '对方';
+  // ★ 对方名字从 session 里读
+  const sessionTaName = session.taName || '';
+  const ta = sessionTaName ? `对方（${sessionTaName}）` : '对方';
+
   const modeBlock = isReal
     ? `\n【这是现实对话】\n你和${ta}正在面对面聊天，不是打字。\n对方刚说了句话，你需要给出 3 句"你可以直接开口说"的话。\n⚠️ 因为是当面说的，必须：\n- 极度口语化，一开口就能说出来\n- 不要太长（不超过 25 字，越短越好）\n- 句子结构简单，不用"其实""但是""因为"这种转折\n- 可以用语气词、停顿词（诶、那个、就、嗯）\n- 就像你平时张嘴说话的样子，不书面`
     : `\n【这是线上打字聊天】\n你和${ta}在用微信等聊天软件打字。`;
+
   const systemPrompt = `你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。
 ${ta}刚发来消息。你要以【我】的身份回复 3 条候选。
 ═══════════════════════════════
@@ -1605,8 +1702,6 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
   if (parsed.suggestions.length === 0) throw new Error('AI 未生成有效建议');
   return parsed;
 }
-
-// ============ ★ API 表单（带模型/接入点输入） ============
 function renderApiForm(){
   let html = '';
   PROVIDER_ORDER.forEach(pid => {
@@ -1625,23 +1720,14 @@ function renderApiForm(){
       ? '<label class="toggle-wrap" title="'+(enabled?'点击停用':'点击启用')+'"><input type="checkbox" data-enable="'+pid+'"' + (enabled ? ' checked' : '') + '><span class="toggle-track"></span></label>'
       : '';
     const rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '') + (hasKey && !enabled ? ' disabled' : '');
-
-    // 模型/接入点输入框
     const modelVal = state.apiModels[pid] || '';
     let modelPlaceholder = '';
     let modelRequired = false;
-    if (pid === 'doubao'){
-      modelPlaceholder = '推理接入点 ID（ep-xxxxx 必填）';
-      modelRequired = true;
-    } else if (pid === 'zhipu'){
-      modelPlaceholder = 'glm-4-air（默认，可不填）';
-    } else if (pid === 'deepseek'){
-      modelPlaceholder = 'deepseek-chat（默认，可不填）';
-    }
+    if (pid === 'doubao'){ modelPlaceholder = '推理接入点 ID（ep-xxxxx 必填）'; modelRequired = true; }
+    else if (pid === 'zhipu'){ modelPlaceholder = 'glm-4-air（默认，可不填）'; }
+    else if (pid === 'deepseek'){ modelPlaceholder = 'deepseek-chat（默认，可不填）'; }
     const modelWarn = (modelRequired && hasKey && !modelVal)
-      ? '<div class="model-warn">⚠️ 必填，否则 404</div>'
-      : '';
-
+      ? '<div class="model-warn">⚠️ 必填，否则 404</div>' : '';
     html += '<div class="'+rowCls+'" data-pid="'+pid+'">'
       + '<div class="api-row-header">'
       +   '<span class="api-icon">'+p.icon+'</span>'
@@ -1652,17 +1738,14 @@ function renderApiForm(){
       +   'value="'+esc(key)+'" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">'
       + (hasKey ? (
           '<input type="text" class="api-model-input" data-pid="'+pid+'" '
-          + 'value="'+esc(modelVal)+'" '
-          + 'placeholder="'+modelPlaceholder+'" '
-          + 'autocomplete="off" spellcheck="false" '
-          + 'style="margin-top:8px;">'
+          + 'value="'+esc(modelVal)+'" placeholder="'+modelPlaceholder+'" '
+          + 'autocomplete="off" spellcheck="false" style="margin-top:8px;">'
           + modelWarn
         ) : '')
       + '</div>';
   });
   dom.apiForm.innerHTML = html;
 
-  // key 输入
   dom.apiForm.querySelectorAll('.api-key-input').forEach(input => {
     input.addEventListener('input', e => {
       const pid = e.target.dataset.pid;
@@ -1683,8 +1766,6 @@ function renderApiForm(){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim(); save();
     });
   });
-
-  // 模型/接入点输入
   dom.apiForm.querySelectorAll('.api-model-input').forEach(input => {
     input.addEventListener('input', e => {
       state.apiModels[e.target.dataset.pid] = e.target.value.trim();
@@ -1699,16 +1780,12 @@ function renderApiForm(){
       }
     });
   });
-
-  // 默认按钮
   dom.apiForm.querySelectorAll('.default-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       state.defaultProvider = btn.dataset.act === 'unset' ? '' : btn.dataset.pid;
       save(); renderApiForm(); updateApiHeadBadge();
     });
   });
-
-  // 启用/停用
   dom.apiForm.querySelectorAll('input[data-enable]').forEach(cb => {
     cb.addEventListener('change', () => {
       const pid = cb.dataset.enable;
@@ -1721,7 +1798,6 @@ function renderApiForm(){
       toast(cb.checked ? '已启用 ' + PROVIDERS[pid].name : '已停用 ' + PROVIDERS[pid].name, 1000);
     });
   });
-
   updateApiHeadBadge();
 }
 function updateApiHeadBadge(){
@@ -1827,7 +1903,6 @@ function openSamplesModal(){
 }
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
 
-// ============ 折叠 ============
 function applyCollapse(){
   dom.cardSync.classList.toggle('expanded', !!state.uiOpen.sync);
   dom.cardApi.classList.toggle('expanded', !!state.uiOpen.api);
@@ -1841,7 +1916,6 @@ function toggleCollapse(key){
 function openSettings(){
   dom.settings.classList.add('show');
   dom.myName.value = state.myName;
-  dom.taName.value = state.taName;
   dom.myStyle.value = state.myStyle;
   renderProfilePanel();
   renderSyncPanel();
@@ -1850,7 +1924,6 @@ function openSettings(){
 }
 function closeSettings(){
   state.myName = dom.myName.value.trim();
-  state.taName = dom.taName.value.trim();
   state.myStyle = dom.myStyle.value.trim();
   save();
   dom.settings.classList.remove('show');
@@ -1863,7 +1936,10 @@ function bindEvents(){
   dom.newChatBtn.addEventListener('click', () => handleNewChat('chat'));
   dom.newChatOnlineBtn.addEventListener('click', () => handleNewChat('chat'));
   dom.newChatRealBtn.addEventListener('click', () => handleNewChat('real'));
-  dom.statusBar.addEventListener('click', (e) => { if (e.target.tagName === 'INPUT') return; editStatus(); });
+
+  // ★ 情境栏改成打开对话信息面板
+  dom.statusBar.addEventListener('click', openProfileDialog);
+
   dom.sendBtn.addEventListener('click', handleSend);
   dom.input.addEventListener('keydown', e=>{
     if(e.key === 'Enter'){ e.preventDefault(); handleSend(); }
@@ -1886,86 +1962,24 @@ function bindEvents(){
     if(dom.previewImg.src && dom.previewImg.src.startsWith('data:image')) showImageModal(dom.previewImg.src);
   });
   dom.myName.addEventListener('input', ()=>{ state.myName = dom.myName.value.trim(); save(); });
-  dom.taName.addEventListener('input', ()=>{ state.taName = dom.taName.value.trim(); save(); });
   dom.myStyle.addEventListener('input', ()=>{ state.myStyle = dom.myStyle.value; save(); });
+
+  // ★ 对话信息面板事件
+  dom.profileDialogMask.addEventListener('click', closeProfileDialog);
+  dom.pdCancel.addEventListener('click', closeProfileDialog);
+  dom.pdSave.addEventListener('click', saveProfileDialog);
+  dom.pdTaName.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){ e.preventDefault(); dom.pdStatus.focus(); }
+  });
+  dom.pdStatus.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){ e.preventDefault(); saveProfileDialog(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); closeProfileDialog(); }
+  });
+
   dom.speakClose.addEventListener('click', closeSpeakPanel);
   dom.speakCopy.addEventListener('click', () => {
     const idx = state.currentSpeakIdx;
     if (idx < 0) return;
     copyText(state.suggestions[idx].text, () => toast('已复制', 1000, 'success'));
   });
-  dom.speakPlay.addEventListener('click', () => {
-    const idx = state.currentSpeakIdx;
-    if (idx < 0) return;
-    speakText(state.suggestions[idx].text);
-  });
-  dom.speakSaid.addEventListener('click', confirmSpeakSaid);
-  dom.speakPanel.addEventListener('click', (e) => {
-    if (e.target === dom.speakPanel) closeSpeakPanel();
-  });
-  dom.meBtn.addEventListener('click', openMeInput);
-  dom.meInputMask.addEventListener('click', closeMeInput);
-  dom.meInputCancel.addEventListener('click', closeMeInput);
-  dom.meInputSave.addEventListener('click', saveMeInput);
-  dom.meInputArea.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); saveMeInput(); }
-    else if (e.key === 'Escape'){ e.preventDefault(); closeMeInput(); }
-  });
-  dom.closeSamples.addEventListener('click', closeSamplesModal);
-  dom.sheetMask.addEventListener('click', closeActionSheet);
-  dom.sheetCancel.addEventListener('click', closeActionSheet);
-  dom.sheetDelete.addEventListener('click', deletePendingMessage);
-  dom.cardSync.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('sync'));
-  dom.cardApi.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('api'));
-  dom.cardStyle.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('style'));
-  dom.syncUrl.addEventListener('input', ()=>{ state.webdav.url = dom.syncUrl.value.trim(); save(); renderSyncPanel(); });
-  dom.syncUser.addEventListener('input', ()=>{ state.webdav.user = dom.syncUser.value.trim(); save(); renderSyncPanel(); });
-  dom.syncPass.addEventListener('input', ()=>{ state.webdav.pass = dom.syncPass.value; save(); renderSyncPanel(); });
-  dom.syncPath.addEventListener('input', ()=>{ state.webdav.path = dom.syncPath.value.trim() || 'chat-assistant/data.json'; save(); renderSyncPanel(); });
-  dom.syncAuto.addEventListener('change', ()=>{ state.webdav.auto = dom.syncAuto.checked; save(); renderSyncPanel(); });
-  dom.syncUpBtn.addEventListener('click', async () => {
-    dom.syncUpBtn.disabled = true;
-    try { await webdavUpload(false); }
-    catch(e){ syncLog('❌ ' + e.message, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); toast(e.message, 2500, 'error'); }
-    finally { dom.syncUpBtn.disabled = false; }
-  });
-  dom.syncDownBtn.addEventListener('click', async () => {
-    dom.syncDownBtn.disabled = true;
-    try { await webdavDownload(); }
-    finally { dom.syncDownBtn.disabled = false; }
-  });
-  document.addEventListener('keydown', e=>{
-    if(e.key === 'Escape'){
-      if(dom.speakPanel.classList.contains('show')) closeSpeakPanel();
-      else if(dom.samplesModal.classList.contains('show')) closeSamplesModal();
-      else if(dom.meInputPanel.classList.contains('show')) closeMeInput();
-      else if(dom.sheet.classList.contains('show')) closeActionSheet();
-      else if(dom.drawer.classList.contains('show')) closeDrawer();
-      else if(dom.settings.classList.contains('show')) closeSettings();
-    }
-  });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
-  window.addEventListener('beforeunload', save);
-  if (window.speechSynthesis) speechSynthesis.getVoices();
-}
-function init(){
-  load();
-  updateProfileCache();
-  if(state.sessions.length === 0) createSession(true, 'chat');
-  updateModeBtn();
-  renderHeader(); renderMessages(); renderSuggestions(); renderStatusBar();
-  bindEvents();
-  const hasAny = PROVIDER_ORDER.some(p => state.apiKeys[p]);
-  if (!hasAny){
-    const guided = localStorage.getItem('chat_guided_v13');
-    if (!guided){
-      setTimeout(() => { openSettings(); state.uiOpen.api = true; applyCollapse(); }, 400);
-      try { localStorage.setItem('chat_guided_v13', '1'); } catch(e){}
-    }
-  }
-}
-init();
-})();
-</script>
-</body>
-</html>
+  dom.speakPlay
