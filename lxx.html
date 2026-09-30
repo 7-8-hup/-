@@ -27,19 +27,16 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .bubble.ta{align-self:flex-start;background:#f5f5f7;color:#1a1a1a;border-bottom-left-radius:6px;}
 .bubble.me{align-self:flex-end;background:#7c5cff;color:#fff;border-bottom-right-radius:6px;}
 .bubble.me.manual{background:#10b981;}
-/* 现实对话气泡：左侧圆角方一些，加个小图标 */
 .bubble.real{border-style:dashed;border-width:1.5px;background:#fff;}
 .bubble.real.ta{border-color:#d4d4d8;color:#1a1a1a;}
 .bubble.real.me{border-color:#10b981;color:#065f46;background:#ecfdf5;}
 .bubble.real::before{content:'🗣️';position:absolute;top:-8px;left:-4px;font-size:12px;opacity:0.5;}
-
 .suggestions{flex-shrink:0;padding:0 18px 12px;display:none;flex-direction:column;gap:8px;}
 .suggestions.show{display:flex;}
 .s-title{font-size:12px;color:#999;font-weight:500;padding:4px 0;display:flex;align-items:center;justify-content:space-between;}
 .s-title .tip{font-size:11px;color:#c4a000;font-weight:400;}
 .spinner{width:12px;height:12px;border:2px solid #ebebf0;border-top-color:#7c5cff;border-radius:50%;animation:spin .6s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
 .s-card{background:#f5f5f7;border-radius:12px;padding:10px 14px;font-size:15px;line-height:1.45;
   transition:background .15s;display:flex;align-items:flex-start;gap:10px;position:relative;}
 .s-card:hover{background:#efeff4;}
@@ -61,7 +58,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-card .edit-actions .btn-cancel:hover{background:#fee2e2;color:#dc2626;}
 .s-card.copied{background:#ecfdf5;}
 .s-card.copied .s-badge{color:#059669;background:#d1fae5;}
-
 .status-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#fffbeb;
   border-top:1px solid #fef3c7;font-size:12px;color:#92400e;cursor:pointer;flex-shrink:0;
   transition:background .15s;min-height:36px;}
@@ -77,7 +73,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .status-bar .status-input{flex:1;min-width:0;border:none;background:transparent;font-size:13px;
   font-family:inherit;color:#78350f;outline:none;font-weight:500;padding:0;}
 .status-bar .status-input::placeholder{color:#b45309;opacity:0.6;font-weight:400;}
-
 .composer{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;
   display:flex;align-items:center;gap:6px;background:#fff;}
 .composer input{flex:1;min-width:0;height:40px;padding:0 14px;border:none;background:#f5f5f7;border-radius:20px;
@@ -94,12 +89,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   font-weight:600;line-height:1;}
 .me-btn:hover{background:#a7f3d0;}
 .me-btn:active{transform:scale(0.95);}
-
 .img-preview{padding:0 16px 8px;display:none;align-items:center;gap:8px;flex-shrink:0;}
 .img-preview.show{display:flex;}
 .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px;}
 .img-preview button{border:none;background:transparent;color:#999;font-size:16px;cursor:pointer;padding:4px;}
-
 .action-sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .action-sheet-mask.show{opacity:1;pointer-events:auto;}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;z-index:501;
@@ -119,7 +112,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .action-sheet .btn-item:hover{background:#f5f5f7;}
 .action-sheet .btn-item.danger{color:#dc2626;}
 .action-sheet .btn-item.cancel{color:#666;font-weight:400;}
-
 .me-input-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .me-input-mask.show{opacity:1;pointer-events:auto;}
 .me-input-panel{position:fixed;left:0;right:0;bottom:0;z-index:501;
@@ -146,8 +138,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .me-btn-save{flex:2;height:44px;border:none;background:#10b981;color:#fff;
   font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600;}
 .me-btn-save:hover{background:#059669;}
-
-/* ★ 现实模式大字面板 */
 .speak-panel{position:fixed;inset:0;background:#fff;z-index:600;display:none;
   flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
 .speak-panel.show{display:flex;}
@@ -167,7 +157,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sp-btn-said:hover{background:#059669;}
 .sp-btn-copy{border:1.5px solid #ebebf0;background:#fff;color:#666;}
 .sp-btn-copy:hover{background:#f5f5f7;}
-
 .drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s;}
 .drawer-mask.show{opacity:1;pointer-events:auto;}
 .drawer{position:fixed;top:0;bottom:0;left:0;width:82%;max-width:340px;background:#fff;z-index:201;
@@ -207,7 +196,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   border-radius:12px;font-size:12px;font-family:inherit;color:#666;cursor:pointer;
   font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
 .new-chat-row .ncr-btn:hover{border-color:#7c5cff;color:#7c5cff;background:#faf8ff;}
-
 .settings-panel{position:fixed;inset:0;background:#fff;z-index:100;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .settings-panel.show{transform:translateX(0);}
@@ -245,7 +233,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .field textarea{min-height:88px;resize:vertical;}
 .field input:focus,.field textarea:focus{border-color:#7c5cff;}
 .hint{font-size:12px;color:#999;line-height:1.6;margin-top:8px;}
-
 .profile-panel{background:linear-gradient(135deg,#f0f9ff,#ecfeff);border:1.5px solid #bae6fd;
   border-radius:14px;padding:16px;margin-bottom:24px;}
 .profile-panel .pp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -274,8 +261,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .profile-panel .pp-btn-clear:hover{background:#e0f2fe;border-color:#7dd3fc;}
 .profile-panel .pp-btn-view{border:1px solid #fde68a;background:#fffbeb;color:#d97706;}
 .profile-panel .pp-btn-view:hover{background:#fef3c7;}
-
-/* ★ 云同步面板 */
 .sync-panel{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:24px;}
 .sync-panel .sync-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .sync-panel .sync-head .sync-title{font-size:14px;font-weight:700;color:#475569;
@@ -308,7 +293,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sync-panel .sync-log.err{color:#dc2626;}
 .sync-panel .sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;
   border-top:1px dashed #cbd5e1;}
-
 .samples-modal{position:fixed;inset:0;background:#fff;z-index:300;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .samples-modal.show{transform:translateX(0);}
@@ -326,7 +310,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sample-item .si-meta{font-size:11px;color:#999;margin-top:6px;}
 .sample-item.no-ctx{border-left-color:#cbd5e1;}
 .sample-item.no-ctx .si-me{color:#1a1a1a;}
-
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
   transform:translateX(-50%) translateY(8px);background:rgba(30,30,35,0.95);color:#fff;
   padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;
@@ -369,8 +352,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
-
-<!-- ★ 现实模式大字面板 -->
 <div class="speak-panel" id="speakPanel">
   <button class="sp-close" id="speakClose">✕</button>
   <div class="sp-hint">💬 你可以在现实中说这句</div>
@@ -381,7 +362,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     <button class="sp-btn-said" id="speakSaid">✓ 我说了</button>
   </div>
 </div>
-
 <div class="action-sheet-mask" id="sheetMask"></div>
 <div class="action-sheet" id="sheet">
   <div class="action-sheet-inner">
@@ -390,7 +370,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     <button class="btn-item cancel" id="sheetCancel">取消</button>
   </div>
 </div>
-
 <div class="me-input-mask" id="meInputMask"></div>
 <div class="me-input-panel" id="meInputPanel">
   <div class="me-input-inner">
@@ -403,7 +382,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     </div>
   </div>
 </div>
-
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-header">
@@ -416,7 +394,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <div class="session-list" id="sessionList"></div>
 </aside>
-
 <div class="samples-modal" id="samplesModal">
   <div class="samples-header">
     <h2>我所有的学习样本</h2>
@@ -424,14 +401,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
   <div class="samples-body" id="samplesBody"></div>
 </div>
-
 <div class="settings-panel" id="settings">
   <div class="sp-header">
     <h2>设置</h2>
     <button class="icon-btn" id="closeSettings" aria-label="关闭">✕</button>
   </div>
   <div class="sp-body">
-
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:42px;margin-bottom:6px;">🧬</div>
       <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px;">我的综合画像</div>
@@ -439,26 +414,23 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
         所有对话里你说过的话，汇总成一份完整档案
       </div>
     </div>
-
     <div class="profile-panel" id="profilePanel"></div>
-
-    <!-- ★ 云同步面板 -->
     <div class="sync-panel" id="syncPanel">
       <div class="sync-head">
-        <div class="sync-title">☁️ 坚果云同步</div>
+        <div class="sync-title">☁️ 数据胶囊同步</div>
         <div class="sync-status off" id="syncStatus">未配置</div>
       </div>
       <div class="sync-field">
         <label>服务器地址</label>
-        <input type="text" id="syncUrl" placeholder="https://dav.jianguoyun.com/dav/" autocomplete="off">
+        <input type="text" id="syncUrl" placeholder="https://data.cstcloud.cn/dav" autocomplete="off">
       </div>
       <div class="sync-field">
-        <label>账号（邮箱）</label>
-        <input type="text" id="syncUser" placeholder="你的坚果云邮箱" autocomplete="off">
+        <label>WebDAV 账号</label>
+        <input type="text" id="syncUser" placeholder="在客户端访问中设置的专属账号" autocomplete="off">
       </div>
       <div class="sync-field">
-        <label>应用密码</label>
-        <input type="password" id="syncPass" placeholder="坚果云应用密码（不是登录密码）" autocomplete="off">
+        <label>WebDAV 密码</label>
+        <input type="password" id="syncPass" placeholder="WebDAV 专属密码（非登录密码）" autocomplete="off">
       </div>
       <div class="sync-field">
         <label>远程路径</label>
@@ -474,16 +446,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
       </div>
       <div class="sync-log" id="syncLog"></div>
       <div class="sync-help">
-        💡 坚果云注册后：右上角头像 → 账户信息 → 安全选项 → <b>添加应用密码</b>。<br>
-        用那串密码填上面的"应用密码"。
+        💡 数据胶囊注册后：进入“我的数据” → 点击“客户端访问” → 在“WebDAV客户端”处<b>设置专属账号密码</b>。<br>
+        用那对账号密码填上面的“WebDAV 账号”和“WebDAV 密码”。
       </div>
     </div>
-
     <div class="field">
       <div class="section-title">🎭 补充说明 <span class="sub">可选</span></div>
       <textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea>
     </div>
-
     <div class="field">
       <div class="section-title">我的 API <span class="sub">填几个用几个</span></div>
       <div id="apiForm"></div>
@@ -498,13 +468,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
 (function(){
 'use strict';
-
 const PROVIDERS = {
   deepseek:  { name:'DeepSeek',  icon:'🐋', url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', visionModel:null, format:'openai', vision:false },
   zhipu:     { name:'智谱 GLM',  icon:'🧠', url:'https://open.bigmodel.cn/api/paas/v4/chat/completions', model:'glm-4-air', visionModel:'glm-4v', format:'openai', vision:true, jsonMode:true },
@@ -517,19 +484,17 @@ const PROVIDERS = {
 };
 const PROVIDER_ORDER = ['deepseek','qwen','kimi','zhipu','openai','doubao','anthropic','google'];
 function genId(){ return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
 const state = {
   sessions: [], currentSessionId: '',
   apiKeys: {}, defaultProvider: '',
   myName:'', taName:'', myStyle:'',
   styleSamples: [],
-  webdav: { url:'', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
+  webdav: { url:'https://data.cstcloud.cn/dav', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
   imageBase64:null, loading:false,
   pendingDeleteIdx: -1,
   currentSpeakIdx: -1
 };
 PROVIDER_ORDER.forEach(pid => { state.apiKeys[pid] = ''; });
-
 const $ = id => document.getElementById(id);
 const dom = {
   messages:$('messages'), suggestions:$('suggestions'), sList:$('sList'),
@@ -557,7 +522,6 @@ const dom = {
   syncPath:$('syncPath'), syncUpBtn:$('syncUpBtn'), syncDownBtn:$('syncDownBtn'),
   syncAuto:$('syncAuto'), syncStatus:$('syncStatus'), syncLog:$('syncLog')
 };
-
 let toastTimer = null;
 function toast(msg, dur=1800, type=''){
   clearTimeout(toastTimer);
@@ -569,8 +533,6 @@ function toast(msg, dur=1800, type=''){
 }
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
 function toAscii(s){ return String(s||'').replace(/[^\x00-\x7F]/g,''); }
-
-// ============ 综合画像分析 ============
 function analyzeLangStyle(samples){
   const texts = samples.map(s => s.myText).filter(t => t && t.trim().length > 0);
   if (texts.length < 3) return null;
@@ -661,8 +623,6 @@ function addStyleSample(myText, taText){
   if (state.styleSamples.length > 100) state.styleSamples = state.styleSamples.slice(-100);
   updateProfileCache();
 }
-
-// ============ 会话 ============
 function getCurrentSession(){
   if(!state.currentSessionId || state.sessions.length === 0){
     if(state.sessions.length === 0) createSession(true, 'chat');
@@ -693,14 +653,11 @@ function formatTime(ts){
   const d = new Date(ts);
   return (d.getMonth()+1) + '月' + d.getDate() + '日';
 }
-
-// ============ 存储 ============
-const KEY = 'chat_multi_v9';
-const OLD_KEYS = ['chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
-
+const KEY = 'chat_multi_v10';
+const OLD_KEYS = ['chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
 function serialize(){
   return {
-    version: 9,
+    version: 10,
     exportedAt: Date.now(),
     sessions: state.sessions, currentSessionId: state.currentSessionId,
     apiKeys: state.apiKeys, defaultProvider: state.defaultProvider,
@@ -725,7 +682,7 @@ function deserialize(d){
   else if (Array.isArray(d.myReplies)) state.styleSamples = d.myReplies.map(t => ({ myText:t, taText:'', timestamp: Date.now() }));
   else state.styleSamples = [];
   if (d.webdav){
-    state.webdav.url = d.webdav.url || '';
+    state.webdav.url = d.webdav.url || 'https://data.cstcloud.cn/dav';
     state.webdav.user = d.webdav.user || '';
     state.webdav.pass = d.webdav.pass || '';
     state.webdav.path = d.webdav.path || 'chat-assistant/data.json';
@@ -738,7 +695,6 @@ function deserialize(d){
     state.currentSessionId = state.sessions[0].id;
   }
 }
-
 let syncTimer = null;
 function save(){
   try{
@@ -763,8 +719,6 @@ function load(){
     deserialize(d);
   }catch(e){}
 }
-
-// ============ ★ 云同步（WebDAV） ============
 function scheduleSync(){
   if (!state.webdav.auto) return;
   if (!state.webdav.url || !state.webdav.user || !state.webdav.pass) return;
@@ -794,7 +748,6 @@ function webdavFullPath(){
   return webdavBaseUrl() + '/' + state.webdav.path.replace(/^\/+/, '');
 }
 async function webdavEnsureDir(){
-  // 尝试逐级创建目录，忽略错误
   const dir = state.webdav.path.replace(/^\/+|\/+$/g, '').split('/').slice(0, -1);
   if (dir.length === 0) return;
   let cur = webdavBaseUrl();
@@ -822,7 +775,6 @@ async function webdavUpload(silent){
     body: data
   });
   if (!resp.ok){
-    // 若 409/404，尝试创建目录后再试
     if (resp.status === 409 || resp.status === 404){
       await webdavEnsureDir();
       resp = await fetch(url, {
@@ -843,7 +795,7 @@ async function webdavUpload(silent){
   const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
   if (!silent){ syncLog('✅ 上传成功 · ' + timeStr, 'ok'); }
   syncStatusSet('已同步', 'on');
-  if (!silent) toast('已上传到坚果云', 1500, 'success');
+  if (!silent) toast('已上传到数据胶囊', 1500, 'success');
 }
 async function webdavDownload(){
   if (!webdavConfigOk()){ toast('请先填写 WebDAV 配置', 1800, 'error'); return; }
@@ -865,14 +817,14 @@ async function webdavDownload(){
     const now = new Date();
     const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
     syncLog('✅ 拉取成功 · ' + timeStr, 'ok'); syncStatusSet('已同步', 'on');
-    toast('已从坚果云拉取', 1500, 'success');
+    toast('已从数据胶囊拉取', 1500, 'success');
   } catch(e){
     syncLog('拉取出错：' + e.message, 'err'); syncStatusSet('同步失败', 'err');
     toast('拉取出错', 1800, 'error');
   }
 }
 function renderSyncPanel(){
-  dom.syncUrl.value = state.webdav.url || '';
+  dom.syncUrl.value = state.webdav.url || 'https://data.cstcloud.cn/dav';
   dom.syncUser.value = state.webdav.user || '';
   dom.syncPass.value = state.webdav.pass || '';
   dom.syncPath.value = state.webdav.path || 'chat-assistant/data.json';
@@ -883,8 +835,6 @@ function renderSyncPanel(){
     syncStatusSet('未配置', 'off');
   }
 }
-
-// ============ API ============
 function getDefaultApi(){
   const pid = state.defaultProvider;
   if(pid && state.apiKeys[pid]) return { provider: pid, apiKey: state.apiKeys[pid] };
@@ -900,8 +850,6 @@ function getImageApi(){
   }
   return null;
 }
-
-// ============ 渲染 ============
 function renderHeader(){
   const s = getCurrentSession();
   const title = generateSessionTitle(s);
@@ -1031,8 +979,6 @@ function getLastTaText(session){
   for (let i = msgs.length - 1; i >= 0; i--){ if (msgs[i].role === 'ta') return msgs[i].text; }
   return '';
 }
-
-// ============ "我发了"面板 ============
 function openMeInput(){
   dom.meInputArea.value = '';
   const lastTa = getLastTaText();
@@ -1065,8 +1011,6 @@ function saveMeInput(){
   const count = state.styleSamples.length;
   toast(`✅ 已记录 (样本 ${count} 条)`, 1400, 'success');
 }
-
-// ============ 建议渲染 ============
 function renderSuggestions(){
   const session = getCurrentSession();
   const mode = session.mode || 'chat';
@@ -1173,8 +1117,6 @@ function fallbackCopy(text, cb){
   catch(e){ toast('复制失败', 1500, 'error'); }
   document.body.removeChild(ta);
 }
-
-// ============ ★ 现实模式大字面板 ============
 function openSpeakPanel(idx){
   const s = state.suggestions[idx];
   if (!s) return;
@@ -1212,8 +1154,6 @@ function confirmSpeakSaid(){
   renderMessages(); renderSuggestions(); renderHeader();
   toast('✅ 已记录', 1200, 'success');
 }
-
-// ============ 抽屉 ============
 function openDrawer(){ renderSessionList(); dom.drawerMask.classList.add('show'); dom.drawer.classList.add('show'); }
 function closeDrawer(){ dom.drawerMask.classList.remove('show'); dom.drawer.classList.remove('show'); }
 function renderSessionList(){
@@ -1288,8 +1228,6 @@ function handleNewChat(mode){
   dom.input.focus();
   toast(mode === 'real' ? '已新建：现实对话' : '已新建：线上聊天', 1200, 'success');
 }
-
-// ============ 发送 ============
 async function handleSend(){
   if(state.loading) return;
   const text = dom.input.value.trim();
@@ -1310,7 +1248,6 @@ async function handleSend(){
   session.updatedAt = Date.now();
   dom.input.value = '';
   save(); renderMessages(); renderHeader();
-
   state.loading = true;
   renderSuggestions();
   dom.sendBtn.disabled = true;
@@ -1332,8 +1269,6 @@ async function handleSend(){
     dom.sendBtn.disabled = false;
   }
 }
-
-// ============ 图片 ============
 function compressImage(dataUrl, maxBytes = 500*1024){
   return new Promise(resolve=>{
     const img = new Image();
@@ -1385,8 +1320,6 @@ function showImageModal(src){
   m.addEventListener('click', ()=>m.remove());
   document.body.appendChild(m);
 }
-
-// ============ JSON 容错 ============
 function extractJSON(content){
   if(!content || typeof content !== 'string') return null;
   const text = content.trim();
@@ -1424,13 +1357,10 @@ function textFallback(content){
   if (lines.length === 0) return null;
   return { suggestions: lines.slice(0, 3).map((text, i) => ({ text, style: styles[i] || '建议' })) };
 }
-
-// ============ 请求构造 ============
 function buildRequest({provider, model, messages, apiKey, temperature, maxTokens, hasImage}){
   const p = PROVIDERS[provider];
   const format = p.format;
   const apiUrl = p.url;
-
   if(format === 'anthropic'){
     const sys = messages.find(m=>m.role==='system');
     const others = messages.filter(m=>m.role!=='system');
@@ -1491,15 +1421,12 @@ function buildRequest({provider, model, messages, apiKey, temperature, maxTokens
     parse: d => { try{ return d.choices[0].message.content || ''; }catch(e){ return ''; } }
   };
 }
-
-// ============ AI 调用 ============
 async function callAI(apiEntry, session){
   const pConf = PROVIDERS[apiEntry.provider];
   if(!pConf) throw new Error('未知服务商');
   const key = (apiEntry.provider === 'anthropic' || apiEntry.provider === 'google')
     ? apiEntry.apiKey.trim() : toAscii(apiEntry.apiKey).trim();
   if(!key) throw new Error('API Key 无效');
-
   let model = pConf.model;
   let imageData = null;
   if(state.imageBase64){
@@ -1508,27 +1435,20 @@ async function callAI(apiEntry, session){
     if(pConf.visionModel) model = pConf.visionModel;
     else throw new Error(pConf.name + ' 不支持图片');
   }
-
   const isReal = (session.mode || 'chat') === 'real';
   const profileText = profileToPrompt(state.langProfile, state.sceneProfile);
   const recentSamples = state.styleSamples.slice(-12);
   const recentText = recentSamples.length > 0
     ? `\n【我最近真实说过的话】\n${recentSamples.map(s => '  · ' + s.myText).join('\n')}` : '';
-
   const statusLine = session.status ? `\n【当前情境】${session.status}` : '';
   const extraStyle = state.myStyle ? `\n【我自己的补充说明】\n${state.myStyle}` : '';
   const my = state.myName ? `我（${state.myName}）` : '我';
   const ta = state.taName ? `对方（${state.taName}）` : '对方';
-
-  // ★ 现实模式 vs 线上模式：prompt 差别
   const modeBlock = isReal
     ? `\n【这是现实对话】\n你和${ta}正在面对面聊天，不是打字。\n对方刚说了句话，你需要给出 3 句"你可以直接开口说"的话。\n⚠️ 因为是当面说的，必须：\n- 极度口语化，一开口就能说出来\n- 不要太长（不超过 25 字，越短越好）\n- 句子结构简单，不用"其实""但是""因为"这种转折\n- 可以用语气词、停顿词（诶、那个、就、嗯）\n- 就像你平时张嘴说话的样子，不书面`
     : `\n【这是线上打字聊天】\n你和${ta}在用微信等聊天软件打字。`;
-
   const systemPrompt = `你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。
-
 ${ta}刚发来消息。你要以【我】的身份回复 3 条候选。
-
 ═══════════════════════════════
 【我说话的整体画像】（来自我所有对话的样本，共 ${state.styleSamples.length} 条）
 ═══════════════════════════════
@@ -1536,20 +1456,17 @@ ${profileText || '（样本较少，按普通年轻人聊天风格）'}
 ${recentText}
 ${extraStyle}${statusLine}
 ${modeBlock}
-
 ═══════════════════════════════
 【核心原则】
 ═══════════════════════════════
 你不是"参考"上面的画像，你"就是"写出那些句子的人。
 复制这个人的整个语言 DNA —— 包括 TA 的怪癖、不完美。
-
 ① 长度照搬 —— 画像里平均几字就几字
 ② 标点照搬 —— 不打句号就别打；用空格断句就用空格
 ③ 开头/结尾照搬 —— 常用什么开头结尾，就用什么
 ④ 语气词照搬 —— 只用画像里出现过的
 ⑤ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回
 ⑥ 允许不完美 —— 半句、答非所问、跳话题、一个字回复
-
 ═══════════════════════════════
 【绝对禁止 —— 出现一处就露馅】
 ═══════════════════════════════
@@ -1561,19 +1478,15 @@ ${modeBlock}
 ❌ 完美的共情、得体、面面俱到
 ❌ 总结、升华、讲道理、给建议
 ❌ 每句都以句号结尾
-
 ═══════════════════════════════
 【3 条建议的方向】
 ═══════════════════════════════
 1. 【短】超短，像画像里最短的那几条
 2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个
 3. 【展开】问个问题，或说件具体的事
-
 ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字。' : ''}
-
 输出纯 JSON，无其他内容，第一个字符是 {：
 {"suggestions":[{"text":"...","style":"短"},{"text":"...","style":"情绪"},{"text":"...","style":"展开"}]}`;
-
   const messages = [{role:'system', content: systemPrompt}];
   (session.messages || []).slice(-10).forEach((m, i, arr)=>{
     const isLast = i === arr.length - 1;
@@ -1587,13 +1500,11 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
       messages.push({role, content: m.text});
     }
   });
-
   const req = buildRequest({
     provider: apiEntry.provider, model, messages,
     apiKey: key, temperature: 1.0, maxTokens: 800,
     hasImage: !!imageData
   });
-
   const ctrl = new AbortController();
   const timer = setTimeout(()=>ctrl.abort(), 60000);
   let resp;
@@ -1606,7 +1517,6 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
     if(e.name === 'AbortError') throw new Error('请求超时');
     throw new Error('网络错误：' + e.message);
   } finally { clearTimeout(timer); }
-
   if(!resp.ok){
     let t = await resp.text();
     try{ const j = JSON.parse(t); t = (j.error && j.error.message) || j.message || t; }catch(e){}
@@ -1616,7 +1526,6 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
     if(resp.status === 429) throw new Error('请求过于频繁，稍后再试');
     throw new Error('API错误(' + resp.status + ')：' + t.substring(0, 100));
   }
-
   const data = await resp.json();
   const content = req.parse(data) || '';
   let parsed = extractJSON(content);
@@ -1637,8 +1546,6 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
   if (parsed.suggestions.length === 0) throw new Error('AI 未生成有效建议');
   return parsed;
 }
-
-// ============ API 表单 ============
 function renderApiForm(){
   let html = '';
   PROVIDER_ORDER.forEach(pid => {
@@ -1717,13 +1624,10 @@ function updateRowStyle(pid, key){
     r.classList.toggle('is-default', rDef);
   });
 }
-
-// ============ 画像面板 ============
 function renderProfilePanel(){
   const samples = state.styleSamples || [];
   const lang = state.langProfile;
   const scenes = state.sceneProfile || [];
-
   if (samples.length === 0){
     dom.profilePanel.innerHTML =
       '<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">0 条样本</div></div>'
@@ -1807,8 +1711,6 @@ function openSamplesModal(){
   dom.samplesModal.classList.add('show');
 }
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
-
-// ============ 设置面板 ============
 function openSettings(){
   dom.settings.classList.add('show');
   dom.myName.value = state.myName;
@@ -1825,8 +1727,6 @@ function closeSettings(){
   save();
   dom.settings.classList.remove('show');
 }
-
-// ============ 事件 ============
 function bindEvents(){
   dom.settingsBtn.addEventListener('click', openSettings);
   dom.closeSettings.addEventListener('click', closeSettings);
@@ -1835,7 +1735,6 @@ function bindEvents(){
   dom.newChatBtn.addEventListener('click', () => handleNewChat('chat'));
   dom.newChatOnlineBtn.addEventListener('click', () => handleNewChat('chat'));
   dom.newChatRealBtn.addEventListener('click', () => handleNewChat('real'));
-
   dom.statusBar.addEventListener('click', (e) => { if (e.target.tagName === 'INPUT') return; editStatus(); });
   dom.sendBtn.addEventListener('click', handleSend);
   dom.input.addEventListener('keydown', e=>{
@@ -1861,8 +1760,6 @@ function bindEvents(){
   dom.myName.addEventListener('input', ()=>{ state.myName = dom.myName.value.trim(); save(); });
   dom.taName.addEventListener('input', ()=>{ state.taName = dom.taName.value.trim(); save(); });
   dom.myStyle.addEventListener('input', ()=>{ state.myStyle = dom.myStyle.value; save(); });
-
-  // 现实模式大字面板
   dom.speakClose.addEventListener('click', closeSpeakPanel);
   dom.speakCopy.addEventListener('click', () => {
     const idx = state.currentSpeakIdx;
@@ -1875,11 +1772,9 @@ function bindEvents(){
     speakText(state.suggestions[idx].text);
   });
   dom.speakSaid.addEventListener('click', confirmSpeakSaid);
-  // 点击大字外区域关闭
   dom.speakPanel.addEventListener('click', (e) => {
     if (e.target === dom.speakPanel) closeSpeakPanel();
   });
-
   dom.meBtn.addEventListener('click', openMeInput);
   dom.meInputMask.addEventListener('click', closeMeInput);
   dom.meInputCancel.addEventListener('click', closeMeInput);
@@ -1888,14 +1783,10 @@ function bindEvents(){
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); saveMeInput(); }
     else if (e.key === 'Escape'){ e.preventDefault(); closeMeInput(); }
   });
-
   dom.closeSamples.addEventListener('click', closeSamplesModal);
-
   dom.sheetMask.addEventListener('click', closeActionSheet);
   dom.sheetCancel.addEventListener('click', closeActionSheet);
   dom.sheetDelete.addEventListener('click', deletePendingMessage);
-
-  // 云同步
   dom.syncUrl.addEventListener('input', ()=>{ state.webdav.url = dom.syncUrl.value.trim(); save(); renderSyncPanel(); });
   dom.syncUser.addEventListener('input', ()=>{ state.webdav.user = dom.syncUser.value.trim(); save(); renderSyncPanel(); });
   dom.syncPass.addEventListener('input', ()=>{ state.webdav.pass = dom.syncPass.value; save(); renderSyncPanel(); });
@@ -1912,7 +1803,6 @@ function bindEvents(){
     try { await webdavDownload(); }
     finally { dom.syncDownBtn.disabled = false; }
   });
-
   document.addEventListener('keydown', e=>{
     if(e.key === 'Escape'){
       if(dom.speakPanel.classList.contains('show')) closeSpeakPanel();
@@ -1925,12 +1815,8 @@ function bindEvents(){
   });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
   window.addEventListener('beforeunload', save);
-
-  // 预热语音
   if (window.speechSynthesis) speechSynthesis.getVoices();
 }
-
-// ============ 初始化 ============
 function init(){
   load();
   updateProfileCache();
@@ -1940,10 +1826,10 @@ function init(){
   bindEvents();
   const hasAny = PROVIDER_ORDER.some(p => state.apiKeys[p]);
   if (!hasAny){
-    const guided = localStorage.getItem('chat_guided_v9');
+    const guided = localStorage.getItem('chat_guided_v10');
     if (!guided){
       setTimeout(openSettings, 400);
-      try { localStorage.setItem('chat_guided_v9', '1'); } catch(e){}
+      try { localStorage.setItem('chat_guided_v10', '1'); } catch(e){}
     }
   }
 }
