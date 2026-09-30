@@ -204,81 +204,41 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sp-header h2{font-size:16px;font-weight:600;}
 .sp-body{flex:1;overflow-y:auto;padding:18px 18px 40px;-webkit-overflow-scrolling:touch;
   max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
-.section-title{font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
-.section-title .sub{font-weight:400;color:#999;font-size:11px;margin-left:4px;}
 .field{margin-bottom:24px;}
 .field > label{display:block;font-size:13px;font-weight:600;color:#666;margin-bottom:10px;}
-.field input[type=text],.field input[type=password],.field textarea{width:100%;padding:11px 14px;
-  border:1px solid #ebebf0;background:#fff;border-radius:12px;font-size:15px;outline:none;
-  color:#1a1a1a;font-family:inherit;transition:border-color .15s;line-height:1.5;}
-.field input[type=text],.field input[type=password]{height:44px;padding:0 14px;}
+.field input[type=text],.field textarea{width:100%;padding:11px 14px;border:1px solid #ebebf0;
+  background:#fff;border-radius:12px;font-size:15px;outline:none;color:#1a1a1a;font-family:inherit;
+  transition:border-color .15s;line-height:1.5;}
+.field input[type=text]{height:44px;padding:0 14px;}
 .field textarea{min-height:88px;resize:vertical;}
 .field input:focus,.field textarea:focus{border-color:#7c5cff;}
 .hint{font-size:12px;color:#999;line-height:1.6;margin-top:8px;}
-
-/* ★★★ 折叠卡片 ★★★ */
-.collapse-card{
-  border:1.5px solid #e2e8f0;
-  border-radius:14px;
-  margin-bottom:16px;
-  background:#fff;
-  overflow:hidden;
-  transition:border-color .15s, box-shadow .15s;
-}
-.collapse-card.expanded{
-  box-shadow:0 2px 12px rgba(124,58,237,0.08);
-}
+.collapse-card{border:1.5px solid #e2e8f0;border-radius:14px;margin-bottom:16px;background:#fff;
+  overflow:hidden;transition:border-color .15s, box-shadow .15s;}
+.collapse-card.expanded{box-shadow:0 2px 12px rgba(124,58,237,0.08);}
 .collapse-card.sync-theme{border-color:#bae6fd;background:#f8fcff;}
 .collapse-card.api-theme{border-color:#ddd6fe;background:#fbfaff;}
-
-.collapse-head{
-  display:flex;align-items:center;gap:10px;
-  padding:14px 16px;
-  cursor:pointer;user-select:none;
-  transition:background .15s;
-}
+.collapse-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;
+  transition:background .15s;}
 .collapse-head:hover{background:rgba(0,0,0,0.02);}
 .collapse-head .ch-icon{font-size:18px;flex-shrink:0;line-height:1;}
-.collapse-head .ch-title{
-  flex:1;min-width:0;
-  font-size:14px;font-weight:700;
-  color:#334155;
-  display:flex;align-items:center;gap:8px;
-}
+.collapse-head .ch-title{flex:1;min-width:0;font-size:14px;font-weight:700;color:#334155;
+  display:flex;align-items:center;gap:8px;}
 .collapse-card.sync-theme .ch-title{color:#0369a1;}
 .collapse-card.api-theme .ch-title{color:#5b21b6;}
-.collapse-head .ch-badge{
-  font-size:11px;padding:2px 9px;border-radius:8px;font-weight:600;
-  flex-shrink:0;line-height:1.6;
-}
+.collapse-head .ch-badge{font-size:11px;padding:2px 9px;border-radius:8px;font-weight:600;
+  flex-shrink:0;line-height:1.6;}
 .collapse-head .ch-badge.ok{background:#dcfce7;color:#166534;}
 .collapse-head .ch-badge.warn{background:#fef3c7;color:#92400e;}
 .collapse-head .ch-badge.err{background:#fee2e2;color:#dc2626;}
 .collapse-head .ch-badge.info{background:#e0f2fe;color:#0369a1;}
-.collapse-head .ch-chev{
-  font-size:12px;color:#94a3b8;flex-shrink:0;
+.collapse-head .ch-chev{font-size:12px;color:#94a3b8;flex-shrink:0;
   transition:transform .22s cubic-bezier(0.4,0,0.2,1);
-  display:inline-flex;align-items:center;justify-content:center;
-  width:20px;height:20px;
-}
+  display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;}
 .collapse-card.expanded .ch-chev{transform:rotate(90deg);color:#7c5cff;}
-
-.collapse-body{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .28s cubic-bezier(0.4,0,0.2,1);
-}
-.collapse-card.expanded .collapse-body{
-  max-height:2000px;
-}
-.collapse-body-inner{
-  padding:0 16px 16px;
-  border-top:1px solid #f1f5f9;
-  margin-top:0;
-  padding-top:14px;
-}
-
-/* 同步面板内的字段 */
+.collapse-body{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(0.4,0,0.2,1);}
+.collapse-card.expanded .collapse-body{max-height:2000px;}
+.collapse-body-inner{padding:0 16px 16px;border-top:1px solid #f1f5f9;padding-top:14px;}
 .sync-field{margin-bottom:10px;}
 .sync-field label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;
   text-transform:uppercase;letter-spacing:0.3px;}
@@ -304,12 +264,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;
   border-top:1px dashed #cbd5e1;}
 
-/* API 面板内的行 */
-.api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:10px 12px;margin-bottom:10px;
+/* ★ API 行（带勾选） */
+.api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:11px 12px;margin-bottom:10px;
   transition:border-color .15s,background .15s;}
 .api-row.has-key{background:#fff;border-color:#d8d8e3;}
 .api-row.is-default{background:#faf8ff;border-color:#7c5cff;}
-.api-row-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.api-row.disabled{opacity:0.55;background:#f8f8fa;}
+.api-row.disabled .api-name{color:#94a3b8;}
+.api-row-header{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
 .api-row-header .api-icon{font-size:18px;line-height:1;flex-shrink:0;}
 .api-row-header .api-name{font-size:14px;font-weight:600;color:#1a1a1a;flex:1;min-width:0;}
 .api-row-header .api-tag{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;line-height:1.6;flex-shrink:0;}
@@ -319,17 +281,32 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   background:#fff;color:#999;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0;transition:all .15s;}
 .api-row-header .default-btn:hover{border-color:#7c5cff;color:#7c5cff;}
 .api-row-header .default-btn.active{background:#7c5cff;color:#fff;border-color:#7c5cff;}
-.api-row input{width:100%;height:38px;padding:0 12px;border:1px solid #ebebf0;background:#fff;border-radius:10px;
-  font-size:13px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;}
-.api-row input:focus{border-color:#7c5cff;}
-.api-row input::placeholder{color:#bbb;font-family:inherit;}
 
-/* 画像面板 */
+/* ★ 勾选框 - 漂亮的开关样式 */
+.toggle-wrap{position:relative;flex-shrink:0;display:inline-flex;align-items:center;cursor:pointer;}
+.toggle-wrap input{position:absolute;opacity:0;width:0;height:0;}
+.toggle-track{width:34px;height:20px;background:#d1d5db;border-radius:20px;
+  position:relative;transition:background .2s cubic-bezier(0.4,0,0.2,1);}
+.toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;
+  background:#fff;border-radius:50%;transition:transform .2s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-wrap input:checked + .toggle-track{background:#7c5cff;}
+.toggle-wrap input:checked + .toggle-track::after{transform:translateX(14px);}
+.toggle-wrap:hover .toggle-track{opacity:0.85;}
+
+.api-row input.api-key-input{width:100%;height:38px;padding:0 12px;border:1px solid #ebebf0;background:#fff;
+  border-radius:10px;font-size:13px;outline:none;color:#1a1a1a;font-family:ui-monospace,monospace;
+  transition:border-color .15s;}
+.api-row input.api-key-input:focus{border-color:#7c5cff;}
+.api-row input.api-key-input::placeholder{color:#bbb;font-family:inherit;}
+
+.api-help{font-size:11px;color:#999;line-height:1.6;margin-top:4px;padding:8px 10px;
+  background:#f8fafc;border-radius:8px;border-left:3px solid #cbd5e1;}
+
 .profile-panel{background:linear-gradient(135deg,#f0f9ff,#ecfeff);border:1.5px solid #bae6fd;
   border-radius:14px;padding:16px;margin-bottom:16px;}
 .profile-panel .pp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.profile-panel .pp-head .pp-title{font-size:14px;font-weight:700;color:#0369a1;
-  display:flex;align-items:center;gap:6px;}
+.profile-panel .pp-head .pp-title{font-size:14px;font-weight:700;color:#0369a1;display:flex;align-items:center;gap:6px;}
 .profile-panel .pp-head .pp-count{font-size:11px;color:#0ea5e9;background:#fff;padding:3px 10px;
   border-radius:8px;font-weight:500;}
 .profile-panel .pp-section{margin-bottom:16px;}
@@ -353,7 +330,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .profile-panel .pp-btn-clear:hover{background:#e0f2fe;border-color:#7dd3fc;}
 .profile-panel .pp-btn-view{border:1px solid #fde68a;background:#fffbeb;color:#d97706;}
 .profile-panel .pp-btn-view:hover{background:#fef3c7;}
-
 .samples-modal{position:fixed;inset:0;background:#fff;z-index:300;transform:translateX(100%);
   transition:transform .25s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
 .samples-modal.show{transform:translateX(0);}
@@ -371,7 +347,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sample-item .si-meta{font-size:11px;color:#999;margin-top:6px;}
 .sample-item.no-ctx{border-left-color:#cbd5e1;}
 .sample-item.no-ctx .si-me{color:#1a1a1a;}
-
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
   transform:translateX(-50%) translateY(8px);background:rgba(30,30,35,0.95);color:#fff;
   padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;
@@ -473,7 +448,26 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 
     <div class="profile-panel" id="profilePanel"></div>
 
-    <!-- ★ 折叠：数据同步 -->
+    <!-- 折叠：API 配置（先） -->
+    <div class="collapse-card api-theme" id="cardApi">
+      <div class="collapse-head" data-toggle="api">
+        <span class="ch-icon">🔑</span>
+        <span class="ch-title">API 配置</span>
+        <span class="ch-badge info" id="apiHeadBadge">未配置</span>
+        <span class="ch-chev">▶</span>
+      </div>
+      <div class="collapse-body">
+        <div class="collapse-body-inner">
+          <div id="apiForm"></div>
+          <div class="api-help">
+            💡 填好 Key 后，用右边的开关<b>启用</b>你想用的模型；<br>
+            发文字用「默认」的 API；发图片自动选支持图片的（带 📷）。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 折叠：数据同步 -->
     <div class="collapse-card sync-theme" id="cardSync">
       <div class="collapse-head" data-toggle="sync">
         <span class="ch-icon">☁️</span>
@@ -515,22 +509,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
       </div>
     </div>
 
-    <!-- ★ 折叠：API 配置 -->
-    <div class="collapse-card api-theme" id="cardApi">
-      <div class="collapse-head" data-toggle="api">
-        <span class="ch-icon">🔑</span>
-        <span class="ch-title">API 配置</span>
-        <span class="ch-badge info" id="apiHeadBadge">未配置</span>
-        <span class="ch-chev">▶</span>
-      </div>
-      <div class="collapse-body">
-        <div class="collapse-body-inner">
-          <div id="apiForm"></div>
-          <div class="hint" style="margin-top:2px;">💡 发文字用「默认」的 API；发图片自动切换到支持图片的（带 📷）。</div>
-        </div>
-      </div>
-    </div>
-
     <!-- 折叠：个性化 -->
     <div class="collapse-card" id="cardStyle" style="border-color:#fde68a;background:#fffef9;">
       <div class="collapse-head" data-toggle="style">
@@ -562,21 +540,22 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <script>
 (function(){
 'use strict';
+
+// ★ 只保留三家
 const PROVIDERS = {
-  deepseek:  { name:'DeepSeek',  icon:'🐋', url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', visionModel:null, format:'openai', vision:false },
-  zhipu:     { name:'智谱 GLM',  icon:'🧠', url:'https://open.bigmodel.cn/api/paas/v4/chat/completions', model:'glm-4-air', visionModel:'glm-4v', format:'openai', vision:true, jsonMode:true },
-  kimi:      { name:'Kimi',      icon:'🌙', url:'https://api.moonshot.cn/v1/chat/completions', model:'moonshot-v1-8k', visionModel:'moonshot-v1-8k-vision-preview', format:'openai', vision:true },
-  qwen:      { name:'通义千问',  icon:'☁️', url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', model:'qwen-plus', visionModel:'qwen-vl-max', format:'openai', vision:true },
-  openai:    { name:'OpenAI',    icon:'🟢', url:'https://api.openai.com/v1/chat/completions', model:'gpt-4o-mini', visionModel:'gpt-4o', format:'openai', vision:true, jsonMode:true },
-  doubao:    { name:'豆包',      icon:'🎵', url:'https://ark.cn-beijing.volces.com/api/v3/chat/completions', model:'doubao-pro-32k', visionModel:'doubao-vision-pro-32k', format:'openai', vision:true },
-  anthropic: { name:'Claude',    icon:'🅰️', url:'https://api.anthropic.com/v1/messages', model:'claude-3-5-sonnet-20241022', visionModel:'claude-3-5-sonnet-20241022', format:'anthropic', vision:true },
-  google:    { name:'Gemini',    icon:'🔷', url:'https://generativelanguage.googleapis.com/v1beta/models', model:'gemini-2.0-flash', visionModel:'gemini-2.0-flash', format:'google', vision:true }
+  deepseek: { name:'DeepSeek',  icon:'🐋', url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', visionModel:null, format:'openai', vision:false },
+  zhipu:    { name:'智谱 GLM',  icon:'🧠', url:'https://open.bigmodel.cn/api/paas/v4/chat/completions', model:'glm-4-air', visionModel:'glm-4v', format:'openai', vision:true, jsonMode:true },
+  doubao:   { name:'豆包',      icon:'🎵', url:'https://ark.cn-beijing.volces.com/api/v3/chat/completions', model:'doubao-pro-32k', visionModel:'doubao-vision-pro-32k', format:'openai', vision:true }
 };
-const PROVIDER_ORDER = ['deepseek','qwen','kimi','zhipu','openai','doubao','anthropic','google'];
+const PROVIDER_ORDER = ['deepseek','zhipu','doubao'];
+
 function genId(){ return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
 const state = {
   sessions: [], currentSessionId: '',
-  apiKeys: {}, defaultProvider: '',
+  apiKeys: {},           // 只有三家的 key
+  apiEnabled: { deepseek:true, zhipu:true, doubao:true },  // ★ 是否启用
+  defaultProvider: '',
   myName:'', taName:'', myStyle:'',
   styleSamples: [],
   webdav: { url:'https://data.cstcloud.cn/dav', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
@@ -586,6 +565,7 @@ const state = {
   currentSpeakIdx: -1
 };
 PROVIDER_ORDER.forEach(pid => { state.apiKeys[pid] = ''; });
+
 const $ = id => document.getElementById(id);
 const dom = {
   messages:$('messages'), suggestions:$('suggestions'), sList:$('sList'),
@@ -615,6 +595,7 @@ const dom = {
   syncHeadBadge:$('syncHeadBadge'), apiHeadBadge:$('apiHeadBadge'),
   cardSync:$('cardSync'), cardApi:$('cardApi'), cardStyle:$('cardStyle')
 };
+
 let toastTimer = null;
 function toast(msg, dur=1800, type=''){
   clearTimeout(toastTimer);
@@ -626,6 +607,8 @@ function toast(msg, dur=1800, type=''){
 }
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
 function toAscii(s){ return String(s||'').replace(/[^\x00-\x7F]/g,''); }
+
+// ============ 画像分析 ============
 function analyzeLangStyle(samples){
   const texts = samples.map(s => s.myText).filter(t => t && t.trim().length > 0);
   if (texts.length < 3) return null;
@@ -716,6 +699,8 @@ function addStyleSample(myText, taText){
   if (state.styleSamples.length > 100) state.styleSamples = state.styleSamples.slice(-100);
   updateProfileCache();
 }
+
+// ============ 会话 ============
 function getCurrentSession(){
   if(!state.currentSessionId || state.sessions.length === 0){
     if(state.sessions.length === 0) createSession(true, 'chat');
@@ -746,14 +731,19 @@ function formatTime(ts){
   const d = new Date(ts);
   return (d.getMonth()+1) + '月' + d.getDate() + '日';
 }
-const KEY = 'chat_multi_v11';
-const OLD_KEYS = ['chat_multi_v10','chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
+
+// ============ 存储 ============
+const KEY = 'chat_multi_v12';
+const OLD_KEYS = ['chat_multi_v11','chat_multi_v10','chat_multi_v9','chat_multi_v8','chat_multi_v7','chat_multi_v6','chat_multi_v5','chat_multi_v4','chat_multi_v3','chat_multi_v2','chat_multi_v1'];
+
 function serialize(){
   return {
-    version: 11,
+    version: 12,
     exportedAt: Date.now(),
     sessions: state.sessions, currentSessionId: state.currentSessionId,
-    apiKeys: state.apiKeys, defaultProvider: state.defaultProvider,
+    apiKeys: state.apiKeys,
+    apiEnabled: state.apiEnabled,
+    defaultProvider: state.defaultProvider,
     myName: state.myName, taName: state.taName, myStyle: state.myStyle,
     styleSamples: state.styleSamples,
     uiOpen: state.uiOpen,
@@ -767,8 +757,25 @@ function deserialize(d){
     createdAt: s.createdAt || Date.now(), updatedAt: s.updatedAt || Date.now()
   })) : [];
   state.currentSessionId = d.currentSessionId || '';
-  state.apiKeys = Object.assign({}, state.apiKeys, d.apiKeys || {});
+  // ★ 只保留三家的 key
+  state.apiKeys = { deepseek:'', zhipu:'', doubao:'' };
+  if (d.apiKeys){
+    ['deepseek','zhipu','doubao'].forEach(pid => {
+      if (d.apiKeys[pid]) state.apiKeys[pid] = d.apiKeys[pid];
+    });
+  }
+  // ★ apiEnabled
+  state.apiEnabled = { deepseek:true, zhipu:true, doubao:true };
+  if (d.apiEnabled && typeof d.apiEnabled === 'object'){
+    ['deepseek','zhipu','doubao'].forEach(pid => {
+      if (typeof d.apiEnabled[pid] === 'boolean') state.apiEnabled[pid] = d.apiEnabled[pid];
+    });
+  }
   state.defaultProvider = d.defaultProvider || '';
+  if (state.defaultProvider && !state.apiKeys[state.defaultProvider]) state.defaultProvider = '';
+  if (!state.defaultProvider) {
+    state.defaultProvider = PROVIDER_ORDER.find(p => state.apiKeys[p]) || '';
+  }
   state.myName = d.myName || '';
   state.taName = d.taName || '';
   state.myStyle = d.myStyle || '';
@@ -783,8 +790,6 @@ function deserialize(d){
     state.webdav.path = d.webdav.path || 'chat-assistant/data.json';
     state.webdav.auto = !!d.webdav.auto;
   }
-  if(state.defaultProvider && !state.apiKeys[state.defaultProvider]) state.defaultProvider = '';
-  if(!state.defaultProvider) state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
   if(state.sessions.length === 0) createSession(true, 'chat');
   else if(!state.currentSessionId || !state.sessions.find(s => s.id === state.currentSessionId)){
     state.currentSessionId = state.sessions[0].id;
@@ -814,6 +819,8 @@ function load(){
     deserialize(d);
   }catch(e){}
 }
+
+// ============ 云同步 ============
 function scheduleSync(){
   if (!state.webdav.auto) return;
   if (!state.webdav.url || !state.webdav.user || !state.webdav.pass) return;
@@ -833,24 +840,16 @@ function setHeadBadge(el, text, cls){
 function webdavConfigOk(){
   return state.webdav.url && state.webdav.user && state.webdav.pass && state.webdav.path;
 }
-function webdavAuth(){
-  return 'Basic ' + btoa(state.webdav.user + ':' + state.webdav.pass);
-}
-function webdavBaseUrl(){
-  return state.webdav.url.replace(/\/+$/, '');
-}
-function webdavFullPath(){
-  return webdavBaseUrl() + '/' + state.webdav.path.replace(/^\/+/, '');
-}
+function webdavAuth(){ return 'Basic ' + btoa(state.webdav.user + ':' + state.webdav.pass); }
+function webdavBaseUrl(){ return state.webdav.url.replace(/\/+$/, ''); }
+function webdavFullPath(){ return webdavBaseUrl() + '/' + state.webdav.path.replace(/^\/+/, ''); }
 async function webdavEnsureDir(){
   const dir = state.webdav.path.replace(/^\/+|\/+$/g, '').split('/').slice(0, -1);
   if (dir.length === 0) return;
   let cur = webdavBaseUrl();
   for (const seg of dir){
     cur += '/' + seg;
-    try {
-      await fetch(cur, { method:'MKCOL', headers:{ 'Authorization': webdavAuth() } });
-    } catch(e){ /* 忽略 */ }
+    try { await fetch(cur, { method:'MKCOL', headers:{ 'Authorization': webdavAuth() } }); } catch(e){}
   }
 }
 async function webdavUpload(silent){
@@ -916,21 +915,36 @@ function renderSyncPanel(){
     setHeadBadge(dom.syncHeadBadge, '未配置', 'info');
   }
 }
+
+// ============ API 选择（★ 从启用的里选） ============
+function isEnabled(pid){
+  return state.apiEnabled[pid] !== false;
+}
 function getDefaultApi(){
   const pid = state.defaultProvider;
-  if(pid && state.apiKeys[pid]) return { provider: pid, apiKey: state.apiKeys[pid] };
-  const first = PROVIDER_ORDER.find(p => state.apiKeys[p]);
-  if(first) return { provider: first, apiKey: state.apiKeys[first] };
+  if (pid && state.apiKeys[pid] && isEnabled(pid)){
+    return { provider: pid, apiKey: state.apiKeys[pid] };
+  }
+  // 找第一个启用且有 key 的
+  for (const p of PROVIDER_ORDER){
+    if (state.apiKeys[p] && isEnabled(p)){
+      return { provider: p, apiKey: state.apiKeys[p] };
+    }
+  }
   return null;
 }
 function getImageApi(){
   const def = getDefaultApi();
-  if(def && PROVIDERS[def.provider].vision) return def;
-  for(const pid of PROVIDER_ORDER){
-    if(state.apiKeys[pid] && PROVIDERS[pid].vision) return { provider: pid, apiKey: state.apiKeys[pid] };
+  if (def && PROVIDERS[def.provider].vision) return def;
+  for (const pid of PROVIDER_ORDER){
+    if (state.apiKeys[pid] && isEnabled(pid) && PROVIDERS[pid].vision){
+      return { provider: pid, apiKey: state.apiKeys[pid] };
+    }
   }
   return null;
 }
+
+// ============ 渲染 ============
 function renderHeader(){
   const s = getCurrentSession();
   const title = generateSessionTitle(s);
@@ -1303,12 +1317,16 @@ async function handleSend(){
   let usedApi, switchedForImage = false;
   if(state.imageBase64){
     usedApi = getImageApi();
-    if(!usedApi){ toast('没有支持图片的 API', 3000, 'error'); return; }
+    if(!usedApi){ toast('没有已启用的图片 API', 3000, 'error'); return; }
     const def = getDefaultApi();
     if(def && def.provider !== usedApi.provider) switchedForImage = true;
   } else {
     usedApi = getDefaultApi();
-    if(!usedApi){ toast('请先在设置里填入 API Key', 1800, 'error'); openSettings(); return; }
+    if(!usedApi){
+      toast('没有已启用的 API，请去设置里检查', 2200, 'error');
+      openSettings();
+      return;
+    }
   }
   const session = getCurrentSession();
   const finalText = text || '请描述这张图片';
@@ -1362,7 +1380,7 @@ function handleImageSelect(file){
   if(!file) return;
   if(!file.type.startsWith('image/')){ toast('请选择图片', 1200, 'error'); return; }
   if(file.size > 20*1024*1024){ toast('图片过大（>20MB）', 1500, 'error'); return; }
-  if(!getImageApi()){ toast('没有支持图片的 API，请先添加', 2500, 'error'); return; }
+  if(!getImageApi()){ toast('没有已启用的图片 API', 2500, 'error'); return; }
   const reader = new FileReader();
   reader.onload = async e => {
     try{
@@ -1427,63 +1445,10 @@ function textFallback(content){
 }
 function buildRequest({provider, model, messages, apiKey, temperature, maxTokens, hasImage}){
   const p = PROVIDERS[provider];
-  const format = p.format;
-  const apiUrl = p.url;
-  if(format === 'anthropic'){
-    const sys = messages.find(m=>m.role==='system');
-    const others = messages.filter(m=>m.role!=='system');
-    const anthMsgs = others.map(m=>{
-      let blocks;
-      if(typeof m.content === 'string') blocks = [{type:'text', text:m.content}];
-      else blocks = m.content.map(c=>{
-        if(c.type === 'text') return {type:'text', text:c.text};
-        if(c.type === 'image_url'){
-          const dataUrl = c.image_url.url || '';
-          const [meta, b64] = dataUrl.split(',');
-          const mm = meta && meta.match(/data:(.*?);/);
-          return {type:'image', source:{type:'base64', media_type: mm?mm[1]:'image/jpeg', data:b64||''}};
-        }
-        return {type:'text', text:''};
-      });
-      return {role: m.role==='assistant'?'assistant':'user', content:blocks};
-    });
-    return {
-      url: apiUrl,
-      headers:{'Content-Type':'application/json','x-api-key': apiKey,
-        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:{ model, max_tokens:maxTokens, temperature, system: sys ? sys.content : '', messages: anthMsgs },
-      parse: d => (d && d.content && d.content[0] && d.content[0].text) || ''
-    };
-  }
-  if(format === 'google'){
-    const sys = messages.find(m=>m.role==='system');
-    const others = messages.filter(m=>m.role!=='system');
-    const contents = others.map(m=>{
-      const parts = [];
-      if(typeof m.content === 'string') parts.push({text: m.content});
-      else m.content.forEach(c=>{
-        if(c.type === 'text') parts.push({text:c.text});
-        else if(c.type === 'image_url'){
-          const dataUrl = c.image_url.url || '';
-          const [meta, b64] = dataUrl.split(',');
-          const mm = meta && meta.match(/data:(.*?);/);
-          parts.push({inline_data:{mime_type: mm?mm[1]:'image/jpeg', data:b64||''}});
-        }
-      });
-      return {role: m.role==='assistant'?'model':'user', parts};
-    });
-    const url = apiUrl.replace(/\/$/, '') + '/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
-    return {
-      url, headers:{'Content-Type':'application/json'},
-      body:{ system_instruction: sys ? {parts:[{text:sys.content}]} : undefined,
-        contents, generationConfig:{temperature, maxOutputTokens:maxTokens} },
-      parse: d => { try{ return d.candidates[0].content.parts.map(x=>x.text||'').join(''); }catch(e){ return ''; } }
-    };
-  }
   const body = {model, messages, temperature, max_tokens:maxTokens};
   if (p.jsonMode && !hasImage) body.response_format = { type: 'json_object' };
   return {
-    url: apiUrl,
+    url: p.url,
     headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + apiKey },
     body,
     parse: d => { try{ return d.choices[0].message.content || ''; }catch(e){ return ''; } }
@@ -1492,8 +1457,7 @@ function buildRequest({provider, model, messages, apiKey, temperature, maxTokens
 async function callAI(apiEntry, session){
   const pConf = PROVIDERS[apiEntry.provider];
   if(!pConf) throw new Error('未知服务商');
-  const key = (apiEntry.provider === 'anthropic' || apiEntry.provider === 'google')
-    ? apiEntry.apiKey.trim() : toAscii(apiEntry.apiKey).trim();
+  const key = toAscii(apiEntry.apiKey).trim();
   if(!key) throw new Error('API Key 无效');
   let model = pConf.model;
   let imageData = null;
@@ -1614,6 +1578,8 @@ ${statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字�
   if (parsed.suggestions.length === 0) throw new Error('AI 未生成有效建议');
   return parsed;
 }
+
+// ============ ★ API 表单（带勾选） ============
 function renderApiForm(){
   let html = '';
   PROVIDER_ORDER.forEach(pid => {
@@ -1621,24 +1587,31 @@ function renderApiForm(){
     const key = state.apiKeys[pid] || '';
     const hasKey = !!key;
     const isDefault = state.defaultProvider === pid && hasKey;
-    const visionTag = p.vision ? '<span class="api-tag vision">📷 支持图片</span>'
-      : '<span class="api-tag no-vision">无图片</span>';
-    const defaultBtn = hasKey
+    const enabled = isEnabled(pid);
+    const visionTag = p.vision ? '<span class="api-tag vision">📷</span>'
+      : '<span class="api-tag no-vision">无图</span>';
+    const defaultBtn = (hasKey && enabled)
       ? (isDefault ? '<button class="default-btn active" data-pid="'+pid+'" data-act="unset">✓ 默认</button>'
         : '<button class="default-btn" data-pid="'+pid+'" data-act="set">设为默认</button>')
       : '';
-    const rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '');
+    // ★ 只有填了 Key 的才显示勾选开关
+    const toggle = hasKey
+      ? '<label class="toggle-wrap" title="'+(enabled?'点击停用':'点击启用')+'"><input type="checkbox" data-enable="'+pid+'"' + (enabled ? ' checked' : '') + '><span class="toggle-track"></span></label>'
+      : '';
+    const rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '') + (hasKey && !enabled ? ' disabled' : '');
     html += '<div class="'+rowCls+'" data-pid="'+pid+'">'
       + '<div class="api-row-header">'
       +   '<span class="api-icon">'+p.icon+'</span>'
       +   '<span class="api-name">'+esc(p.name)+'</span>'
-      +   visionTag + defaultBtn
+      +   visionTag + defaultBtn + toggle
       + '</div>'
       + '<input type="text" class="api-key-input" data-pid="'+pid+'" '
       +   'value="'+esc(key)+'" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">'
       + '</div>';
   });
   dom.apiForm.innerHTML = html;
+
+  // key 输入
   dom.apiForm.querySelectorAll('.api-key-input').forEach(input => {
     input.addEventListener('input', e => {
       const pid = e.target.dataset.pid;
@@ -1646,62 +1619,61 @@ function renderApiForm(){
       const hadKey = !!state.apiKeys[pid];
       state.apiKeys[pid] = val;
       const hasKey = !!val;
-      if (hasKey && !hadKey && !state.defaultProvider) state.defaultProvider = pid;
-      if (!hasKey && state.defaultProvider === pid){
-        state.defaultProvider = Object.keys(state.apiKeys).find(p => state.apiKeys[p]) || '';
+      // 首次填 key → 自动启用 + 没默认则设为默认
+      if (hasKey && !hadKey){
+        state.apiEnabled[pid] = true;
+        if (!state.defaultProvider) state.defaultProvider = pid;
       }
-      save(); updateRowStyle(pid, val); updateApiHeadBadge();
+      // 清空 → 取消默认
+      if (!hasKey && state.defaultProvider === pid){
+        state.defaultProvider = PROVIDER_ORDER.find(p => state.apiKeys[p] && isEnabled(p)) || '';
+      }
+      save(); renderApiForm(); updateApiHeadBadge();
     });
     input.addEventListener('blur', e => {
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim(); save();
     });
   });
+
+  // 默认按钮
   dom.apiForm.querySelectorAll('.default-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       state.defaultProvider = btn.dataset.act === 'unset' ? '' : btn.dataset.pid;
       save(); renderApiForm(); updateApiHeadBadge();
     });
   });
+
+  // ★ 启用/停用勾选
+  dom.apiForm.querySelectorAll('input[data-enable]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const pid = cb.dataset.enable;
+      state.apiEnabled[pid] = cb.checked;
+      // 如果停用的是默认，需要换一个默认
+      if (!cb.checked && state.defaultProvider === pid){
+        const next = PROVIDER_ORDER.find(p => state.apiKeys[p] && isEnabled(p));
+        state.defaultProvider = next || '';
+      }
+      save(); renderApiForm(); updateApiHeadBadge();
+      toast(cb.checked ? '已启用 ' + PROVIDERS[pid].name : '已停用 ' + PROVIDERS[pid].name, 1000);
+    });
+  });
+
   updateApiHeadBadge();
 }
 function updateApiHeadBadge(){
-  const count = PROVIDER_ORDER.filter(p => state.apiKeys[p]).length;
-  if (count === 0){
-    setHeadBadge(dom.apiHeadBadge, '未配置', 'info');
+  const enabledList = PROVIDER_ORDER.filter(p => state.apiKeys[p] && isEnabled(p));
+  if (enabledList.length === 0){
+    setHeadBadge(dom.apiHeadBadge, '未启用', 'err');
+    return;
+  }
+  const def = getDefaultApi();
+  if (def){
+    const p = PROVIDERS[def.provider];
+    const extra = enabledList.length - 1;
+    setHeadBadge(dom.apiHeadBadge, p.icon + ' ' + p.name + (extra > 0 ? ' +' + extra : ''), 'ok');
   } else {
-    const pid = state.defaultProvider || PROVIDER_ORDER.find(p => state.apiKeys[p]);
-    const p = PROVIDERS[pid];
-    setHeadBadge(dom.apiHeadBadge, p.icon + ' ' + p.name + (count > 1 ? ' +'+(count-1) : ''), 'ok');
+    setHeadBadge(dom.apiHeadBadge, '未配置', 'info');
   }
-}
-function updateRowStyle(pid, key){
-  const row = dom.apiForm.querySelector('.api-row[data-pid="'+pid+'"]');
-  if(!row) return;
-  const hasKey = !!key;
-  const isDefault = state.defaultProvider === pid && hasKey;
-  row.classList.toggle('has-key', hasKey);
-  row.classList.toggle('is-default', isDefault);
-  const header = row.querySelector('.api-row-header');
-  const oldBtn = header.querySelector('.default-btn');
-  if(oldBtn) oldBtn.remove();
-  if(hasKey){
-    const btn = document.createElement('button');
-    btn.className = 'default-btn' + (isDefault ? ' active' : '');
-    btn.dataset.pid = pid;
-    btn.dataset.act = isDefault ? 'unset' : 'set';
-    btn.textContent = isDefault ? '✓ 默认' : '设为默认';
-    btn.addEventListener('click', () => {
-      state.defaultProvider = btn.dataset.act === 'unset' ? '' : pid;
-      save(); renderApiForm(); updateApiHeadBadge();
-    });
-    header.appendChild(btn);
-  }
-  dom.apiForm.querySelectorAll('.api-row').forEach(r => {
-    const rp = r.dataset.pid;
-    const rHas = !!state.apiKeys[rp];
-    const rDef = state.defaultProvider === rp && rHas;
-    r.classList.toggle('is-default', rDef);
-  });
 }
 function renderProfilePanel(){
   const samples = state.styleSamples || [];
@@ -1791,7 +1763,7 @@ function openSamplesModal(){
 }
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
 
-// ★ 折叠逻辑
+// ============ 折叠 ============
 function applyCollapse(){
   dom.cardSync.classList.toggle('expanded', !!state.uiOpen.sync);
   dom.cardApi.classList.toggle('expanded', !!state.uiOpen.api);
@@ -1802,7 +1774,6 @@ function toggleCollapse(key){
   save();
   applyCollapse();
 }
-
 function openSettings(){
   dom.settings.classList.add('show');
   dom.myName.value = state.myName;
@@ -1880,12 +1851,9 @@ function bindEvents(){
   dom.sheetMask.addEventListener('click', closeActionSheet);
   dom.sheetCancel.addEventListener('click', closeActionSheet);
   dom.sheetDelete.addEventListener('click', deletePendingMessage);
-
-  // ★ 折叠事件
   dom.cardSync.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('sync'));
   dom.cardApi.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('api'));
   dom.cardStyle.querySelector('.collapse-head').addEventListener('click', () => toggleCollapse('style'));
-
   dom.syncUrl.addEventListener('input', ()=>{ state.webdav.url = dom.syncUrl.value.trim(); save(); renderSyncPanel(); });
   dom.syncUser.addEventListener('input', ()=>{ state.webdav.user = dom.syncUser.value.trim(); save(); renderSyncPanel(); });
   dom.syncPass.addEventListener('input', ()=>{ state.webdav.pass = dom.syncPass.value; save(); renderSyncPanel(); });
@@ -1925,10 +1893,10 @@ function init(){
   bindEvents();
   const hasAny = PROVIDER_ORDER.some(p => state.apiKeys[p]);
   if (!hasAny){
-    const guided = localStorage.getItem('chat_guided_v11');
+    const guided = localStorage.getItem('chat_guided_v12');
     if (!guided){
       setTimeout(() => { openSettings(); state.uiOpen.api = true; applyCollapse(); }, 400);
-      try { localStorage.setItem('chat_guided_v11', '1'); } catch(e){}
+      try { localStorage.setItem('chat_guided_v12', '1'); } catch(e){}
     }
   }
 }
