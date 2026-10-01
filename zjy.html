@@ -160,10 +160,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-item .session-meta{font-size:11px;color:#999;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .session-item .session-more{width:26px;height:26px;border:none;background:transparent;color:#c0c0c8;font-size:18px;cursor:pointer;border-radius:8px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;font-family:inherit;font-weight:bold;padding-bottom:4px;}
 .session-item .session-more:hover{background:#e5e5ea;color:#666;}
-@media (hover: none){
-  .session-item .session-more{color:#999;}
-}
-/* 多选复选框 */
+@media (hover: none){.session-item .session-more{color:#999;}}
 .session-item .s-check{width:20px;height:20px;border:1.5px solid #d1d5db;border-radius:6px;flex-shrink:0;display:none;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .15s;background:#fff;line-height:1;font-weight:bold;}
 .session-item.multi .s-check{display:inline-flex;}
 .session-item.selected .s-check{background:#7c5cff;border-color:#7c5cff;}
@@ -172,7 +169,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .new-chat-row.hide{display:none;}
 .new-chat-row .ncr-btn{flex:1;padding:10px 8px;border:1.5px dashed #d8d8e3;background:#fff;border-radius:12px;font-size:12px;font-family:inherit;color:#666;cursor:pointer;font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
 .new-chat-row .ncr-btn:hover{border-color:#7c5cff;color:#7c5cff;background:#faf8ff;}
-/* 多选工具栏 */
 .multi-toolbar{display:none;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #ebebf0;background:#fafafc;flex-shrink:0;}
 .multi-toolbar.show{display:flex;}
 .multi-toolbar .mt-info{flex:1;font-size:12px;color:#666;font-weight:500;}
@@ -184,7 +180,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .multi-toolbar .mt-delete:disabled{opacity:0.4;cursor:not-allowed;background:#dc2626;}
 .multi-toolbar .mt-cancel{color:#666;background:#fff;border:1px solid #e5e5ea;}
 .multi-toolbar .mt-cancel:hover{background:#f5f5f7;}
-/* 三点菜单 */
 .session-menu-mask{position:fixed;inset:0;z-index:399;display:none;}
 .session-menu-mask.show{display:block;}
 .session-menu{position:fixed;z-index:400;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.15),0 0 0 1px rgba(0,0,0,0.04);padding:6px;display:none;min-width:168px;}
@@ -195,7 +190,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-menu button.danger{color:#dc2626;}
 .session-menu button.danger:hover{background:#fee2e2;}
 .session-menu button .m-ico{font-size:15px;width:18px;text-align:center;flex-shrink:0;line-height:1;}
-/* 重命名弹窗 */
 .rename-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:602;opacity:0;pointer-events:none;transition:opacity .2s;}
 .rename-mask.show{opacity:1;pointer-events:auto;}
 .rename-dialog{position:fixed;left:0;right:0;bottom:0;z-index:603;transform:translateY(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box;}
@@ -229,14 +223,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .weight-seg button.active:hover{background:#6a4ae6;}
 .collapse-card{border:1.5px solid #e2e8f0;border-radius:14px;margin-bottom:16px;background:#fff;overflow:hidden;transition:border-color .15s, box-shadow .15s;}
 .collapse-card.expanded{box-shadow:0 2px 12px rgba(124,58,237,0.08);}
-.collapse-card.sync-theme{border-color:#bae6fd;background:#f8fcff;}
 .collapse-card.api-theme{border-color:#ddd6fe;background:#fbfaff;}
+.collapse-card.backup-theme{border-color:#bbf7d0;background:#f0fdf4;}
 .collapse-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;transition:background .15s;}
 .collapse-head:hover{background:rgba(0,0,0,0.02);}
 .collapse-head .ch-icon{font-size:18px;flex-shrink:0;line-height:1;}
 .collapse-head .ch-title{flex:1;min-width:0;font-size:14px;font-weight:700;color:#334155;display:flex;align-items:center;gap:8px;}
-.collapse-card.sync-theme .ch-title{color:#0369a1;}
 .collapse-card.api-theme .ch-title{color:#5b21b6;}
+.collapse-card.backup-theme .ch-title{color:#166534;}
 .collapse-head .ch-badge{font-size:11px;padding:2px 9px;border-radius:8px;font-weight:600;flex-shrink:0;line-height:1.6;}
 .collapse-head .ch-badge.ok{background:#dcfce7;color:#166534;}
 .collapse-head .ch-badge.warn{background:#fef3c7;color:#92400e;}
@@ -247,26 +241,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .collapse-body{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(0.4,0,0.2,1);}
 .collapse-card.expanded .collapse-body{max-height:2400px;}
 .collapse-body-inner{padding:0 16px 16px;border-top:1px solid #f1f5f9;padding-top:14px;}
-.sync-field{margin-bottom:10px;}
-.sync-field label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;}
-.sync-field input{width:100%;height:36px;padding:0 12px;border:1px solid #cbd5e1;background:#fff;border-radius:10px;font-size:13px;outline:none;color:#1a1a1a;font-family:inherit;box-sizing:border-box;}
-.sync-field input:focus{border-color:#7c5cff;}
-.sync-field input::placeholder{color:#cbd5e1;}
-.sync-actions{display:flex;gap:8px;margin-top:12px;}
-.sync-actions button{flex:1;height:40px;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s;}
-.btn-sync-up{border:none;background:#7c5cff;color:#fff;}
-.btn-sync-up:hover{background:#6a4ae6;}
-.btn-sync-down{border:1.5px solid #7c5cff;background:#fff;color:#7c5cff;}
-.btn-sync-down:hover{background:#f5f2ff;}
-.sync-actions button:disabled{opacity:0.5;cursor:not-allowed;}
-.sync-toggle{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:#475569;padding-top:12px;border-top:1px dashed #cbd5e1;}
-.sync-toggle input{width:18px;height:18px;accent-color:#7c5cff;cursor:pointer;}
-.sync-toggle label{cursor:pointer;font-weight:500;}
-.sync-log{font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.5;min-height:16px;}
-.sync-log.ok{color:#059669;}
-.sync-log.err{color:#dc2626;}
-.sync-help{font-size:11px;color:#94a3b8;line-height:1.6;margin-top:8px;padding-top:10px;border-top:1px dashed #cbd5e1;}
-.sync-help.warn{background:#fef3c7;color:#92400e;padding:10px;border-radius:8px;border-left:3px solid #f59e0b;margin-top:10px;border-top:none;line-height:1.6;}
 .api-row{background:#fafafc;border:1.5px solid #ebebf0;border-radius:12px;padding:11px 12px;margin-bottom:10px;transition:border-color .15s,background .15s;}
 .api-row.has-key{background:#fff;border-color:#d8d8e3;}
 .api-row.is-default{background:#faf8ff;border-color:#7c5cff;}
@@ -357,6 +331,46 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sample-item .si-weight.w-low{background:#f1f5f9;color:#64748b;}
 .sample-item.no-ctx{border-left-color:#cbd5e1;}
 .sample-item.no-ctx .si-me{color:#1a1a1a;}
+.backup-info{font-size:12px;color:#166534;background:#dcfce7;padding:8px 12px;border-radius:10px;margin-bottom:12px;line-height:1.6;}
+.backup-info b{color:#065f46;font-weight:700;}
+.backup-actions{display:flex;gap:8px;margin-bottom:12px;}
+.backup-actions button{flex:1;height:42px;border-radius:12px;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.btn-backup-export{border:1.5px solid #10b981;background:#fff;color:#059669;}
+.btn-backup-export:hover{background:#ecfdf5;}
+.btn-backup-import{border:none;background:#10b981;color:#fff;}
+.btn-backup-import:hover{background:#059669;}
+.backup-help{font-size:11px;color:#999;line-height:1.6;padding-top:10px;border-top:1px dashed #bbf7d0;}
+.backup-help b{color:#059669;}
+.export-dialog-mask,.import-dialog-mask{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:602;opacity:0;pointer-events:none;transition:opacity .2s;}
+.export-dialog-mask.show,.import-dialog-mask.show{opacity:1;pointer-events:auto;}
+.export-dialog,.import-dialog{position:fixed;left:0;right:0;bottom:0;z-index:603;transform:translateY(100%);transition:transform .25s cubic-bezier(0.4,0,0.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box;}
+.export-dialog.show,.import-dialog.show{transform:translateY(0);}
+.export-dialog-inner,.import-dialog-inner{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,0.12);padding:18px;}
+.export-dialog-title,.import-dialog-title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.import-dialog-info{font-size:12px;color:#666;background:#f5f5f7;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.7;}
+.import-dialog-info b{color:#7c5cff;}
+.import-dialog-info .import-tag{font-size:10px;padding:1px 7px;border-radius:5px;font-weight:600;margin-left:4px;}
+.import-dialog-info .import-tag.full{background:#fef3c7;color:#92400e;}
+.import-dialog-info .import-tag.safe{background:#dcfce7;color:#166534;}
+.export-dialog-body,.import-dialog-body{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.export-option,.import-option{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid #ebebf0;border-radius:12px;cursor:pointer;transition:all .15s;background:#fff;}
+.export-option:hover,.import-option:hover{background:#fafafc;}
+.export-option.selected,.import-option.selected{border-color:#7c5cff;background:#faf8ff;}
+.import-option.selected{border-color:#10b981;background:#f0fdf4;}
+.export-option input,.import-option input{margin-top:3px;width:16px;height:16px;accent-color:#7c5cff;flex-shrink:0;cursor:pointer;}
+.import-option input{accent-color:#10b981;}
+.export-option .eo-body,.import-option .eo-body{flex:1;min-width:0;}
+.export-option .eo-title,.import-option .eo-title{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:3px;}
+.export-option.selected .eo-title{color:#7c5cff;}
+.import-option.selected .eo-title{color:#059669;}
+.export-option .eo-desc,.import-option .eo-desc{font-size:11px;color:#888;line-height:1.5;}
+.export-dialog-actions,.import-dialog-actions{display:flex;gap:8px;}
+.export-btn-cancel,.import-btn-cancel{flex:1;height:44px;border:1.5px solid #ebebf0;background:#fff;color:#666;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:500;}
+.export-btn-cancel:hover,.import-btn-cancel:hover{background:#f5f5f7;}
+.export-btn-save,.import-btn-save{flex:2;height:44px;border:none;background:#7c5cff;color:#fff;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600;}
+.export-btn-save:hover{background:#6a4ae6;}
+.import-btn-save{background:#10b981;}
+.import-btn-save:hover{background:#059669;}
 .toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(8px);background:rgba(30,30,35,0.95);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:999;max-width:80%;text-align:center;font-weight:500;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .img-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;}
@@ -513,50 +527,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
         </div>
       </div>
     </div>
-    <div class="collapse-card sync-theme" id="cardSync">
-      <div class="collapse-head" data-toggle="sync">
-        <span class="ch-icon">☁️</span>
-        <span class="ch-title">数据同步</span>
-        <span class="ch-badge info" id="syncHeadBadge">未配置</span>
-        <span class="ch-chev">▶</span>
-      </div>
-      <div class="collapse-body">
-        <div class="collapse-body-inner">
-          <div class="sync-field">
-            <label>服务器地址</label>
-            <input type="text" id="syncUrl" placeholder="https://你的worker.workers.dev/dav" autocomplete="off">
-          </div>
-          <div class="sync-field">
-            <label>WebDAV 账号</label>
-            <input type="text" id="syncUser" placeholder="数据胶囊里设置的专属账号" autocomplete="off">
-          </div>
-          <div class="sync-field">
-            <label>WebDAV 密码</label>
-            <input type="password" id="syncPass" placeholder="数据胶囊里设置的专属密码" autocomplete="new-password">
-          </div>
-          <div class="sync-field">
-            <label>远程路径</label>
-            <input type="text" id="syncPath" placeholder="chat-assistant/data.json" autocomplete="off">
-          </div>
-          <div class="sync-actions">
-            <button class="btn-sync-up" id="syncUpBtn">⬆️ 立即上传</button>
-            <button class="btn-sync-down" id="syncDownBtn">⬇️ 立即拉取</button>
-          </div>
-          <div class="sync-toggle">
-            <input type="checkbox" id="syncAuto">
-            <label for="syncAuto">自动同步（改动后 5 秒自动上传）</label>
-          </div>
-          <div class="sync-log" id="syncLog"></div>
-          <div class="sync-help">
-            🔒 出于安全考虑，<b>API Key、模型/接入点 ID 和 WebDAV 密码不会上传到云端</b>。每台设备各自保留自己的凭证。
-          </div>
-          <div class="sync-help warn">
-            ⚠️ <b>数据胶囊必须通过 Worker 代理才能用。</b><br>
-            服务器地址请填 <b>Worker 地址 + /dav</b>，不要直接填 data.cstcloud.cn。
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="collapse-card" id="cardStyle" style="border-color:#fde68a;background:#fffef9;">
       <div class="collapse-head" data-toggle="style">
         <span class="ch-icon">🎭</span>
@@ -589,8 +559,85 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
         </div>
       </div>
     </div>
+    <div class="collapse-card backup-theme" id="cardBackup">
+      <div class="collapse-head" data-toggle="backup">
+        <span class="ch-icon">💾</span>
+        <span class="ch-title">数据备份</span>
+        <span class="ch-badge info" id="backupHeadBadge">本地</span>
+        <span class="ch-chev">▶</span>
+      </div>
+      <div class="collapse-body">
+        <div class="collapse-body-inner">
+          <div class="backup-info">
+            📦 当前 <b id="backupSessionCount">0</b> 个对话 · <b id="backupSampleCount">0</b> 条样本
+          </div>
+          <div class="backup-actions">
+            <button class="btn-backup-export" id="exportBtn">⬇️ 导出 JSON</button>
+            <button class="btn-backup-import" id="importBtn">⬆️ 导入 JSON</button>
+          </div>
+          <div class="backup-help">
+            💡 导出文件可用来<b>备份、换机迁移</b>。默认<b>不含敏感凭证</b>（API Key / 接入点 ID）。<br>
+            💡 导入时可选择<b>「合并」或「覆盖」</b>，合并会按会话 ID 去重、较新的覆盖较旧的。
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+<div class="export-dialog-mask" id="exportDialogMask"></div>
+<div class="export-dialog" id="exportDialog">
+  <div class="export-dialog-inner">
+    <div class="export-dialog-title">💾 导出数据</div>
+    <div class="export-dialog-body">
+      <label class="export-option selected">
+        <input type="radio" name="exportMode" value="safe" checked>
+        <div class="eo-body">
+          <div class="eo-title">不包含敏感信息（推荐）</div>
+          <div class="eo-desc">API Key、接入点 ID 不会写入文件</div>
+        </div>
+      </label>
+      <label class="export-option">
+        <input type="radio" name="exportMode" value="full">
+        <div class="eo-body">
+          <div class="eo-title">包含全部（含凭证）</div>
+          <div class="eo-desc">用于同人换机迁移，请妥善保管文件，勿分享给他人</div>
+        </div>
+      </label>
+    </div>
+    <div class="export-dialog-actions">
+      <button class="export-btn-cancel" id="exportCancel">取消</button>
+      <button class="export-btn-save" id="exportConfirm">导出</button>
+    </div>
+  </div>
+</div>
+<div class="import-dialog-mask" id="importDialogMask"></div>
+<div class="import-dialog" id="importDialog">
+  <div class="import-dialog-inner">
+    <div class="import-dialog-title">📥 导入数据</div>
+    <div class="import-dialog-info" id="importInfo"></div>
+    <div class="import-dialog-body">
+      <label class="import-option selected">
+        <input type="radio" name="importMode" value="merge" checked>
+        <div class="eo-body">
+          <div class="eo-title">合并（推荐）</div>
+          <div class="eo-desc">按会话 ID 去重，较新的覆盖较旧的；样本按内容去重</div>
+        </div>
+      </label>
+      <label class="import-option">
+        <input type="radio" name="importMode" value="replace">
+        <div class="eo-body">
+          <div class="eo-title">覆盖本地</div>
+          <div class="eo-desc">清空本地所有数据，完全使用导入文件（凭证仍按规则合并）</div>
+        </div>
+      </label>
+    </div>
+    <div class="import-dialog-actions">
+      <button class="import-btn-cancel" id="importCancel">取消</button>
+      <button class="import-btn-save" id="importConfirm">导入</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="importFileInput" accept=".json,application/json" style="display:none">
 <div class="toast" id="toast"></div>
 <script>
 (function(){
@@ -598,6 +645,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 
 var SCHEMA_VERSION = 5;
 var TAGS_VERSION = 1;
+var APP_ID = 'chat-assistant';
 
 var PROVIDERS = {
   deepseek: { name:'DeepSeek', icon:'🐋', url:'https://api.deepseek.com/chat/completions',
@@ -624,6 +672,8 @@ var FALLBACK_TAGS = [
   { tag:'撒娇亲密', re:/想你|抱抱|亲亲|么么|爱你|宝宝|宝贝/ }
 ];
 
+function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+
 function sampleWeight(s, now, halfLifeDays){
   if (!halfLifeDays || halfLifeDays <= 0) return 1;
   if (!s || !s.timestamp) return 0.1;
@@ -633,6 +683,7 @@ function sampleWeight(s, now, halfLifeDays){
 }
 
 function genId(){ return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
 function esc(s){
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;')
@@ -641,18 +692,12 @@ function esc(s){
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
 function sanitizeKey(s){
   return String(s == null ? '' : s).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
 }
-function $(id){ return document.getElementById(id); }
 
-function utf8ToBase64(str){
-  try {
-    return btoa(unescape(encodeURIComponent(str)));
-  } catch(e){
-    return btoa(str.replace(/[^\x00-\x7F]/g, '?'));
-  }
-}
+function $(id){ return document.getElementById(id); }
 
 function createEmptyState(){
   return {
@@ -667,8 +712,7 @@ function createEmptyState(){
     myStyle: '',
     styleSamples: [],
     styleWeight: { halfLifeDays: 30 },
-    webdav: { url:'', user:'', pass:'', path:'chat-assistant/data.json', auto:false },
-    uiOpen: { sync:false, api:false, style:false }
+    uiOpen: { api:false, style:false, backup:false }
   };
 }
 
@@ -686,7 +730,6 @@ var runtime = {
   taSceneProfile: null,
   toastTimer: null,
   cachedVoices: null,
-  // 新增：三点菜单和多选状态
   sessionMenu: { targetId: '' },
   renameTargetId: '',
   multiSelect: { active: false, selected: {} },
@@ -695,7 +738,8 @@ var runtime = {
     pending: 0,
     lastError: null,
     lastSuccessAt: 0
-  }
+  },
+  pendingImport: { payload: null, fileName: '' }
 };
 
 var dom = {};
@@ -711,14 +755,16 @@ function bindDomRefs(){
     'meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave',
     'samplesModal','samplesBody','closeSamples',
     'speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid',
-    'syncUrl','syncUser','syncPass','syncPath','syncUpBtn','syncDownBtn','syncAuto','syncLog',
-    'syncHeadBadge','apiHeadBadge','cardSync','cardApi','cardStyle',
+    'apiHeadBadge','cardApi','cardStyle',
     'profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave',
     'weightSeg','weightHint',
-    // 新增
     'multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow',
     'sessionMenu','sessionMenuMask','pinLabel',
-    'renameMask','renameDialog','renameInput','renameCancel','renameSave'
+    'renameMask','renameDialog','renameInput','renameCancel','renameSave',
+    'cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount',
+    'exportBtn','importBtn',
+    'exportDialogMask','exportDialog','exportCancel','exportConfirm',
+    'importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput'
   ];
   ids.forEach(function(id){ dom[id] = document.getElementById(id); });
 }
@@ -736,14 +782,11 @@ function toast(msg, dur, type){
 }
 
 // ==================== 存储 ====================
-var syncTimer = null;
-var syncFailCount = 0;
 var saveDebounceTimer = null;
 
 function saveNow(){
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    scheduleSync();
   } catch(e){ console.warn('保存失败', e); }
 }
 function save(){
@@ -801,18 +844,15 @@ function migrateState(d){
   return d;
 }
 
-function load(){
+// 规范化外部数据（load 与导入共用）
+function normalizeRawState(d){
+  if (!d || typeof d !== 'object') return null;
   try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    var d = JSON.parse(raw);
-    if (!d || typeof d !== 'object') return false;
-
     d = migrateState(d);
-    state = createEmptyState();
+    var out = createEmptyState();
 
     if (Array.isArray(d.sessions)){
-      state.sessions = d.sessions.filter(function(s){ return s && typeof s === 'object'; }).map(function(s){
+      out.sessions = d.sessions.filter(function(s){ return s && typeof s === 'object'; }).map(function(s){
         return {
           id: typeof s.id === 'string' ? s.id : genId(),
           messages: Array.isArray(s.messages) ? s.messages.filter(function(m){ return m && typeof m === 'object'; }) : [],
@@ -827,36 +867,36 @@ function load(){
       });
     }
 
-    state.currentSessionId = typeof d.currentSessionId === 'string' ? d.currentSessionId : '';
+    out.currentSessionId = typeof d.currentSessionId === 'string' ? d.currentSessionId : '';
 
     if (d.apiKeys && typeof d.apiKeys === 'object'){
       PROVIDER_ORDER.forEach(function(pid){
-        if (typeof d.apiKeys[pid] === 'string') state.apiKeys[pid] = d.apiKeys[pid];
+        if (typeof d.apiKeys[pid] === 'string') out.apiKeys[pid] = d.apiKeys[pid];
       });
     }
     if (d.apiModels && typeof d.apiModels === 'object'){
       PROVIDER_ORDER.forEach(function(pid){
-        if (typeof d.apiModels[pid] === 'string') state.apiModels[pid] = d.apiModels[pid];
+        if (typeof d.apiModels[pid] === 'string') out.apiModels[pid] = d.apiModels[pid];
       });
     }
     if (d.apiEnabled && typeof d.apiEnabled === 'object'){
       PROVIDER_ORDER.forEach(function(pid){
-        if (typeof d.apiEnabled[pid] === 'boolean') state.apiEnabled[pid] = d.apiEnabled[pid];
+        if (typeof d.apiEnabled[pid] === 'boolean') out.apiEnabled[pid] = d.apiEnabled[pid];
       });
     }
-    state.defaultProvider = (typeof d.defaultProvider === 'string' && PROVIDER_ORDER.indexOf(d.defaultProvider) >= 0)
+    out.defaultProvider = (typeof d.defaultProvider === 'string' && PROVIDER_ORDER.indexOf(d.defaultProvider) >= 0)
       ? d.defaultProvider : '';
-    state.myName = typeof d.myName === 'string' ? d.myName : '';
-    state.myStyle = typeof d.myStyle === 'string' ? d.myStyle : '';
+    out.myName = typeof d.myName === 'string' ? d.myName : '';
+    out.myStyle = typeof d.myStyle === 'string' ? d.myStyle : '';
 
     if (d.styleWeight && typeof d.styleWeight === 'object'){
-      state.styleWeight = {
+      out.styleWeight = {
         halfLifeDays: typeof d.styleWeight.halfLifeDays === 'number' ? d.styleWeight.halfLifeDays : 30
       };
     }
 
     if (Array.isArray(d.styleSamples)){
-      state.styleSamples = d.styleSamples.filter(function(s){
+      out.styleSamples = d.styleSamples.filter(function(s){
         return s && typeof s === 'object' && typeof s.myText === 'string';
       }).map(function(s){
         return {
@@ -870,22 +910,27 @@ function load(){
       }).slice(-200);
     }
     if (d.uiOpen && typeof d.uiOpen === 'object'){
-      state.uiOpen = {
-        sync: !!d.uiOpen.sync,
+      out.uiOpen = {
         api: !!d.uiOpen.api,
-        style: !!d.uiOpen.style
+        style: !!d.uiOpen.style,
+        backup: !!d.uiOpen.backup
       };
     }
-    if (d.webdav && typeof d.webdav === 'object'){
-      state.webdav = {
-        url: typeof d.webdav.url === 'string' ? d.webdav.url : '',
-        user: typeof d.webdav.user === 'string' ? d.webdav.user : '',
-        pass: typeof d.webdav.pass === 'string' ? d.webdav.pass : '',
-        path: typeof d.webdav.path === 'string' ? d.webdav.path : 'chat-assistant/data.json',
-        auto: !!d.webdav.auto
-      };
-    }
+    return out;
+  } catch(e){
+    console.warn('数据规范化失败', e);
+    return null;
+  }
+}
 
+function load(){
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    var d = JSON.parse(raw);
+    var normalized = normalizeRawState(d);
+    if (!normalized) return false;
+    state = normalized;
     if (state.sessions.length === 0) createSession(false, 'chat');
     if (!state.currentSessionId || !state.sessions.find(function(s){ return s.id === state.currentSessionId; })){
       state.currentSessionId = state.sessions[0].id;
@@ -895,16 +940,6 @@ function load(){
     console.warn('读取失败', e);
     return false;
   }
-}
-
-// ✅ 修复 #2：apiModels 也一并剥离，避免豆包接入点 ID 上云
-function stateForSync(){
-  var clone = JSON.parse(JSON.stringify(state));
-  clone.schemaVersion = SCHEMA_VERSION;
-  clone.apiKeys   = { deepseek:'', zhipu:'', doubao:'' };
-  clone.apiModels = { deepseek:'', zhipu:'', doubao:'' };
-  clone.webdav    = { url:'', user:'', pass:'', path:'chat-assistant/data.json', auto:false };
-  return clone;
 }
 
 function createSession(switchTo, mode){
@@ -947,7 +982,6 @@ function generateSessionTitle(session){
   return text.length > 18 ? text.slice(0, 18) + '…' : text;
 }
 
-// 统一排序：置顶优先，然后按更新时间倒序
 function sortSessions(list){
   return list.slice().sort(function(a, b){
     var ap = !!a.pinned, bp = !!b.pinned;
@@ -1100,6 +1134,7 @@ function refreshSceneProfiles(){
   runtime.sceneProfile = analyzeScenes(state.styleSamples, '');
   runtime.taSceneProfile = curTaName ? analyzeScenes(state.styleSamples, curTaName) : null;
 }
+// ✅ 修复 #3：移除内部 save()，由调用方决定何时保存
 function updateProfileCache(){
   var session = getCurrentSession();
   var curTaName = session ? (session.taName || '') : '';
@@ -1112,7 +1147,6 @@ function updateProfileCache(){
     runtime.taLangProfile = null;
     runtime.taSceneProfile = null;
   }
-  save();
 }
 function addStyleSample(myText, taText, taName){
   if (!myText || !myText.trim()) return;
@@ -1303,177 +1337,251 @@ function getImageApi(){
   return null;
 }
 
-// ==================== 云同步 ====================
-function scheduleSync(){
-  if (!state.webdav.auto) return;
-  if (!state.webdav.url || !state.webdav.user || !state.webdav.pass) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(function(){
-    webdavUpload(true).then(function(){ syncFailCount = 0; }).catch(function(e){
-      syncFailCount++;
-      console.warn('自动同步失败', e);
-      setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
-      syncLog('自动同步失败(' + syncFailCount + '次)：' + e.message, 'err');
-      if (syncFailCount >= 3){
-        state.webdav.auto = false;
-        dom.syncAuto.checked = false;
-        save();
-        toast('自动同步已关闭（连续失败3次）', 3000, 'error');
-      }
-    });
-  }, 5000);
-}
-function syncLog(msg, type){
-  if (!dom.syncLog) return;
-  dom.syncLog.textContent = msg || '';
-  dom.syncLog.className = 'sync-log' + (type ? ' ' + type : '');
-}
-function setHeadBadge(el, text, cls){
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'ch-badge ' + cls;
-}
-function webdavConfigOk(){
-  return state.webdav.url && state.webdav.user && state.webdav.pass && state.webdav.path;
-}
-function webdavAuth(){ return 'Basic ' + utf8ToBase64(state.webdav.user + ':' + state.webdav.pass); }
-function webdavBaseUrl(){ return state.webdav.url.replace(/\/+$/, ''); }
-function webdavFullPath(){ return webdavBaseUrl() + '/' + state.webdav.path.replace(/^\/+/, ''); }
-async function webdavEnsureDir(){
-  var path = state.webdav.path.replace(/^\/+|\/+$/g, '');
-  var parts = path.split('/').slice(0, -1);
-  if (parts.length === 0) return;
-  var cur = webdavBaseUrl();
-  for (var i = 0; i < parts.length; i++){
-    cur += '/' + parts[i];
-    try { await fetch(cur, { method: 'MKCOL', headers: { 'Authorization': webdavAuth() } }); } catch(e){}
+// ==================== 本地备份（导出 / 导入） ====================
+function renderBackupPanel(){
+  if (dom.backupSessionCount) dom.backupSessionCount.textContent = state.sessions.length;
+  if (dom.backupSampleCount) dom.backupSampleCount.textContent = state.styleSamples.length;
+  if (dom.backupHeadBadge){
+    var n = state.sessions.length;
+    dom.backupHeadBadge.textContent = n > 0 ? n + ' 会话' : '本地';
+    dom.backupHeadBadge.className = 'ch-badge ' + (n > 0 ? 'ok' : 'info');
   }
 }
-async function webdavUpload(silent){
-  if (!webdavConfigOk()) throw new Error('请先填写同步配置');
-  if (!silent){ syncLog('上传中...'); setHeadBadge(dom.syncHeadBadge, '同步中', 'info'); }
-  var data = JSON.stringify(stateForSync(), null, 2);
-  var url = webdavFullPath();
-  var resp = await fetch(url, {
-    method: 'PUT',
-    headers: { 'Authorization': webdavAuth(), 'Content-Type': 'application/json;charset=utf-8' },
-    body: data
-  });
-  if (!resp.ok && (resp.status === 409 || resp.status === 404)){
-    await webdavEnsureDir();
-    resp = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Authorization': webdavAuth(), 'Content-Type': 'application/json;charset=utf-8' },
-      body: data
-    });
-  }
-  if (!resp.ok){
-    var msg = '上传失败(' + resp.status + ')';
-    if (resp.status === 401) msg = '上传失败：账号或密码错误';
-    if (resp.status === 403) msg = '上传失败：服务器拒绝（403）';
-    if (resp.status === 404) msg = '上传失败：路径不存在（404）';
-    if (!silent){ syncLog(msg, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); }
-    throw new Error(msg);
-  }
-  var t = new Date();
-  var timeStr = t.getHours().toString().padStart(2, '0') + ':' + t.getMinutes().toString().padStart(2, '0');
-  if (!silent){ syncLog('✅ 上传成功 · ' + timeStr, 'ok'); toast('已上传', 1500, 'success'); }
-  setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
-  syncFailCount = 0;
-}
-async function webdavDownload(){
-  if (!webdavConfigOk()){ toast('请先填写同步配置', 1800, 'error'); return; }
-  syncLog('拉取中...');
-  setHeadBadge(dom.syncHeadBadge, '同步中', 'info');
-  try {
-    var resp = await fetch(webdavFullPath(), { method: 'GET', headers: { 'Authorization': webdavAuth() } });
-    if (resp.status === 404){
-      syncLog('云端没有数据', 'err');
-      setHeadBadge(dom.syncHeadBadge, '未同步', 'info');
-      toast('云端暂无数据', 1800, 'error');
-      return;
-    }
-    if (!resp.ok){
-      var msg = '拉取失败：' + resp.status;
-      if (resp.status === 401) msg = '拉取失败：账号或密码错误';
-      if (resp.status === 403) msg = '拉取失败：服务器拒绝（403）';
-      syncLog(msg, 'err'); setHeadBadge(dom.syncHeadBadge, '同步失败', 'err'); toast(msg, 2500, 'error');
-      return;
-    }
-    var text = await resp.text();
-    var parsed;
-    try { parsed = JSON.parse(text); }
-    catch(e){
-      syncLog('云端数据不是合法 JSON', 'err');
-      setHeadBadge(dom.syncHeadBadge, '数据异常', 'err');
-      toast('云端数据格式错误', 2500, 'error');
-      return;
-    }
-    if (!parsed || typeof parsed !== 'object'){ syncLog('云端数据为空', 'err'); toast('云端数据异常', 2000, 'error'); return; }
-    if (!confirm('云端数据将覆盖本地，确定拉取？')){ syncLog('已取消'); return; }
-    var localKeys = JSON.parse(JSON.stringify(state.apiKeys));
-    var localModels = JSON.parse(JSON.stringify(state.apiModels));
-    var localEnabled = JSON.parse(JSON.stringify(state.apiEnabled));
-    var localDefaultProvider = state.defaultProvider;
-    var localWebdav = JSON.parse(JSON.stringify(state.webdav));
-    var oldRaw = localStorage.getItem(STORAGE_KEY);
-    try { localStorage.setItem(STORAGE_KEY, text); }
-    catch(e){ toast('本地存储失败（可能已满）', 2500, 'error'); return; }
-    var ok = load();
-    if (!ok){
-      if (oldRaw) localStorage.setItem(STORAGE_KEY, oldRaw);
-      syncLog('拉取后数据校验失败，已恢复', 'err');
-      setHeadBadge(dom.syncHeadBadge, '数据异常', 'err');
-      toast('云端数据格式错误，已回滚', 2500, 'error');
-      return;
-    }
 
-    // ✅ 修复 #1：逐 provider 合并 Key/Model/Enabled，避免云端空值覆盖本地凭证
-    var mergedKeys = {}, mergedModels = {}, mergedEnabled = {};
+function openExportDialog(){
+  var radios = dom.exportDialog.querySelectorAll('input[name=exportMode]');
+  radios.forEach(function(r){ r.checked = r.value === 'safe'; });
+  updateExportOptionStyle();
+  dom.exportDialogMask.classList.add('show');
+  dom.exportDialog.classList.add('show');
+}
+function closeExportDialog(){
+  dom.exportDialogMask.classList.remove('show');
+  dom.exportDialog.classList.remove('show');
+}
+function updateExportOptionStyle(){
+  dom.exportDialog.querySelectorAll('.export-option').forEach(function(opt){
+    var input = opt.querySelector('input');
+    opt.classList.toggle('selected', input.checked);
+  });
+}
+function doExport(){
+  var mode = dom.exportDialog.querySelector('input[name=exportMode]:checked').value;
+  var includesCredentials = (mode === 'full');
+  var dataClone = JSON.parse(JSON.stringify(state));
+  if (!includesCredentials){
+    dataClone.apiKeys   = { deepseek:'', zhipu:'', doubao:'' };
+    dataClone.apiModels = { deepseek:'', zhipu:'', doubao:'' };
+  }
+  var payload = {
+    app: APP_ID,
+    schemaVersion: SCHEMA_VERSION,
+    exportedAt: Date.now(),
+    includesCredentials: includesCredentials,
+    data: dataClone
+  };
+  var json = JSON.stringify(payload, null, 2);
+  var ts = new Date();
+  var fname = 'chat-assistant-'
+    + ts.getFullYear() + pad2(ts.getMonth()+1) + pad2(ts.getDate()) + '-'
+    + pad2(ts.getHours()) + pad2(ts.getMinutes()) + '.json';
+  var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  closeExportDialog();
+  toast('✅ 已导出 ' + fname, 2400, 'success');
+}
+
+function openImportFileDialog(){
+  dom.importFileInput.value = '';
+  dom.importFileInput.click();
+}
+function handleImportFile(file){
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024){ toast('文件过大（>20MB）', 2200, 'error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var parsed;
+    try { parsed = JSON.parse(e.target.result); }
+    catch(err){ toast('文件不是合法 JSON', 2200, 'error'); return; }
+
+    var payload = null;
+    if (parsed && parsed.app === APP_ID && parsed.data){
+      payload = parsed;
+    } else if (parsed && Array.isArray(parsed.sessions)){
+      // 兼容裸 state
+      payload = {
+        app: APP_ID,
+        schemaVersion: parsed.schemaVersion || SCHEMA_VERSION,
+        exportedAt: 0,
+        includesCredentials: PROVIDER_ORDER.some(function(p){ return parsed.apiKeys && parsed.apiKeys[p]; }),
+        data: parsed
+      };
+    } else {
+      toast('不是本应用导出的备份文件', 2400, 'error');
+      return;
+    }
+    if (!payload.data || !Array.isArray(payload.data.sessions)){
+      toast('备份文件内容不完整', 2400, 'error');
+      return;
+    }
+    runtime.pendingImport.payload = payload;
+    runtime.pendingImport.fileName = file.name;
+    showImportOptionsDialog(payload);
+  };
+  reader.onerror = function(){ toast('文件读取失败', 2200, 'error'); };
+  reader.readAsText(file);
+}
+function showImportOptionsDialog(payload){
+  var data = payload.data;
+  var sessions = Array.isArray(data.sessions) ? data.sessions.length : 0;
+  var samples = Array.isArray(data.styleSamples) ? data.styleSamples.length : 0;
+  var exportedAt = payload.exportedAt ? new Date(payload.exportedAt) : null;
+  var credTag = payload.includesCredentials
+    ? '<span class="import-tag full">含凭证</span>'
+    : '<span class="import-tag safe">不含凭证</span>';
+  var timeStr = exportedAt
+    ? exportedAt.getFullYear() + '-' + pad2(exportedAt.getMonth()+1) + '-' + pad2(exportedAt.getDate())
+      + ' ' + pad2(exportedAt.getHours()) + ':' + pad2(exportedAt.getMinutes())
+    : '未知';
+  dom.importInfo.innerHTML =
+    '文件：<b>' + esc(runtime.pendingImport.fileName) + '</b>' + credTag + '<br>' +
+    '包含 <b>' + sessions + '</b> 个对话 · <b>' + samples + '</b> 条样本<br>' +
+    '导出时间：' + timeStr;
+
+  var radios = dom.importDialog.querySelectorAll('input[name=importMode]');
+  radios.forEach(function(r){ r.checked = r.value === 'merge'; });
+  updateImportOptionStyle();
+
+  dom.importDialogMask.classList.add('show');
+  dom.importDialog.classList.add('show');
+}
+function closeImportDialog(){
+  dom.importDialogMask.classList.remove('show');
+  dom.importDialog.classList.remove('show');
+  runtime.pendingImport = { payload: null, fileName: '' };
+}
+function updateImportOptionStyle(){
+  dom.importDialog.querySelectorAll('.import-option').forEach(function(opt){
+    var input = opt.querySelector('input');
+    opt.classList.toggle('selected', input.checked);
+  });
+}
+function doImport(){
+  var payload = runtime.pendingImport.payload;
+  if (!payload){ closeImportDialog(); return; }
+  var mode = dom.importDialog.querySelector('input[name=importMode]:checked').value;
+  var normalized = normalizeRawState(payload.data);
+  if (!normalized){
+    toast('备份数据格式异常', 2200, 'error');
+    closeImportDialog();
+    return;
+  }
+
+  // 保存本地凭证（永远保留，不被导入覆盖）
+  var localKeys = JSON.parse(JSON.stringify(state.apiKeys));
+  var localModels = JSON.parse(JSON.stringify(state.apiModels));
+  var localEnabled = JSON.parse(JSON.stringify(state.apiEnabled));
+  var localDefaultProvider = state.defaultProvider;
+
+  if (mode === 'replace'){
+    // 全量替换
+    var newState = normalized;
     PROVIDER_ORDER.forEach(function(p){
       if (localKeys[p]){
-        // 本地有 key → 完全采用本地
-        mergedKeys[p]    = localKeys[p];
-        mergedModels[p]  = localModels[p] || '';
-        mergedEnabled[p] = localEnabled[p] !== false;
-      } else if (state.apiKeys[p]){
-        // 本地无 key、云端有 → 采用云端（兼容旧设备上传的凭证）
-        mergedKeys[p]    = state.apiKeys[p];
-        mergedModels[p]  = state.apiModels[p] || '';
-        mergedEnabled[p] = state.apiEnabled[p] !== false;
-      } else {
-        mergedKeys[p]    = '';
-        mergedModels[p]  = '';
-        mergedEnabled[p] = true;
+        newState.apiKeys[p] = localKeys[p];
+        newState.apiModels[p] = localModels[p] || '';
+        newState.apiEnabled[p] = localEnabled[p] !== false;
       }
     });
-    state.apiKeys    = mergedKeys;
-    state.apiModels  = mergedModels;
-    state.apiEnabled = mergedEnabled;
-
-    // defaultProvider：本地有效优先，其次回退到任一有效 provider
-    if (localDefaultProvider && mergedKeys[localDefaultProvider]){
-      state.defaultProvider = localDefaultProvider;
-    } else if (!state.defaultProvider || !mergedKeys[state.defaultProvider]){
-      state.defaultProvider =
-        PROVIDER_ORDER.find(function(p){ return mergedKeys[p]; }) || '';
+    if (localDefaultProvider && newState.apiKeys[localDefaultProvider]){
+      newState.defaultProvider = localDefaultProvider;
     }
+    state = newState;
+    if (!state.currentSessionId || !state.sessions.find(function(s){ return s.id === state.currentSessionId; })){
+      if (state.sessions.length === 0) createSession(true, 'chat');
+      else state.currentSessionId = state.sessions[0].id;
+    }
+  } else {
+    // 合并
+    mergeImportedData(normalized, localKeys, localModels, localEnabled, localDefaultProvider);
+  }
 
-    state.webdav = localWebdav;
-    updateProfileCache();
-    runtime.suggestions = [];
-    runtime.avoidSuggestions = [];
-    runtime.loading = false;
-    renderAll();
-    var t = new Date();
-    var timeStr = t.getHours().toString().padStart(2, '0') + ':' + t.getMinutes().toString().padStart(2, '0');
-    syncLog('✅ 拉取成功 · ' + timeStr, 'ok');
-    setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
-    toast('已拉取', 1500, 'success');
-  } catch(e){
-    syncLog('拉取出错：' + e.message, 'err');
-    setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
-    toast('拉取出错：' + e.message, 2500, 'error');
+  updateProfileCache();
+  save();
+  runtime.suggestions = [];
+  runtime.avoidSuggestions = [];
+  runtime.loading = false;
+  renderAll();
+  renderBackupPanel();
+  closeImportDialog();
+  toast('✅ 导入完成（' + (mode === 'merge' ? '合并' : '覆盖') + '）', 2000, 'success');
+  scheduleClassification();
+}
+
+function mergeImportedData(incoming, localKeys, localModels, localEnabled, localDefaultProvider){
+  // 会话：按 id 去重，updatedAt 新的胜出
+  var existingMap = {};
+  state.sessions.forEach(function(s){ existingMap[s.id] = s; });
+  incoming.sessions.forEach(function(s){
+    var cur = existingMap[s.id];
+    if (!cur){
+      state.sessions.push(s);
+      existingMap[s.id] = s;
+    } else if ((s.updatedAt || 0) > (cur.updatedAt || 0)){
+      var idx = state.sessions.indexOf(cur);
+      if (idx >= 0) state.sessions[idx] = s;
+      existingMap[s.id] = s;
+    }
+  });
+
+  // 样本：按 (myText + taText + timestamp) 去重
+  var seen = {};
+  state.styleSamples.forEach(function(s){
+    seen[(s.myText || '') + '\u0001' + (s.taText || '') + '\u0001' + (s.timestamp || 0)] = true;
+  });
+  incoming.styleSamples.forEach(function(s){
+    var key = (s.myText || '') + '\u0001' + (s.taText || '') + '\u0001' + (s.timestamp || 0);
+    if (!seen[key]){
+      state.styleSamples.push(s);
+      seen[key] = true;
+    }
+  });
+  if (state.styleSamples.length > 200) state.styleSamples = state.styleSamples.slice(-200);
+
+  // 空字段补全（本地为空时用文件里的）
+  if (!state.myName && incoming.myName) state.myName = incoming.myName;
+  if (!state.myStyle && incoming.myStyle) state.myStyle = incoming.myStyle;
+  if (state.styleWeight.halfLifeDays === 30 && incoming.styleWeight && typeof incoming.styleWeight.halfLifeDays === 'number'){
+    state.styleWeight.halfLifeDays = incoming.styleWeight.halfLifeDays;
+  }
+
+  // 凭证：本地保留，缺失的从文件补（仅当文件含凭证时）
+  PROVIDER_ORDER.forEach(function(pid){
+    if (localKeys[pid]){
+      state.apiKeys[pid]    = localKeys[pid];
+      state.apiModels[pid]  = localModels[pid] || '';
+      state.apiEnabled[pid] = localEnabled[pid] !== false;
+    } else if (incoming.apiKeys[pid]){
+      state.apiKeys[pid]    = incoming.apiKeys[pid];
+      state.apiModels[pid]  = incoming.apiModels[pid] || '';
+      state.apiEnabled[pid] = incoming.apiEnabled[pid] !== false;
+    }
+  });
+  if (localDefaultProvider && state.apiKeys[localDefaultProvider]){
+    state.defaultProvider = localDefaultProvider;
+  } else if (!state.defaultProvider || !state.apiKeys[state.defaultProvider]){
+    if (incoming.defaultProvider && state.apiKeys[incoming.defaultProvider]){
+      state.defaultProvider = incoming.defaultProvider;
+    } else {
+      state.defaultProvider = PROVIDER_ORDER.find(function(p){ return state.apiKeys[p]; }) || '';
+    }
   }
 }
 
@@ -1485,9 +1593,9 @@ function renderAll(){
   renderSuggestions();
   updateModeBtn();
   renderApiForm();
-  renderSyncPanel();
   renderProfilePanel();
   renderStyleWeightUI();
+  renderBackupPanel();
   applyCollapse();
 }
 
@@ -1553,12 +1661,19 @@ function renderMessages(){
   dom.messages.scrollTop = dom.messages.scrollHeight;
 }
 
+// ✅ 修复 #5：加 lastTouchTime 时间戳，避免触屏笔电 mousedown/touchstart 双触发
 function attachBubbleLongPress(bubble){
   var idx = parseInt(bubble.dataset.idx);
-  var timer = null, pressing = false;
+  var timer = null, pressing = false, lastTouchTime = 0;
   var startPress = function(e){
     if (pressing) return;
-    if (e && e.type === 'mousedown' && e.button !== 0) return;
+    if (e && e.type === 'mousedown'){
+      if (e.button !== 0) return;
+      if (Date.now() - lastTouchTime < 500) return;
+    }
+    if (e && e.type === 'touchstart'){
+      lastTouchTime = Date.now();
+    }
     pressing = true;
     bubble.classList.add('pressing');
     timer = setTimeout(function(){
@@ -1691,10 +1806,10 @@ function renderApiForm(){
         if (newInput){ try { newInput.focus(); newInput.setSelectionRange(selStart, selEnd); } catch(err){} }
       }
     });
-    // ✅ 修复 #4：Key 落库后，若已有待分类样本，立即安排分类
     input.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
       save();
+      // ✅ 修复 #4：填完 Key 后若已有待分类样本，立即安排分类
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
@@ -1737,7 +1852,6 @@ function renderApiForm(){
     });
   });
 
-  // ✅ 修复 #4：开启某个 API 后触发待分类检查
   dom.apiForm.querySelectorAll('input[data-enable]').forEach(function(cb){
     cb.addEventListener('change', function(){
       var pid = cb.dataset.enable;
@@ -1747,6 +1861,7 @@ function renderApiForm(){
         state.defaultProvider = next || '';
       }
       save(); renderApiForm();
+      // ✅ 修复 #4：开启某个 API 后若有待分类样本，立即安排分类
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
@@ -1768,18 +1883,10 @@ function updateApiHeadBadge(){
     setHeadBadge(dom.apiHeadBadge, '未配置', 'info');
   }
 }
-
-function renderSyncPanel(){
-  dom.syncUrl.value = state.webdav.url || '';
-  dom.syncUser.value = state.webdav.user || '';
-  dom.syncPass.value = state.webdav.pass || '';
-  dom.syncPath.value = state.webdav.path || 'chat-assistant/data.json';
-  dom.syncAuto.checked = !!state.webdav.auto;
-  if (webdavConfigOk()){
-    setHeadBadge(dom.syncHeadBadge, state.webdav.auto ? '自动' : '已配置', state.webdav.auto ? 'ok' : 'info');
-  } else {
-    setHeadBadge(dom.syncHeadBadge, '未配置', 'info');
-  }
+function setHeadBadge(el, text, cls){
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'ch-badge ' + cls;
 }
 
 function renderStyleWeightUI(){
@@ -1958,10 +2065,10 @@ function bindProfileActions(){
 }
 
 function applyCollapse(){
-  if (!dom.cardSync) return;
-  dom.cardSync.classList.toggle('expanded', !!state.uiOpen.sync);
+  if (!dom.cardApi) return;
   dom.cardApi.classList.toggle('expanded', !!state.uiOpen.api);
   dom.cardStyle.classList.toggle('expanded', !!state.uiOpen.style);
+  dom.cardBackup.classList.toggle('expanded', !!state.uiOpen.backup);
 }
 function toggleCollapse(key){
   state.uiOpen[key] = !state.uiOpen[key];
@@ -1973,9 +2080,9 @@ function openSettings(){
   dom.myName.value = state.myName;
   dom.myStyle.value = state.myStyle;
   renderProfilePanel();
-  renderSyncPanel();
   renderApiForm();
   renderStyleWeightUI();
+  renderBackupPanel();
   applyCollapse();
   scheduleClassification();
 }
@@ -1998,9 +2105,7 @@ function renderSessionList(){
   var isMulti = runtime.multiSelect.active;
   dom.multiToolbar.classList.toggle('show', isMulti);
   dom.newChatRow.classList.toggle('hide', isMulti);
-  if (isMulti){
-    updateMultiToolbar();
-  }
+  if (isMulti) updateMultiToolbar();
 
   if (state.sessions.length === 0){
     dom.sessionList.innerHTML = '<div class="session-empty">还没有对话</div>';
@@ -2044,11 +2149,8 @@ function renderSessionList(){
     item.addEventListener('click', function(e){
       if (e.target.closest('.session-more')) return;
       var id = item.dataset.id;
-      if (runtime.multiSelect.active){
-        toggleMultiSelect(id);
-      } else {
-        switchSession(id);
-      }
+      if (runtime.multiSelect.active) toggleMultiSelect(id);
+      else switchSession(id);
     });
   });
   dom.sessionList.querySelectorAll('.session-more').forEach(function(btn){
@@ -2107,6 +2209,7 @@ function togglePin(id){
   toast(s.pinned ? '已置顶' : '已取消置顶', 1000, 'success');
 }
 
+// ✅ 修复 #2：优先用 navigator.canShare 判断，UA 只作兜底
 function shareSession(id){
   var s = state.sessions.find(function(x){ return x.id === id; });
   if (!s) return;
@@ -2121,6 +2224,10 @@ function shareSession(id){
     lines.push(who + '：' + m.text);
   });
   var text = lines.join('\n');
+  if (navigator.share && navigator.canShare && navigator.canShare({ text: text })){
+    navigator.share({ title: '对话记录', text: text }).catch(function(){});
+    return;
+  }
   if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
     navigator.share({ title: '对话记录', text: text }).catch(function(){});
     return;
@@ -2137,13 +2244,11 @@ function openRenameDialog(id){
   dom.renameDialog.classList.add('show');
   setTimeout(function(){ try { dom.renameInput.focus(); dom.renameInput.select(); } catch(e){} }, 120);
 }
-
 function closeRenameDialog(){
   dom.renameMask.classList.remove('show');
   dom.renameDialog.classList.remove('show');
   runtime.renameTargetId = '';
 }
-
 function saveRenameDialog(){
   var id = runtime.renameTargetId;
   if (!id){ closeRenameDialog(); return; }
@@ -2165,19 +2270,14 @@ function enterMultiSelect(){
   renderSessionList();
   toast('进入多选模式', 1200);
 }
-
 function exitMultiSelect(){
   runtime.multiSelect.active = false;
   runtime.multiSelect.selected = {};
   renderSessionList();
 }
-
 function toggleMultiSelect(id){
-  if (runtime.multiSelect.selected[id]){
-    delete runtime.multiSelect.selected[id];
-  } else {
-    runtime.multiSelect.selected[id] = true;
-  }
+  if (runtime.multiSelect.selected[id]) delete runtime.multiSelect.selected[id];
+  else runtime.multiSelect.selected[id] = true;
   var item = dom.sessionList.querySelector('.session-item[data-id="' + id + '"]');
   if (item){
     var isSelected = !!runtime.multiSelect.selected[id];
@@ -2187,7 +2287,6 @@ function toggleMultiSelect(id){
   }
   updateMultiToolbar();
 }
-
 function toggleSelectAll(){
   var allSelected = Object.keys(runtime.multiSelect.selected).length === state.sessions.length;
   if (allSelected){
@@ -2198,7 +2297,6 @@ function toggleSelectAll(){
   }
   renderSessionList();
 }
-
 function deleteSelectedSessions(){
   var ids = Object.keys(runtime.multiSelect.selected);
   if (ids.length === 0) return;
@@ -2222,6 +2320,7 @@ function deleteSelectedSessions(){
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  renderBackupPanel();
   toast('已删除 ' + ids.length + ' 个对话', 1400, 'success');
 }
 
@@ -2262,6 +2361,7 @@ function handleNewChat(mode){
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  renderBackupPanel();
   dom.input.focus();
   toast(mode === 'real' ? '已新建：现实对话' : '已新建：线上聊天', 1200, 'success');
 }
@@ -2397,7 +2497,8 @@ function enterEditMode(idx){
     var lastTa = getLastTaText(session);
     var taName = session.taName || '';
     var afterAction = function(){
-      session.messages.push({ role: 'me', text: val });
+      // ✅ 修复 #4（小问题）：统一带 manual:true，与「我说了」行为一致
+      session.messages.push({ role: 'me', text: val, manual: true });
       session.updatedAt = Date.now();
       if (val !== origText) addStyleSample(val, lastTa, taName);
       runtime.suggestions = [];
@@ -2625,7 +2726,6 @@ async function callAI(apiEntry, session, opts){
 
   var statusLine = session.status ? '\n【当前情境】' + session.status : '';
   var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + state.myStyle : '';
-  var my = state.myName ? '我（' + state.myName + '）' : '我';
   var ta = sessionTaName ? '对方（' + sessionTaName + '）' : '对方';
 
   var sampleCount;
@@ -2848,6 +2948,7 @@ function clearStyleSamples(){
   runtime.classifyState.lastError = null;
   save();
   renderProfilePanel();
+  renderBackupPanel();
   toast('已清空学习样本', 1200, 'success');
 }
 
@@ -2983,40 +3084,46 @@ function bindEvents(){
   dom.sheetMask.addEventListener('click', closeActionSheet);
   dom.sheetCancel.addEventListener('click', closeActionSheet);
   dom.sheetDelete.addEventListener('click', deletePendingMessage);
-  dom.cardSync.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('sync'); });
+
   dom.cardApi.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('api'); });
   dom.cardStyle.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('style'); });
-  dom.syncUrl.addEventListener('input', function(){ state.webdav.url = dom.syncUrl.value.trim(); saveDebounced(); });
-  dom.syncUser.addEventListener('input', function(){ state.webdav.user = dom.syncUser.value.trim(); saveDebounced(); });
-  dom.syncPass.addEventListener('input', function(){ state.webdav.pass = dom.syncPass.value; saveDebounced(); });
-  dom.syncPath.addEventListener('input', function(){ state.webdav.path = dom.syncPath.value.trim() || 'chat-assistant/data.json'; saveDebounced(); });
-  dom.syncAuto.addEventListener('change', function(){
-    state.webdav.auto = dom.syncAuto.checked;
-    save();
-    renderSyncPanel();
-    if (state.webdav.auto && webdavConfigOk()){
-      webdavUpload(true).then(function(){
-        syncLog('✅ 已开启自动同步并上传', 'ok');
-        setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
-      }).catch(function(e){
-        syncLog('开启自动同步失败：' + e.message, 'err');
-        setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
-      });
-    }
+  dom.cardBackup.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('backup'); });
+
+  // ============ 备份 ============
+  dom.exportBtn.addEventListener('click', openExportDialog);
+  dom.importBtn.addEventListener('click', openImportFileDialog);
+  dom.exportDialogMask.addEventListener('click', closeExportDialog);
+  dom.exportCancel.addEventListener('click', closeExportDialog);
+  dom.exportConfirm.addEventListener('click', doExport);
+  dom.exportDialog.querySelectorAll('input[name=exportMode]').forEach(function(r){
+    r.addEventListener('change', updateExportOptionStyle);
   });
-  dom.syncUpBtn.addEventListener('click', async function(){
-    dom.syncUpBtn.disabled = true;
-    try { await webdavUpload(false); }
-    catch(e){
-      syncLog('❌ ' + e.message, 'err');
-      setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
-      toast(e.message, 2500, 'error');
-    } finally { dom.syncUpBtn.disabled = false; }
+  dom.exportDialog.querySelectorAll('.export-option').forEach(function(opt){
+    opt.addEventListener('click', function(e){
+      if (e.target.tagName === 'INPUT') return;
+      var input = opt.querySelector('input');
+      input.checked = true;
+      updateExportOptionStyle();
+    });
   });
-  dom.syncDownBtn.addEventListener('click', async function(){
-    dom.syncDownBtn.disabled = true;
-    try { await webdavDownload(); }
-    finally { dom.syncDownBtn.disabled = false; }
+
+  dom.importDialogMask.addEventListener('click', closeImportDialog);
+  dom.importCancel.addEventListener('click', closeImportDialog);
+  dom.importConfirm.addEventListener('click', doImport);
+  dom.importDialog.querySelectorAll('input[name=importMode]').forEach(function(r){
+    r.addEventListener('change', updateImportOptionStyle);
+  });
+  dom.importDialog.querySelectorAll('.import-option').forEach(function(opt){
+    opt.addEventListener('click', function(e){
+      if (e.target.tagName === 'INPUT') return;
+      var input = opt.querySelector('input');
+      input.checked = true;
+      updateImportOptionStyle();
+    });
+  });
+  dom.importFileInput.addEventListener('change', function(e){
+    if (e.target.files.length) handleImportFile(e.target.files[0]);
+    e.target.value = '';
   });
 
   // ============ 三点菜单 & 多选 & 重命名 ============
@@ -3052,6 +3159,8 @@ function bindEvents(){
       else if (dom.samplesModal.classList.contains('show')) closeSamplesModal();
       else if (dom.meInputPanel.classList.contains('show')) closeMeInput();
       else if (dom.sheet.classList.contains('show')) closeActionSheet();
+      else if (dom.exportDialog.classList.contains('show')) closeExportDialog();
+      else if (dom.importDialog.classList.contains('show')) closeImportDialog();
       else if (dom.drawer.classList.contains('show')) closeDrawer();
       else if (dom.settings.classList.contains('show')) closeSettings();
     }
@@ -3094,5 +3203,3 @@ function init(){
 init();
 })();
 </script>
-</body>
-</html>
