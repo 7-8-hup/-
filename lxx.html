@@ -466,7 +466,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
           </div>
           <div class="sync-field">
             <label>WebDAV 密码</label>
-            <input type="password" id="syncPass" placeholder="数据胶囊里设置的专属密码" autocomplete="off">
+            <input type="password" id="syncPass" placeholder="数据胶囊里设置的专属密码" autocomplete="new-password">
           </div>
           <div class="sync-field">
             <label>远程路径</label>
@@ -482,7 +482,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
           </div>
           <div class="sync-log" id="syncLog"></div>
           <div class="sync-help">
-            🔒 出于安全考虑，<b>API Key 不会上传到云端</b>。每台设备各自保留自己的 Key。
+            🔒 出于安全考虑，<b>API Key 和 WebDAV 密码不会上传到云端</b>。每台设备各自保留自己的凭证。
           </div>
           <div class="sync-help warn">
             ⚠️ <b>数据胶囊必须通过 Worker 代理才能用。</b><br>
@@ -558,8 +558,6 @@ var FALLBACK_TAGS = [
   { tag:'撒娇亲密', re:/想你|抱抱|亲亲|么么|爱你|宝宝|宝贝/ }
 ];
 
-// 权重衰减：w = 0.5 ^ (days / halfLife)
-// halfLife = 0 表示关闭衰减，所有样本等权
 function sampleWeight(s, now, halfLifeDays){
   if (!halfLifeDays || halfLifeDays <= 0) return 1;
   if (!s || !s.timestamp) return 0.1;
@@ -577,7 +575,10 @@ function esc(s){
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-function toAscii(s){ return String(s || '').replace(/[^\x00-\x7F]/g, ''); }
+// 修复：只清掉零宽字符和首尾空白，不再粗暴地删除所有非 ASCII（避免误伤合法 Key 中的字符）
+function sanitizeKey(s){
+  return String(s == null ? '' : s).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+}
 function $(id){ return document.getElementById(id); }
 
 function utf8ToBase64(str){
@@ -619,6 +620,7 @@ var runtime = {
   taLangProfile: null,
   taSceneProfile: null,
   toastTimer: null,
+  cachedVoices: null,
   classifyState: {
     running: false,
     pending: 0,
@@ -834,10 +836,12 @@ function load(){
   }
 }
 
+// 修复：API Key 和 WebDAV 密码不上传，避免凭证泄露到云端
 function stateForSync(){
   var clone = JSON.parse(JSON.stringify(state));
   clone.schemaVersion = SCHEMA_VERSION;
   clone.apiKeys = { deepseek:'', zhipu:'', doubao:'' };
+  clone.webdav = { url:'', user:'', pass:'', path:'chat-assistant/data.json', auto:false };
   return clone;
 }
 
@@ -901,7 +905,6 @@ function getHalfLife(){
     : 30;
 }
 
-// 加权版语言画像
 function analyzeLangStyle(samples, taNameFilter){
   var filtered = filterSamplesByTa(samples, taNameFilter || '');
   var valid = filtered.filter(function(s){ return s.myText && s.myText.trim().length > 0; });
@@ -921,16 +924,14 @@ function analyzeLangStyle(samples, taNameFilter){
     particles: [], commonOpeners: [], commonEndings: [], isShort: false
   };
 
-  // 加权平均长度
   profile.avgLen = Math.round(
     weighted.reduce(function(sum, x){ return sum + x.len * x.w; }, 0) / totalW
   );
   profile.maxLen = Math.max.apply(null, weighted.map(function(x){ return x.len; }));
   profile.isShort = profile.avgLen <= 12;
 
-  // 标点：加权
   var periodW = 0, commaW = 0, exclW = 0, emojiW = 0;
-  var emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{1F600}-\u{1F64F}]/u;
+  var emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}]/u;
   weighted.forEach(function(x){
     if (/[。]/.test(x.text)) periodW += x.w;
     if (/[，,]/.test(x.text)) commaW += x.w;
@@ -944,7 +945,6 @@ function analyzeLangStyle(samples, taNameFilter){
   profile.emojiRate = emojiW / totalW;
   profile.useEmoji = profile.emojiRate > 0.15;
 
-  // 语气词：加权
   var particleList = ['哈哈哈','哈哈哈哈','hhh','嘿嘿','嘻嘻','呜呜','emmm','嗯','哦','哦哦','呀','吧','嘛','诶','诶呀','啊','哎','唉','呃','6','笑死','绝了','牛','草','卧槽','妈呀','QAQ','qwq','阿这','那确实','真的假的','是的','对啊','就是','然后','那个','这个','感觉','觉得'];
   var particleW = {};
   particleList.forEach(function(p){ particleW[p] = 0; });
@@ -958,7 +958,6 @@ function analyzeLangStyle(samples, taNameFilter){
     .sort(function(a, b){ return particleW[b] - particleW[a]; })
     .slice(0, 12);
 
-  // 开头字：加权
   var openerW = {};
   weighted.forEach(function(x){
     var c = x.text.trim();
@@ -971,7 +970,6 @@ function analyzeLangStyle(samples, taNameFilter){
     .sort(function(a, b){ return openerW[b] - openerW[a]; })
     .slice(0, 4);
 
-  // 结尾字：加权
   var endingW = {};
   weighted.forEach(function(x){
     var c = x.text.trim();
@@ -996,7 +994,6 @@ function regexClassifyTags(taText){
   return out;
 }
 
-// 场景画像：加权排序
 function analyzeScenes(samples, taNameFilter){
   var filtered = filterSamplesByTa(samples, taNameFilter || '');
   var withCtx = filtered.filter(function(s){ return s.taText && s.myText; });
@@ -1005,7 +1002,7 @@ function analyzeScenes(samples, taNameFilter){
   var now = Date.now();
   var halfLife = getHalfLife();
 
-  var sceneMap = {};   // tagName -> { samples:[], weightSum, rawCount, fromAI }
+  var sceneMap = {};
   withCtx.forEach(function(s){
     var w = sampleWeight(s, now, halfLife);
     var hasAI = Array.isArray(s.tags) && s.tags.length > 0;
@@ -1023,7 +1020,6 @@ function analyzeScenes(samples, taNameFilter){
   return Object.keys(sceneMap)
     .map(function(tag){
       var entry = sceneMap[tag];
-      // 示例改为展示最近的两条（以前是字数最短的）
       var arr = entry.samples.slice().sort(function(a, b){
         return (b.timestamp || 0) - (a.timestamp || 0);
       });
@@ -1154,7 +1150,7 @@ async function callClassifyAPI(batch){
   if (!api) throw new Error('未配置 API');
   var pConf = PROVIDERS[api.provider];
   if (!pConf) throw new Error('未知服务商');
-  var key = toAscii(api.apiKey).trim();
+  var key = sanitizeKey(api.apiKey);
   if (!key) throw new Error('API Key 无效');
   var model = state.apiModels[api.provider] || pConf.model;
   if (api.provider === 'doubao' && !model) throw new Error('豆包需要接入点 ID');
@@ -1167,7 +1163,7 @@ async function callClassifyAPI(batch){
       { role: 'user', content: prompt.user }
     ],
     temperature: 0.3,
-    max_tokens: 1200
+    max_tokens: 2000  // 修复：20 条样本可能被截断
   };
   if (pConf.jsonMode) body.response_format = { type: 'json_object' };
 
@@ -1271,7 +1267,9 @@ async function classifySamplesBatch(){
     runtime.classifyState.running = false;
     runtime.classifyState.pending = countPendingSamples();
     renderProfilePanel();
-    renderSuggestions();
+    // 修复：如果用户正在编辑建议卡片，不要重建，避免打断输入
+    var isEditing = dom.sList && dom.sList.querySelector('.s-card.editing');
+    if (!isEditing) renderSuggestions();
   }
 
   if (runtime.classifyState.pending > 0 && !runtime.classifyState.lastError){
@@ -1490,10 +1488,12 @@ async function webdavDownload(){
     }
     if (!confirm('云端数据将覆盖本地，确定拉取？')){ syncLog('已取消'); return; }
 
+    // 保留本地凭证（云端不存这些）
     var localKeys = JSON.parse(JSON.stringify(state.apiKeys));
     var localModels = JSON.parse(JSON.stringify(state.apiModels));
     var localEnabled = JSON.parse(JSON.stringify(state.apiEnabled));
     var localDefaultProvider = state.defaultProvider;
+    var localWebdav = JSON.parse(JSON.stringify(state.webdav));
 
     var oldRaw = localStorage.getItem(STORAGE_KEY);
     try {
@@ -1512,6 +1512,7 @@ async function webdavDownload(){
       return;
     }
 
+    // 恢复本地凭证和 webdav 配置
     var cloudHasKeys = PROVIDER_ORDER.some(function(p){ return state.apiKeys[p]; });
     if (!cloudHasKeys){
       state.apiKeys = localKeys;
@@ -1519,6 +1520,7 @@ async function webdavDownload(){
       state.apiEnabled = localEnabled;
       state.defaultProvider = localDefaultProvider;
     }
+    state.webdav = localWebdav;
 
     updateProfileCache();
     runtime.suggestions = [];
@@ -1774,8 +1776,25 @@ function renderApiForm(){
 
   dom.apiForm.querySelectorAll('.api-model-input').forEach(function(input){
     input.addEventListener('input', function(e){
-      state.apiModels[e.target.dataset.pid] = e.target.value.trim();
+      var pid = e.target.dataset.pid;
+      var val = e.target.value.trim();
+      state.apiModels[pid] = val;
       saveDebounced();
+      // 修复：豆包 model 警告实时更新，无需重建整个表单
+      if (pid === 'doubao'){
+        var row = e.target.closest('.api-row');
+        if (row){
+          var warn = row.querySelector('.model-warn');
+          if (!val && !warn){
+            var warnEl = document.createElement('div');
+            warnEl.className = 'model-warn';
+            warnEl.textContent = '⚠️ 必填，否则 404';
+            e.target.parentNode.insertBefore(warnEl, e.target.nextSibling);
+          } else if (val && warn){
+            warn.remove();
+          }
+        }
+      }
     });
     input.addEventListener('blur', function(e){
       var pid = e.target.dataset.pid;
@@ -1840,7 +1859,6 @@ function renderSyncPanel(){
   }
 }
 
-// 时间衰减设置 UI
 function renderStyleWeightUI(){
   if (!dom.weightSeg) return;
   var halfLife = getHalfLife();
@@ -1857,7 +1875,6 @@ function renderStyleWeightUI(){
   }
 }
 
-// 分类状态行
 function renderClassifyRow(){
   var samples = state.styleSamples || [];
   if (samples.length === 0) return '';
@@ -1934,7 +1951,6 @@ function renderProfilePanel(){
 
   var classifyRowHtml = renderClassifyRow();
 
-  // 时间衰减提示
   var decayHintHtml = '';
   var halfLife = getHalfLife();
   if (halfLife > 0 && samples.length > 0){
@@ -1978,11 +1994,8 @@ function renderProfilePanel(){
   if (scenes.length > 0){
     scenesHtml = '<div class="pp-scenes">' + scenes.slice(0, 6).map(function(sc){
       var badge = sc.fromAI ? '<span class="ai-badge">AI</span>' : '';
-      // 如果场景权重很高（近期活跃），加一个"热"标记
       var now = Date.now();
-      var maxWeight = 0;
       if (sc.weightSum > 0){
-        // 计算"最近 7 天样本量占该场景的比"
         var recentCount = 0;
         var totalCount = 0;
         (state.styleSamples || []).forEach(function(s){
@@ -2137,7 +2150,9 @@ function deleteSession(id){
   if (state.sessions.length === 0){
     createSession(true, 'chat');
   } else if (state.currentSessionId === id){
-    state.currentSessionId = state.sessions[0].id;
+    // 修复：跳到最近更新的会话，而不是数组第一个
+    var sorted = state.sessions.slice().sort(function(a, b){ return (b.updatedAt || 0) - (a.updatedAt || 0); });
+    state.currentSessionId = sorted[0].id;
     runtime.suggestions = [];
     runtime.avoidSuggestions = [];
     runtime.loading = false;
@@ -2369,14 +2384,21 @@ function closeSpeakPanel(){
   if (window.speechSynthesis) speechSynthesis.cancel();
 }
 
+// 修复：缓存语音列表，解决首次 getVoices 为空的问题
+function loadVoices(){
+  if (!window.speechSynthesis) return;
+  var voices = speechSynthesis.getVoices();
+  if (voices && voices.length > 0) runtime.cachedVoices = voices;
+}
+
 function speakText(text){
   if (!window.speechSynthesis){ toast('浏览器不支持朗读', 1500, 'error'); return; }
   speechSynthesis.cancel();
   var u = new SpeechSynthesisUtterance(text);
   u.lang = 'zh-CN';
   u.rate = 1.0;
-  var voices = speechSynthesis.getVoices();
-  var zh = voices.find(function(v){ return v.lang && v.lang.startsWith('zh'); });
+  var voices = runtime.cachedVoices || speechSynthesis.getVoices();
+  var zh = voices.find(function(v){ return v.lang && v.lang.indexOf('zh') === 0; });
   if (zh) u.voice = zh;
   speechSynthesis.speak(u);
 }
@@ -2474,7 +2496,8 @@ function extractJSON(content){
   if (fb >= 0 && lb > fb){
     var js = text.substring(fb, lb + 1);
     try { return JSON.parse(js); } catch(e){}
-    var fixed = js.replace(/[""]/g, '"').replace(/['']/g, "'").replace(/,\s*([\]}])/g, '$1');
+    // 修复：只修复尾部多余逗号，不再替换引号（避免误伤中文引号内容）
+    var fixed = js.replace(/,\s*([\]}])/g, '$1');
     try { return JSON.parse(fixed); } catch(e){}
     try { return JSON.parse(fixed.replace(/[\x00-\x1F\x7F]/g, ' ')); } catch(e){}
   }
@@ -2510,7 +2533,7 @@ async function callAI(apiEntry, session, opts){
   opts = opts || {};
   var pConf = PROVIDERS[apiEntry.provider];
   if (!pConf) throw new Error('未知服务商');
-  var key = toAscii(apiEntry.apiKey).trim();
+  var key = sanitizeKey(apiEntry.apiKey);
   if (!key) throw new Error('API Key 无效');
   var model = state.apiModels[apiEntry.provider] || pConf.model;
   if (apiEntry.provider === 'doubao' && !model){
@@ -2536,11 +2559,13 @@ async function callAI(apiEntry, session, opts){
   var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
   var profileText = profileToPrompt(langProfile, sceneProfile);
 
-  var pool = sessionTaName
+  // 修复：用布尔标志判断是否有足够的 ta 专属样本，避免引用比较失效
+  var taPool = sessionTaName
     ? state.styleSamples.filter(function(s){ return (s.taName || '') === sessionTaName; })
-    : state.styleSamples.slice();
-  if (pool.length < 3) pool = state.styleSamples.slice();
-  // 最近样本按时间排序取 12 条（更新的优先）
+    : [];
+  var hasEnoughTaPool = taPool.length >= 3;
+  var pool = hasEnoughTaPool ? taPool : state.styleSamples.slice();
+
   var recentSamples = pool.slice().sort(function(a, b){
     return (b.timestamp || 0) - (a.timestamp || 0);
   }).slice(0, 12);
@@ -2553,9 +2578,9 @@ async function callAI(apiEntry, session, opts){
   var ta = sessionTaName ? '对方（' + sessionTaName + '）' : '对方';
 
   var sampleCount;
-  if (sessionTaName && runtime.taLangProfile && pool === state.styleSamples.filter(function(s){ return (s.taName || '') === sessionTaName; })){
+  if (hasEnoughTaPool){
     sampleCount = '（来自我和' + sessionTaName + '对话的样本，共 ' + pool.length + ' 条）';
-  } else if (sessionTaName && pool === state.styleSamples){
+  } else if (sessionTaName && state.styleSamples.length > 0){
     sampleCount = '（' + sessionTaName + '的专属样本不足，参考我所有对话的样本，共 ' + state.styleSamples.length + ' 条）';
   } else {
     sampleCount = '（来自我所有对话的样本，共 ' + state.styleSamples.length + ' 条）';
@@ -2734,7 +2759,9 @@ async function handleSend(){
       renderMessages();
     }
     renderSuggestions();
-    toast('❌ ' + err.message, 3500, 'error');
+    // 修复：如果之前带图，提示图片仍保留，避免用户困惑
+    var hint = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
+    toast('❌ ' + err.message + hint, 3500, 'error');
   } finally {
     dom.sendBtn.disabled = false;
   }
@@ -2804,7 +2831,6 @@ function openSamplesModal(){
       var sceneTags = (Array.isArray(s.tags) && s.tags.length > 0) ? s.tags : [];
       var tagsHtml = sceneTags.map(function(t){ return '<span class="si-scene-tag">' + esc(t) + '</span>'; }).join('');
 
-      // 权重显示
       var weightHtml = '';
       if (halfLife > 0 && s.timestamp){
         var w = sampleWeight(s, now, halfLife);
@@ -2849,7 +2875,6 @@ function bindEvents(){
   });
   dom.sRefresh.addEventListener('click', regenerateSuggestions);
 
-  // 时间衰减按钮
   if (dom.weightSeg){
     dom.weightSeg.querySelectorAll('button').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -2935,10 +2960,20 @@ function bindEvents(){
   dom.syncUser.addEventListener('input', function(){ state.webdav.user = dom.syncUser.value.trim(); saveDebounced(); });
   dom.syncPass.addEventListener('input', function(){ state.webdav.pass = dom.syncPass.value; saveDebounced(); });
   dom.syncPath.addEventListener('input', function(){ state.webdav.path = dom.syncPath.value.trim() || 'chat-assistant/data.json'; saveDebounced(); });
+  // 修复：勾选自动同步时立刻上传一次，避免用户勾完直接关页面
   dom.syncAuto.addEventListener('change', function(){
     state.webdav.auto = dom.syncAuto.checked;
     save();
     renderSyncPanel();
+    if (state.webdav.auto && webdavConfigOk()){
+      webdavUpload(true).then(function(){
+        syncLog('✅ 已开启自动同步并上传', 'ok');
+        setHeadBadge(dom.syncHeadBadge, '已同步', 'ok');
+      }).catch(function(e){
+        syncLog('开启自动同步失败：' + e.message, 'err');
+        setHeadBadge(dom.syncHeadBadge, '同步失败', 'err');
+      });
+    }
   });
   dom.syncUpBtn.addEventListener('click', async function(){
     dom.syncUpBtn.disabled = true;
@@ -2971,7 +3006,11 @@ function bindEvents(){
     if (document.visibilityState === 'hidden') save();
   });
   window.addEventListener('beforeunload', save);
-  if (window.speechSynthesis) speechSynthesis.getVoices();
+  // 修复：监听 voiceschanged，缓存语音列表
+  if (window.speechSynthesis){
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
 }
 
 function init(){
