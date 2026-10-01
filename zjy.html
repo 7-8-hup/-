@@ -54,6 +54,33 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-refresh:active{transform:scale(0.98);}
 .s-refresh:disabled{opacity:0.55;cursor:not-allowed;}
 .s-refresh:disabled:hover{border-color:#d8d8e3;background:#fff;}
+
+/* ============ 教练卡片 ============ */
+.coach-card{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;overflow:hidden;}
+.coach-insight{padding:14px 16px;background:linear-gradient(135deg,#f5f2ff,#faf8ff);border-bottom:1px solid #ece5ff;}
+.ci-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;line-height:1.5;}
+.ci-row:last-child{margin-bottom:0;}
+.ci-label{font-size:11px;font-weight:700;color:#7c5cff;flex-shrink:0;padding-top:3px;white-space:nowrap;}
+.ci-text{font-size:13.5px;color:#3a3a4a;flex:1;min-width:0;line-height:1.5;}
+.coach-versions{padding:12px 16px 14px;}
+.cv-title{font-size:11px;font-weight:700;color:#059669;letter-spacing:0.4px;margin-bottom:10px;text-transform:uppercase;}
+.cv-item{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;background:#fff;border-radius:11px;border:1.5px solid #e0f2ee;margin-bottom:8px;cursor:pointer;transition:all .15s;position:relative;}
+.cv-item:last-child{margin-bottom:0;}
+.cv-item:hover{border-color:#10b981;background:#f0fdf4;}
+.cv-item:active{transform:scale(0.99);}
+.cv-num{width:20px;height:20px;border-radius:50%;background:#dcfce7;color:#059669;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;line-height:1;}
+.cv-body{flex:1;min-width:0;}
+.cv-text{font-size:14.5px;color:#1a1a1a;line-height:1.45;margin-bottom:4px;word-break:break-word;white-space:pre-line;}
+.cv-note{font-size:11px;color:#059669;line-height:1.4;opacity:0.85;}
+.cv-note::before{content:'↳ ';}
+.cv-copy{background:transparent;border:none;color:#c0c0c8;font-size:14px;cursor:pointer;padding:2px 4px;border-radius:6px;flex-shrink:0;transition:all .15s;line-height:1;align-self:flex-start;}
+.cv-copy:hover{background:#ecfdf5;color:#059669;}
+.coach-tip{padding:12px 16px;background:#fffbeb;border-top:1px solid #fef3c7;display:flex;gap:10px;align-items:flex-start;}
+.ct-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:2px;}
+.ct-body{flex:1;min-width:0;}
+.ct-label{font-size:10.5px;font-weight:700;color:#d97706;margin-bottom:3px;letter-spacing:0.3px;}
+.ct-text{font-size:13px;color:#92400e;line-height:1.5;font-weight:500;}
+
 .status-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#fffbeb;border-top:1px solid #fef3c7;font-size:12px;color:#92400e;cursor:pointer;flex-shrink:0;transition:background .15s;min-height:36px;}
 .status-bar:hover{background:#fef3c7;}
 .status-bar.empty .status-text{color:#b45309;opacity:0.75;}
@@ -65,7 +92,16 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .status-bar .sep{color:#d97706;opacity:0.5;margin:0 2px;}
 .status-bar .status-edit{border:none;background:transparent;color:#b45309;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
 .status-bar .status-edit:hover{background:#fde68a;}
-.composer{flex-shrink:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;display:flex;align-items:center;gap:6px;background:#fff;}
+
+/* ============ 输入模式 Tab ============ */
+.input-tabs{display:flex;gap:4px;padding:8px 16px 4px;background:#fff;border-top:1px solid #ebebf0;flex-shrink:0;}
+.itab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:none;background:transparent;border-radius:10px;font-size:12.5px;font-family:inherit;color:#888;cursor:pointer;font-weight:500;transition:all .15s;line-height:1.3;}
+.itab:hover{background:#f5f5f7;}
+.itab.active{background:#f0ecff;color:#5b3dd6;font-weight:600;}
+.itab.active[data-imode="coach"]{background:#ecfdf5;color:#059669;}
+.itab-icon{font-size:14px;line-height:1;}
+
+.composer{flex-shrink:0;padding:8px 16px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:6px;background:#fff;}
 .composer input{flex:1;min-width:0;height:40px;padding:0 14px;border:none;background:#f5f5f7;border-radius:20px;font-size:15px;outline:none;color:#1a1a1a;font-family:inherit;}
 .composer input:focus{background:#efeff4;}
 .composer input::placeholder{color:#999;}
@@ -73,6 +109,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .send-btn:hover{background:#6a4ae6;}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;}
 .send-btn:active:not(:disabled){transform:scale(0.95);}
+.send-btn.coach-mode{background:#10b981;}
+.send-btn.coach-mode:hover{background:#059669;}
 .me-btn{width:36px;height:36px;border-radius:50%;border:none;background:#d1fae5;color:#059669;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-weight:600;line-height:1;}
 .me-btn:hover{background:#a7f3d0;}
 .me-btn:active{transform:scale(0.95);}
@@ -399,6 +437,16 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
     <button class="s-refresh" id="sRefresh"><span>🔄</span><span>换一批</span></button>
   </section>
   <div class="status-bar empty" id="statusBar"></div>
+  <div class="input-tabs" id="inputTabs">
+    <button class="itab active" data-imode="chat" id="itabChat">
+      <span class="itab-icon">💬</span>
+      <span class="itab-text">对方说了什么</span>
+    </button>
+    <button class="itab" data-imode="coach" id="itabCoach">
+      <span class="itab-icon">✍️</span>
+      <span class="itab-text">帮我改得更好</span>
+    </button>
+  </div>
   <div class="img-preview" id="imgPreview">
     <img id="previewImg" alt="">
     <button id="removeImg" aria-label="移除">✕</button>
@@ -645,10 +693,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 (function(){
 'use strict';
 
-var SCHEMA_VERSION = 5;
+var SCHEMA_VERSION = 6;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
-
 var MAX_HISTORY_MESSAGES = 100;
 
 var PROVIDERS = {
@@ -670,6 +717,13 @@ var FALLBACK_SUGGESTIONS = [
   '好家伙', '绝了', '我服了', '可以啊', '你小子'
 ];
 var FALLBACK_STYLES = ['短', '情绪', '展开'];
+
+// 教练模式补全用
+var COACH_FALLBACK = {
+  heard: '对方可能会觉得你有点情绪',
+  need: '你其实是想让对方感受到你的在意',
+  tip: '把"你怎么不…"换成"我有点…"'
+};
 
 var SCENE_TAGS = [
   '情绪支持','夸奖回应','提问回答','邀约协商','玩笑互怼','撒娇亲密',
@@ -710,8 +764,6 @@ function sanitizeKey(s){
   return String(s == null ? '' : s).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
 }
 
-function $(id){ return document.getElementById(id); }
-
 function safeGetStorage(key){
   try { return localStorage.getItem(key); }
   catch(e){ return null; }
@@ -721,7 +773,6 @@ function safeSetStorage(key, val){
   catch(e){ return false; }
 }
 
-// 检查是否是真正"用户想提交"的回车（排除输入法组合状态）
 function isRealEnter(e){
   return e.key === 'Enter' && !e.isComposing && e.keyCode !== 229;
 }
@@ -750,8 +801,11 @@ var runtime = {
   pendingDeleteIdx: -1,
   currentSpeakIdx: -1,
   currentSpeakText: '',
+  // chat 模式建议
   suggestions: [],
   avoidSuggestions: [],
+  // coach 模式结果
+  coachResult: null,
   langProfile: null,
   sceneProfile: null,
   taLangProfile: null,
@@ -771,30 +825,42 @@ var runtime = {
   pendingImport: { payload: null, fileName: '' }
 };
 
-// ═══════════ 建议内存缓存（不落 localStorage，刷新后自动清空）═══════════
-// 结构：{ sessionId: { suggestions: [...], avoid: [...] } }
+// ═══════════ 建议内存缓存 ═══════════
+// { sessionId: { type:'chat'|'coach', suggestions:[], coach:null, avoid:[] } }
 var suggestionCache = {};
 
-function setSuggestionsFor(sid, suggestions, avoid){
-  if (!suggestions || suggestions.length === 0){
+function syncRuntimeFromCache(sid){
+  var c = suggestionCache[sid];
+  if (!c){
+    runtime.suggestions = [];
+    runtime.coachResult = null;
+    runtime.avoidSuggestions = [];
+    return;
+  }
+  runtime.suggestions = c.suggestions || [];
+  runtime.coachResult = c.coach || null;
+  runtime.avoidSuggestions = c.avoid || [];
+}
+
+function setReplyFor(sid, opts){
+  var existing = suggestionCache[sid] || {};
+  var next = {
+    type: opts.type || existing.type || 'chat',
+    suggestions: opts.suggestions !== undefined ? opts.suggestions : (existing.suggestions || []),
+    coach: opts.coach !== undefined ? opts.coach : (existing.coach || null),
+    avoid: opts.avoid !== undefined ? opts.avoid : (existing.avoid || [])
+  };
+  if ((!next.suggestions || !next.suggestions.length) && !next.coach){
     delete suggestionCache[sid];
   } else {
-    suggestionCache[sid] = {
-      suggestions: suggestions,
-      avoid: avoid || []
-    };
+    suggestionCache[sid] = next;
   }
-  if (sid === state.currentSessionId){
-    runtime.suggestions = suggestions || [];
-    runtime.avoidSuggestions = avoid || [];
-  }
+  if (sid === state.currentSessionId) syncRuntimeFromCache(sid);
 }
-function clearSuggestionsFor(sid){
+
+function clearReplyFor(sid){
   delete suggestionCache[sid];
-  if (sid === state.currentSessionId){
-    runtime.suggestions = [];
-    runtime.avoidSuggestions = [];
-  }
+  if (sid === state.currentSessionId) syncRuntimeFromCache(sid);
 }
 
 var dom = {};
@@ -819,7 +885,8 @@ function bindDomRefs(){
     'cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount',
     'exportBtn','importBtn',
     'exportDialogMask','exportDialog','exportCancel','exportConfirm',
-    'importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput'
+    'importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput',
+    'inputTabs','itabChat','itabCoach'
   ];
   ids.forEach(function(id){ dom[id] = document.getElementById(id); });
 }
@@ -838,7 +905,6 @@ function toast(msg, dur, type){
 
 // ==================== 存储 ====================
 var saveDebounceTimer = null;
-
 function saveNow(){
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -905,6 +971,8 @@ function migrateState(d){
     }
     d.schemaVersion = 5; v = 5;
   }
+  // v6: session 增加 inputMode 字段（在 normalizeRawState 里做兼容处理）
+  if (v < 6){ d.schemaVersion = 6; v = 6; }
   return d;
 }
 
@@ -924,6 +992,7 @@ function normalizeRawState(d){
           title: typeof s.title === 'string' ? s.title : '',
           pinned: !!s.pinned,
           mode: (s.mode === 'real' || s.mode === 'chat') ? s.mode : 'chat',
+          inputMode: (s.inputMode === 'coach' || s.inputMode === 'chat') ? s.inputMode : 'chat',
           createdAt: typeof s.createdAt === 'number' ? s.createdAt : Date.now(),
           updatedAt: typeof s.updatedAt === 'number' ? s.updatedAt : Date.now()
         };
@@ -1016,6 +1085,7 @@ function createSession(switchTo, mode){
     title: '',
     pinned: false,
     mode: mode,
+    inputMode: 'chat',
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
@@ -1062,6 +1132,38 @@ function formatTime(ts){
   if (diff < 7 * 24 * 60 * 60 * 1000) return Math.floor(diff / 86400000) + '天前';
   var d = new Date(ts);
   return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+
+// ==================== 输入模式 ====================
+function getInputMode(){
+  var session = getCurrentSession();
+  return session.inputMode === 'coach' ? 'coach' : 'chat';
+}
+function setInputMode(mode){
+  var session = getCurrentSession();
+  if (session.inputMode === mode) return;
+  session.inputMode = mode;
+  session.updatedAt = Date.now();
+  save();
+  updateInputTabs();
+  updateComposerPlaceholder();
+  syncRuntimeFromCache(session.id);
+  renderSuggestions();
+}
+function updateInputTabs(){
+  var mode = getInputMode();
+  dom.itabChat.classList.toggle('active', mode === 'chat');
+  dom.itabCoach.classList.toggle('active', mode === 'coach');
+  dom.sendBtn.classList.toggle('coach-mode', mode === 'coach');
+}
+function updateComposerPlaceholder(){
+  var inputMode = getInputMode();
+  var isReal = (getCurrentSession().mode || 'chat') === 'real';
+  if (inputMode === 'coach'){
+    dom.input.placeholder = '你本来想回什么...';
+  } else {
+    dom.input.placeholder = isReal ? '对方刚说了什么...' : '对方说了什么...';
+  }
 }
 
 // ==================== 画像分析 ====================
@@ -1399,7 +1501,7 @@ function getImageApi(){
   return null;
 }
 
-// ==================== 本地备份（导出 / 导入） ====================
+// ==================== 备份 ====================
 function renderBackupPanel(){
   if (dom.backupSessionCount) dom.backupSessionCount.textContent = state.sessions.length;
   if (dom.backupSampleCount) dom.backupSampleCount.textContent = state.styleSamples.length;
@@ -1409,7 +1511,6 @@ function renderBackupPanel(){
     dom.backupHeadBadge.className = 'ch-badge ' + (n > 0 ? 'ok' : 'info');
   }
 }
-
 function openExportDialog(){
   var radios = dom.exportDialog.querySelectorAll('input[name=exportMode]');
   radios.forEach(function(r){ r.checked = r.value === 'safe'; });
@@ -1445,7 +1546,6 @@ function doExport(){
   var json = JSON.stringify(payload, null, 2);
   var sizeMB = json.length / 1024 / 1024;
   if (sizeMB > 5){
-    // 大文件提醒（confirm 可能在某些浏览器被拦截，失败则忽略继续）
     try {
       if (!confirm('导出文件约 ' + sizeMB.toFixed(1) + ' MB，可能较大，继续吗？')) return;
     } catch(e){}
@@ -1466,7 +1566,6 @@ function doExport(){
   closeExportDialog();
   toast('✅ 已导出 ' + fname, 2400, 'success');
 }
-
 function openImportFileDialog(){
   dom.importFileInput.value = '';
   dom.importFileInput.click();
@@ -1479,7 +1578,6 @@ function handleImportFile(file){
     var parsed;
     try { parsed = JSON.parse(e.target.result); }
     catch(err){ toast('文件不是合法 JSON', 2200, 'error'); return; }
-
     var payload = null;
     if (parsed && parsed.app === APP_ID && parsed.data){
       payload = parsed;
@@ -1522,11 +1620,9 @@ function showImportOptionsDialog(payload){
     '文件：<b>' + esc(runtime.pendingImport.fileName) + '</b>' + credTag + '<br>' +
     '包含 <b>' + sessions + '</b> 个对话 · <b>' + samples + '</b> 条样本<br>' +
     '导出时间：' + timeStr;
-
   var radios = dom.importDialog.querySelectorAll('input[name=importMode]');
   radios.forEach(function(r){ r.checked = r.value === 'merge'; });
   updateImportOptionStyle();
-
   dom.importDialogMask.classList.add('show');
   dom.importDialog.classList.add('show');
 }
@@ -1551,12 +1647,10 @@ function doImport(){
     closeImportDialog();
     return;
   }
-
   var localKeys = JSON.parse(JSON.stringify(state.apiKeys));
   var localModels = JSON.parse(JSON.stringify(state.apiModels));
   var localEnabled = JSON.parse(JSON.stringify(state.apiEnabled));
   var localDefaultProvider = state.defaultProvider;
-
   if (mode === 'replace'){
     var newState = normalized;
     PROVIDER_ORDER.forEach(function(p){
@@ -1577,14 +1671,10 @@ function doImport(){
   } else {
     mergeImportedData(normalized, localKeys, localModels, localEnabled, localDefaultProvider);
   }
-
-  // 导入会替换/合并会话，建议缓存全部失效
   suggestionCache = {};
-
   updateProfileCache();
   save();
-  runtime.suggestions = [];
-  runtime.avoidSuggestions = [];
+  syncRuntimeFromCache(state.currentSessionId);
   runtime.loading = false;
   closeSpeakPanel();
   renderAll();
@@ -1593,7 +1683,6 @@ function doImport(){
   toast('✅ 导入完成（' + (mode === 'merge' ? '合并' : '覆盖') + '）', 2000, 'success');
   scheduleClassification();
 }
-
 function mergeImportedData(incoming, localKeys, localModels, localEnabled, localDefaultProvider){
   var existingMap = {};
   state.sessions.forEach(function(s){ existingMap[s.id] = s; });
@@ -1608,7 +1697,6 @@ function mergeImportedData(incoming, localKeys, localModels, localEnabled, local
       existingMap[s.id] = s;
     }
   });
-
   var seen = {};
   state.styleSamples.forEach(function(s){
     seen[(s.myText || '') + '\u0001' + (s.taText || '') + '\u0001' + (s.timestamp || 0)] = true;
@@ -1621,13 +1709,11 @@ function mergeImportedData(incoming, localKeys, localModels, localEnabled, local
     }
   });
   if (state.styleSamples.length > 200) state.styleSamples = state.styleSamples.slice(-200);
-
   if (!state.myName && incoming.myName) state.myName = incoming.myName;
   if (!state.myStyle && incoming.myStyle) state.myStyle = incoming.myStyle;
   if (state.styleWeight.halfLifeDays === 30 && incoming.styleWeight && typeof incoming.styleWeight.halfLifeDays === 'number'){
     state.styleWeight.halfLifeDays = incoming.styleWeight.halfLifeDays;
   }
-
   PROVIDER_ORDER.forEach(function(pid){
     if (localKeys[pid]){
       state.apiKeys[pid]    = localKeys[pid];
@@ -1657,6 +1743,8 @@ function renderAll(){
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  updateInputTabs();
+  updateComposerPlaceholder();
   renderApiForm();
   renderProfilePanel();
   renderStyleWeightUI();
@@ -1700,16 +1788,19 @@ function updateModeBtn(){
   dom.modeBtn.title = mode === 'real' ? '当前：现实对话（点击切换）' : '当前：线上聊天（点击切换）';
   dom.modeBtn.style.background = mode === 'real' ? '#dcfce7' : '#ede9fe';
   dom.modeBtn.style.color = mode === 'real' ? '#166534' : '#5b21b6';
-  dom.input.placeholder = mode === 'real' ? '对方刚说了什么...' : '对方说了什么...';
 }
 
 function renderMessages(){
   var session = getCurrentSession();
   var msgs = session.messages || [];
   var mode = session.mode || 'chat';
+  var inputMode = session.inputMode || 'chat';
   if (msgs.length === 0){
+    var coach = inputMode === 'coach';
     if (mode === 'real'){
       dom.messages.innerHTML = '<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>';
+    } else if (coach){
+      dom.messages.innerHTML = '<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>';
     } else {
       dom.messages.innerHTML = '<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>';
     }
@@ -1735,9 +1826,7 @@ function attachBubbleLongPress(bubble){
       if (e.button !== 0) return;
       if (Date.now() - lastTouchTime < 500) return;
     }
-    if (e && e.type === 'touchstart'){
-      lastTouchTime = Date.now();
-    }
+    if (e && e.type === 'touchstart') lastTouchTime = Date.now();
     pressing = true;
     bubble.classList.add('pressing');
     timer = setTimeout(function(){
@@ -1765,11 +1854,16 @@ function attachBubbleLongPress(bubble){
 function renderSuggestions(){
   var session = getCurrentSession();
   var mode = session.mode || 'chat';
+  var inputMode = getInputMode();
 
   if (runtime.loading){
     dom.suggestions.classList.add('show');
     dom.sList.innerHTML = '';
-    dom.sTitleText.textContent = mode === 'real' ? '正在想你可以怎么说...' : '生成中...';
+    if (inputMode === 'coach'){
+      dom.sTitleText.textContent = '教练正在分析...';
+    } else {
+      dom.sTitleText.textContent = mode === 'real' ? '正在想你可以怎么说...' : '生成中...';
+    }
     dom.sTitleTip.style.display = 'none';
     dom.sTitleSpinner.style.display = 'inline-block';
     dom.sRefresh.style.display = 'flex';
@@ -1782,6 +1876,26 @@ function renderSuggestions(){
   dom.sRefresh.disabled = false;
   dom.sRefresh.innerHTML = '<span>🔄</span><span>换一批</span>';
 
+  // 教练模式
+  if (inputMode === 'coach'){
+    var coach = runtime.coachResult;
+    if (!coach || !coach.versions || !coach.versions.length){
+      dom.suggestions.classList.remove('show');
+      dom.sList.innerHTML = '';
+      dom.sRefresh.style.display = 'none';
+      return;
+    }
+    dom.suggestions.classList.add('show');
+    dom.sTitleText.textContent = '🧠 表达教练';
+    dom.sTitleTip.textContent = '点一句直接用，📋 复制';
+    dom.sTitleTip.style.display = 'inline';
+    dom.sList.innerHTML = renderCoachCard(coach);
+    bindCoachCardEvents();
+    dom.sRefresh.style.display = 'flex';
+    return;
+  }
+
+  // chat 模式
   if (!runtime.suggestions || runtime.suggestions.length === 0){
     dom.suggestions.classList.remove('show');
     dom.sList.innerHTML = '';
@@ -1817,7 +1931,84 @@ function renderSuggestions(){
   });
 }
 
-// ═══════════ API 表单：整表渲染 + 单行重建 ═══════════
+function renderCoachCard(coach){
+  var html = '<div class="coach-card">';
+  if (coach.heard || coach.need){
+    html += '<div class="coach-insight">';
+    if (coach.heard){
+      html += '<div class="ci-row"><span class="ci-label">👂 对方听到</span><div class="ci-text">' + esc(coach.heard) + '</div></div>';
+    }
+    if (coach.need){
+      html += '<div class="ci-row"><span class="ci-label">🎯 你想说</span><div class="ci-text">' + esc(coach.need) + '</div></div>';
+    }
+    html += '</div>';
+  }
+  if (coach.versions && coach.versions.length){
+    html += '<div class="coach-versions"><div class="cv-title">🌱 试试这样说</div>';
+    coach.versions.forEach(function(v, i){
+      html += '<div class="cv-item" data-cvidx="' + i + '">' +
+        '<div class="cv-num">' + (i+1) + '</div>' +
+        '<div class="cv-body">' +
+          '<div class="cv-text">' + esc(v.text) + '</div>' +
+          (v.note ? '<div class="cv-note">' + esc(v.note) + '</div>' : '') +
+        '</div>' +
+        '<button class="cv-copy" data-cvidx="' + i + '" aria-label="复制">📋</button>' +
+        '</div>';
+    });
+    html += '</div>';
+  }
+  if (coach.tip){
+    html += '<div class="coach-tip">' +
+      '<span class="ct-icon">💡</span>' +
+      '<div class="ct-body">' +
+        '<div class="ct-label">一句话口诀</div>' +
+        '<div class="ct-text">' + esc(coach.tip) + '</div>' +
+      '</div>' +
+      '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function bindCoachCardEvents(){
+  dom.sList.querySelectorAll('.cv-item').forEach(function(item){
+    item.addEventListener('click', function(e){
+      if (e.target.closest('.cv-copy')) return;
+      useCoachVersion(parseInt(item.dataset.cvidx));
+    });
+  });
+  dom.sList.querySelectorAll('.cv-copy').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      useCoachVersion(parseInt(btn.dataset.cvidx));
+    });
+  });
+}
+
+function useCoachVersion(idx){
+  var coach = runtime.coachResult;
+  if (!coach || !coach.versions || !coach.versions[idx]) return;
+  var v = coach.versions[idx];
+  var session = getCurrentSession();
+  var sid = session.id;
+  var lastTa = getLastTaText(session);
+  var taName = session.taName || '';
+
+  var afterAction = function(){
+    session.messages.push({ role: 'me', text: v.text, manual: true });
+    session.updatedAt = Date.now();
+    addStyleSample(v.text, lastTa, taName);
+    clearReplyFor(sid);
+    save();
+    renderMessages();
+    renderSuggestions();
+    renderHeader();
+    toast('✅ 已记录到对话（已学习）', 1600, 'success');
+  };
+  copyText(v.text, afterAction);
+}
+
+// ============ API 表单 ============
 function buildApiRowHtml(pid){
   var p = PROVIDERS[pid];
   var key = state.apiKeys[pid] || '';
@@ -1871,7 +2062,6 @@ function bindApiRowEvents(row){
       }
       saveDebounced();
       if (hasKey !== hadKey){
-        // 只重建这一行
         var selStart = e.target.selectionStart, selEnd = e.target.selectionEnd;
         renderApiRow(pid);
         var newInput = dom.apiForm.querySelector('.api-key-input[data-pid="' + pid + '"]');
@@ -1882,9 +2072,7 @@ function bindApiRowEvents(row){
     keyInput.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
       save();
-      if (getDefaultApi() && countPendingSamples() > 0){
-        scheduleClassification();
-      }
+      if (getDefaultApi() && countPendingSamples() > 0) scheduleClassification();
     });
   }
   var modelInput = row.querySelector('.api-model-input');
@@ -1918,10 +2106,7 @@ function bindApiRowEvents(row){
     defaultBtn.addEventListener('click', function(){
       state.defaultProvider = defaultBtn.dataset.act === 'unset' ? '' : defaultBtn.dataset.pid;
       save();
-      // 所有行都要更新（因为可能取消/切换默认）
-      dom.apiForm.querySelectorAll('.api-row').forEach(function(r){
-        renderApiRow(r.dataset.pid);
-      });
+      dom.apiForm.querySelectorAll('.api-row').forEach(function(r){ renderApiRow(r.dataset.pid); });
       updateApiHeadBadge();
     });
   }
@@ -1937,9 +2122,7 @@ function bindApiRowEvents(row){
       save();
       renderApiRow(pid);
       updateApiHeadBadge();
-      if (getDefaultApi() && countPendingSamples() > 0){
-        scheduleClassification();
-      }
+      if (getDefaultApi() && countPendingSamples() > 0) scheduleClassification();
     });
   }
 }
@@ -2053,7 +2236,6 @@ function renderProfilePanel(){
   var session = getCurrentSession();
   var curTaName = session ? (session.taName || '') : '';
   var taSamplesCount = curTaName ? samples.filter(function(s){ return (s.taName || '') === curTaName; }).length : 0;
-
   var taRowHtml = '';
   if (curTaName){
     taRowHtml = '<div class="pp-ta-row">' +
@@ -2192,7 +2374,6 @@ function closeDrawer(){
   closeSessionMenu();
 }
 
-// ==================== 会话列表渲染 ====================
 function renderSessionList(){
   var isMulti = runtime.multiSelect.active;
   dom.multiToolbar.classList.toggle('show', isMulti);
@@ -2220,12 +2401,10 @@ function renderSessionList(){
     if (hasStatus) metaParts.push('📌 有情境');
     metaParts.push(count > 0 ? count + ' 条 · ' + formatTime(s.updatedAt) : '空对话');
     var meta = metaParts.join(' · ');
-
     var itemCls = 'session-item'
       + (isActive ? ' active' : '')
       + (isMulti ? ' multi' : '')
       + (isSelected ? ' selected' : '');
-
     html += '<div class="' + itemCls + '" data-id="' + s.id + '">' +
       '<div class="s-check">' + (isSelected ? '✓' : '') + '</div>' +
       '<div class="s-body">' +
@@ -2236,7 +2415,6 @@ function renderSessionList(){
       '</div>';
   });
   dom.sessionList.innerHTML = html;
-
   dom.sessionList.querySelectorAll('.session-item').forEach(function(item){
     item.addEventListener('click', function(e){
       if (e.target.closest('.session-more')) return;
@@ -2263,15 +2441,12 @@ function updateMultiToolbar(){
   dom.mtSelectAll.textContent = allSelected ? '取消全选' : '全选';
 }
 
-// ==================== 三点菜单 ====================
 function openSessionMenu(id, btnEl){
   runtime.sessionMenu.targetId = id;
   var session = state.sessions.find(function(s){ return s.id === id; });
   if (!session) return;
   dom.pinLabel.textContent = session.pinned ? '取消置顶' : '置顶';
-
   var menu = dom.sessionMenu;
-  // 先在屏幕外测量，避免出现在默认位置造成闪烁
   menu.style.top = '-9999px';
   menu.style.left = '0px';
   menu.classList.add('show');
@@ -2288,13 +2463,11 @@ function openSessionMenu(id, btnEl){
   menu.style.left = left + 'px';
   dom.sessionMenuMask.classList.add('show');
 }
-
 function closeSessionMenu(){
   dom.sessionMenu.classList.remove('show');
   dom.sessionMenuMask.classList.remove('show');
   runtime.sessionMenu.targetId = '';
 }
-
 function togglePin(id){
   var s = state.sessions.find(function(x){ return x.id === id; });
   if (!s) return;
@@ -2303,7 +2476,6 @@ function togglePin(id){
   renderSessionList();
   toast(s.pinned ? '已置顶' : '已取消置顶', 1000, 'success');
 }
-
 function shareSession(id){
   var s = state.sessions.find(function(x){ return x.id === id; });
   if (!s) return;
@@ -2320,22 +2492,15 @@ function shareSession(id){
   var text = lines.join('\n');
   if (navigator.share){
     var canShare = false;
-    try {
-      canShare = navigator.canShare ? navigator.canShare({ text: text }) : true;
-    } catch(e){
-      canShare = false;
-    }
-    // 移动端即使 canShare 判断不准，也尝试一次原生分享
+    try { canShare = navigator.canShare ? navigator.canShare({ text: text }) : true; }
+    catch(e){ canShare = false; }
     if (canShare || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-      try {
-        navigator.share({ title: '对话记录', text: text }).catch(function(){});
-        return;
-      } catch(e){}
+      try { navigator.share({ title: '对话记录', text: text }).catch(function(){}); return; }
+      catch(e){}
     }
   }
   copyText(text, function(){ toast('对话已复制到剪贴板', 1800, 'success'); });
 }
-
 function openRenameDialog(id){
   runtime.renameTargetId = id;
   var s = state.sessions.find(function(x){ return x.id === id; });
@@ -2363,8 +2528,6 @@ function saveRenameDialog(){
   renderHeader();
   toast(newTitle ? '已重命名' : '已恢复自动标题', 1200, 'success');
 }
-
-// ==================== 多选模式 ====================
 function enterMultiSelect(){
   runtime.multiSelect.active = true;
   runtime.multiSelect.selected = {};
@@ -2390,9 +2553,8 @@ function toggleMultiSelect(id){
 }
 function toggleSelectAll(){
   var allSelected = Object.keys(runtime.multiSelect.selected).length === state.sessions.length;
-  if (allSelected){
-    runtime.multiSelect.selected = {};
-  } else {
+  if (allSelected) runtime.multiSelect.selected = {};
+  else {
     runtime.multiSelect.selected = {};
     state.sessions.forEach(function(s){ runtime.multiSelect.selected[s.id] = true; });
   }
@@ -2403,7 +2565,7 @@ function deleteSelectedSessions(){
   if (ids.length === 0) return;
   var ok = true;
   try { ok = confirm('删除选中的 ' + ids.length + ' 个对话？此操作不可恢复。'); }
-  catch(e){ ok = true; }  // confirm 被拦截时默认继续
+  catch(e){ ok = true; }
   if (!ok) return;
   state.sessions = state.sessions.filter(function(s){ return ids.indexOf(s.id) < 0; });
   ids.forEach(function(id){ delete suggestionCache[id]; });
@@ -2412,51 +2574,40 @@ function deleteSelectedSessions(){
   } else if (ids.indexOf(state.currentSessionId) >= 0){
     var sorted = sortSessions(state.sessions);
     state.currentSessionId = sorted[0].id;
-    var cached = suggestionCache[state.currentSessionId];
-    runtime.suggestions = (cached && cached.suggestions) || [];
-    runtime.avoidSuggestions = (cached && cached.avoid) || [];
+    syncRuntimeFromCache(state.currentSessionId);
     runtime.loading = false;
     closeSpeakPanel();
   }
   updateProfileCache();
   save();
-  // exitMultiSelect 内部已经 renderSessionList
   exitMultiSelect();
   renderHeader();
   renderStatusBar();
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  updateInputTabs();
+  updateComposerPlaceholder();
   renderBackupPanel();
   toast('已删除 ' + ids.length + ' 个对话', 1400, 'success');
 }
 
-// ==================== 会话切换 / 删除 ====================
 function switchSession(id){
   if (state.currentSessionId === id){ closeDrawer(); return; }
-
-  // 保存当前会话的建议到缓存
+  // 保存当前会话的回复到缓存
   var prevSid = state.currentSessionId;
   if (runtime.suggestions && runtime.suggestions.length > 0){
-    suggestionCache[prevSid] = {
-      suggestions: runtime.suggestions.slice(),
-      avoid: (runtime.avoidSuggestions || []).slice()
-    };
+    setReplyFor(prevSid, { type: 'chat', suggestions: runtime.suggestions.slice(), avoid: (runtime.avoidSuggestions || []).slice() });
+  } else if (runtime.coachResult){
+    setReplyFor(prevSid, { type: 'coach', coach: runtime.coachResult });
   } else if (runtime.avoidSuggestions && runtime.avoidSuggestions.length > 0){
-    suggestionCache[prevSid] = {
-      suggestions: [],
-      avoid: runtime.avoidSuggestions.slice()
-    };
+    setReplyFor(prevSid, { type: 'chat', suggestions: [], avoid: runtime.avoidSuggestions.slice() });
   } else {
     delete suggestionCache[prevSid];
   }
-
   state.currentSessionId = id;
-
-  // 从缓存恢复目标会话的建议
-  var cached = suggestionCache[id];
-  runtime.suggestions = (cached && cached.suggestions) || [];
-  runtime.avoidSuggestions = (cached && cached.avoid) || [];
+  // 从缓存恢复目标会话
+  syncRuntimeFromCache(id);
   runtime.loading = false;
   if (runtime.imageBase64) clearImage();
   closeSpeakPanel();
@@ -2467,6 +2618,8 @@ function switchSession(id){
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  updateInputTabs();
+  updateComposerPlaceholder();
   closeDrawer();
   setTimeout(function(){ dom.messages.scrollTop = dom.messages.scrollHeight; }, 50);
 }
@@ -2480,6 +2633,7 @@ function handleNewChat(mode){
   }
   createSession(true, mode);
   runtime.suggestions = [];
+  runtime.coachResult = null;
   runtime.avoidSuggestions = [];
   runtime.loading = false;
   if (runtime.imageBase64) clearImage();
@@ -2492,6 +2646,8 @@ function handleNewChat(mode){
   renderMessages();
   renderSuggestions();
   updateModeBtn();
+  updateInputTabs();
+  updateComposerPlaceholder();
   renderBackupPanel();
   dom.input.focus();
   toast(mode === 'real' ? '已新建：现实对话' : '已新建：线上聊天', 1200, 'success');
@@ -2549,7 +2705,7 @@ function deletePendingMessage(){
   if (idx < 0 || !session.messages[idx]){ closeActionSheet(); return; }
   session.messages.splice(idx, 1);
   session.updatedAt = Date.now();
-  clearSuggestionsFor(session.id);
+  clearReplyFor(session.id);
   runtime.loading = false;
   closeSpeakPanel();
   save();
@@ -2593,17 +2749,14 @@ function saveMeInput(){
   var session = getCurrentSession();
   var lastTa = getLastTaText(session);
   var taName = session.taName || '';
-
-  // 样本去重：完全相同的 (myText, taText, taName) 不再重复学习
   var isDup = state.styleSamples.some(function(s){
     return s.myText === text
       && (s.taText || '') === (lastTa || '')
       && (s.taName || '') === (taName || '');
   });
-
   session.messages.push({ role: 'me', text: text, manual: true });
   session.updatedAt = Date.now();
-  clearSuggestionsFor(session.id);
+  clearReplyFor(session.id);
   runtime.loading = false;
   closeSpeakPanel();
   if (!isDup) addStyleSample(text, lastTa, taName);
@@ -2644,7 +2797,7 @@ function enterEditMode(idx){
       session.messages.push({ role: 'me', text: val, manual: true });
       session.updatedAt = Date.now();
       if (val !== origText) addStyleSample(val, lastTa, taName);
-      clearSuggestionsFor(session.id);
+      clearReplyFor(session.id);
       save();
       renderMessages();
       renderSuggestions();
@@ -2680,16 +2833,13 @@ function fallbackCopy(text, cb){
   try { ok = document.execCommand('copy'); }
   catch(e){ ok = false; }
   document.body.removeChild(ta);
-  if (ok){
-    cb();
-  } else {
+  if (ok) cb();
+  else {
     toast('复制失败，请手动选中复制', 2000, 'error');
-    // 仍然回调，保证后续逻辑（如记录样本、推送消息）能继续
     cb();
   }
 }
 
-// ==================== 现实说话面板 ====================
 function openSpeakPanel(idx){
   if (!runtime.suggestions[idx]) return;
   runtime.currentSpeakIdx = idx;
@@ -2728,7 +2878,7 @@ function confirmSpeakSaid(){
   session.messages.push({ role: 'me', text: val, manual: true });
   session.updatedAt = Date.now();
   addStyleSample(val, lastTa, taName);
-  clearSuggestionsFor(session.id);
+  clearReplyFor(session.id);
   save();
   closeSpeakPanel();
   renderMessages();
@@ -2845,11 +2995,8 @@ function ensureThreeSuggestions(list){
   while (out.length < 3 && k < FALLBACK_SUGGESTIONS.length * 2){
     var candidate = FALLBACK_SUGGESTIONS[(out.length * 7 + k) % FALLBACK_SUGGESTIONS.length];
     var dup = out.some(function(x){ return x.text === candidate; });
-    if (!dup){
-      out.push({ text: candidate, style: FALLBACK_STYLES[out.length] || '建议' });
-    } else {
-      k++;
-    }
+    if (!dup) out.push({ text: candidate, style: FALLBACK_STYLES[out.length] || '建议' });
+    else k++;
   }
   while (out.length < 3){
     out.push({ text: '嗯', style: FALLBACK_STYLES[out.length] || '建议' });
@@ -2857,6 +3004,61 @@ function ensureThreeSuggestions(list){
   return out;
 }
 
+function ensureThreeCoachVersions(list){
+  var out = (list || []).filter(function(v){
+    return v && v.text && String(v.text).trim().length > 0;
+  }).slice(0, 3).map(function(v){
+    return { text: String(v.text).trim(), note: String(v.note || '').trim() };
+  });
+  var k = 0;
+  while (out.length < 3 && k < FALLBACK_SUGGESTIONS.length * 2){
+    var candidate = FALLBACK_SUGGESTIONS[(out.length * 5 + k) % FALLBACK_SUGGESTIONS.length];
+    var dup = out.some(function(x){ return x.text === candidate; });
+    if (!dup) out.push({ text: candidate, note: '' });
+    else k++;
+  }
+  while (out.length < 3){
+    out.push({ text: '嗯…再说吧', note: '' });
+  }
+  return out;
+}
+
+// ==================== 通用 AI 请求 ====================
+async function rawChatRequest(apiEntry, body, timeoutMs){
+  var pConf = PROVIDERS[apiEntry.provider];
+  if (!pConf) throw new Error('未知服务商');
+  var key = sanitizeKey(apiEntry.apiKey);
+  if (!key) throw new Error('API Key 无效');
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, timeoutMs || 60000);
+  var resp;
+  try {
+    resp = await fetch(pConf.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify(body), signal: ctrl.signal
+    });
+  } catch(e){
+    if (e.name === 'AbortError') throw new Error('请求超时');
+    throw new Error('网络错误：' + e.message);
+  } finally { clearTimeout(timer); }
+  if (!resp.ok){
+    var t = await resp.text();
+    try { var j = JSON.parse(t); t = (j.error && j.error.message) || j.message || t; } catch(e){}
+    if (resp.status === 400) throw new Error('请求错误：' + t.substring(0, 120));
+    if (resp.status === 401) throw new Error('API Key 无效');
+    if (resp.status === 403) throw new Error('访问被拒绝');
+    if (resp.status === 404) throw new Error('404：模型或接入点不存在');
+    if (resp.status === 429) throw new Error('请求过于频繁');
+    throw new Error('API错误(' + resp.status + ')：' + t.substring(0, 100));
+  }
+  var data = await resp.json();
+  var content = '';
+  try { content = data.choices[0].message.content || ''; } catch(e){}
+  return content;
+}
+
+// ==================== chat 模式：AI 调用 ====================
 async function callAI(apiEntry, session, opts){
   opts = opts || {};
   var pConf = PROVIDERS[apiEntry.provider];
@@ -2881,13 +3083,10 @@ async function callAI(apiEntry, session, opts){
   }
   var isReal = (session.mode || 'chat') === 'real';
   var sessionTaName = session.taName || '';
-
   var allMessages = session.messages || [];
   var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
-    ? allMessages.slice(-MAX_HISTORY_MESSAGES)
-    : allMessages;
+    ? allMessages.slice(-MAX_HISTORY_MESSAGES) : allMessages;
   var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
-
   var historyLines = historyMessages.map(function(m){
     var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
     return who + '：' + m.text;
@@ -2913,13 +3112,11 @@ async function callAI(apiEntry, session, opts){
   var langProfile = runtime.taLangProfile || runtime.langProfile;
   var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
   var profileText = profileToPrompt(langProfile, sceneProfile);
-
   var taPool = sessionTaName
     ? state.styleSamples.filter(function(s){ return (s.taName || '') === sessionTaName; })
     : [];
   var hasEnoughTaPool = taPool.length >= 3;
   var pool = hasEnoughTaPool ? taPool : state.styleSamples.slice();
-
   var recentSamples = pool.slice().sort(function(a, b){
     return (b.timestamp || 0) - (a.timestamp || 0);
   }).slice(0, 12);
@@ -3025,32 +3222,8 @@ async function callAI(apiEntry, session, opts){
   });
   var body = { model: model, messages: messages, temperature: 1.05, max_tokens: 800 };
   if (pConf.jsonMode && !imageData) body.response_format = { type: 'json_object' };
-  var ctrl = new AbortController();
-  var timer = setTimeout(function(){ ctrl.abort(); }, 60000);
-  var resp;
-  try {
-    resp = await fetch(pConf.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify(body), signal: ctrl.signal
-    });
-  } catch(e){
-    if (e.name === 'AbortError') throw new Error('请求超时');
-    throw new Error('网络错误：' + e.message);
-  } finally { clearTimeout(timer); }
-  if (!resp.ok){
-    var t = await resp.text();
-    try { var j = JSON.parse(t); t = (j.error && j.error.message) || j.message || t; } catch(e){}
-    if (resp.status === 400) throw new Error('请求错误：' + t.substring(0, 120));
-    if (resp.status === 401) throw new Error('API Key 无效');
-    if (resp.status === 403) throw new Error('访问被拒绝');
-    if (resp.status === 404) throw new Error('404：模型或接入点不存在');
-    if (resp.status === 429) throw new Error('请求过于频繁');
-    throw new Error('API错误(' + resp.status + ')：' + t.substring(0, 100));
-  }
-  var data = await resp.json();
-  var content = '';
-  try { content = data.choices[0].message.content || ''; } catch(e){}
+  var content = await rawChatRequest(apiEntry, body, 60000);
+
   var parsed = extractJSON(content);
   if (!parsed || !parsed.suggestions || parsed.suggestions.length === 0){
     parsed = textFallback(content);
@@ -3069,10 +3242,137 @@ async function callAI(apiEntry, session, opts){
   return parsed;
 }
 
+// ==================== coach 模式：AI 调用 ====================
+async function callCoachAPI(apiEntry, session, myDraft){
+  var pConf = PROVIDERS[apiEntry.provider];
+  if (!pConf) throw new Error('未知服务商');
+  var key = sanitizeKey(apiEntry.apiKey);
+  if (!key) throw new Error('API Key 无效');
+  var model = state.apiModels[apiEntry.provider] || pConf.model;
+  if (apiEntry.provider === 'doubao' && !model) throw new Error('豆包需要填接入点 ID（ep-开头）');
+  var imageData = null;
+  if (runtime.imageBase64){
+    imageData = runtime.imageBase64.startsWith('data:image')
+      ? runtime.imageBase64 : 'data:image/jpeg;base64,' + runtime.imageBase64;
+    if (apiEntry.provider === 'doubao'){
+      if (!model) throw new Error('豆包需要填接入点 ID 才能发图片');
+    } else if (pConf.visionModel){
+      model = pConf.visionModel;
+    } else {
+      throw new Error(pConf.name + ' 不支持图片');
+    }
+  }
+  var sessionTaName = session.taName || '';
+  var ta = sessionTaName ? ('对方（' + sessionTaName + '）') : '对方';
+  var allMessages = session.messages || [];
+  var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
+    ? allMessages.slice(-MAX_HISTORY_MESSAGES) : allMessages;
+  var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
+  var historyLines = historyMessages.map(function(m){
+    var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
+    return who + '：' + m.text;
+  }).join('\n');
+  var historyBlock = historyLines
+    ? '【最近的完整对话历史】' + (historyTruncated ? '（仅展示最近 ' + MAX_HISTORY_MESSAGES + ' 条）' : '') + '\n' +
+      '───────────────────────────────\n' + historyLines + '\n───────────────────────────────'
+    : '（这是对话的开始，还没有历史消息）';
+
+  var statusLine = session.status ? '\n【当前情境】' + session.status : '';
+  var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + state.myStyle : '';
+  var langProfile = runtime.taLangProfile || runtime.langProfile;
+  var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
+  var profileText = profileToPrompt(langProfile, sceneProfile);
+
+  var systemPrompt =
+    '你是【我本人】的表达教练。\n' +
+    '对方（' + ta + '）刚才跟我说了话，我已经想好一句要回的话，但不确定这么说好不好。\n' +
+    '请站在"让对方听着更舒服"的角度，帮我分析，并给我几个更好的版本。\n\n' +
+    historyBlock + '\n' +
+    '【我本来想说的】\n"' + myDraft + '"\n' +
+    statusLine + '\n' + extraStyle + '\n\n' +
+    '═══════════════════════════════\n' +
+    '【你的任务】\n' +
+    '═══════════════════════════════\n' +
+    '1. 【对方听到的感受】heard\n' +
+    '   站在对方角度，我这句话传过去，对方大概率会有什么感觉？\n' +
+    '   不评价对错，只说真实的感受。\n' +
+    '   例如："听起来像责备"、"有点像命令"、"感觉你在讨好"。\n' +
+    '   30-50 字，只描述感受，不啰嗦。\n\n' +
+    '2. 【我其实想说的】need\n' +
+    '   把我没说出口的真实需求点出来。\n' +
+    '   例如："你其实是想说：我在意你，想被回应"。\n' +
+    '   20-40 字。\n\n' +
+    '3. 【3 个更舒服的版本】versions\n' +
+    '   基于同样的意图，给出 3 句让对方听着更舒服的说法。\n' +
+    '   - 保持我的语言风格（见下方画像），不要变成另一个人说话\n' +
+    '   - 长度跟我差不多（不要突然变长）\n' +
+    '   - 3 句角度不同：有的更直接、有的更柔软、有的更具体\n' +
+    '   - 每句后跟一句 20 字内的"为什么这样说"（note）\n\n' +
+    '4. 【一句话口诀】tip\n' +
+    '   把这类表达的本质浓缩成一句好记的话。\n' +
+    '   例如："把\'你为什么不…\'换成\'我有点…\'"。\n' +
+    '   15 字内。\n\n' +
+    '═══════════════════════════════\n' +
+    '【我的语言画像】（新版本要和这个风格一致）\n' +
+    '═══════════════════════════════\n' +
+    (profileText || '（样本较少，按普通年轻人聊天风格）') + '\n' +
+    '═══════════════════════════════\n' +
+    '【风格要求】\n' +
+    '═══════════════════════════════\n' +
+    '- 3 个版本必须是"读完就能直接发出去"的完整句子\n' +
+    '- 不要说教、不要端架子、不要"首先其次"、不要心理学术语\n' +
+    '- "对方听到的感受"里不要有评价性词汇（如"不对""不好"）\n' +
+    '- 口诀要口语化，不能是抽象名词堆砌\n\n' +
+    '输出纯 JSON，第一个字符是 {：\n' +
+    '{"heard":"...","need":"...","versions":[{"text":"...","note":"..."},{"text":"...","note":"..."},{"text":"...","note":"..."}],"tip":"..."}';
+
+  var messages = [{ role: 'system', content: systemPrompt }];
+  // 把最近几条对话作为上下文（如果有），最后一条如果是 ta 且带图，附图
+  historyMessages.forEach(function(m, i, arr){
+    var isLast = i === arr.length - 1;
+    var role = m.role === 'ta' ? 'user' : 'assistant';
+    if (isLast && m.role === 'ta' && imageData){
+      messages.push({
+        role: 'user',
+        content: [
+          { type: 'text', text: m.text || '（图片）' },
+          { type: 'image_url', image_url: { url: imageData } }
+        ]
+      });
+    } else {
+      messages.push({ role: role, content: m.text });
+    }
+  });
+  // 如果历史为空，加一条占位 user，避免某些 API 因无 user 报错
+  if (messages.length === 1){
+    messages.push({ role: 'user', content: '（无历史对话，仅分析我想说的话）' });
+  }
+  var body = { model: model, messages: messages, temperature: 0.9, max_tokens: 900 };
+  if (pConf.jsonMode && !imageData) body.response_format = { type: 'json_object' };
+  var content = await rawChatRequest(apiEntry, body, 60000);
+  var parsed = extractJSON(content);
+  if (!parsed || (!parsed.versions && !parsed.heard && !parsed.need && !parsed.tip)){
+    console.warn('教练模式 AI 原始返回：', content);
+    var rawPreview = content ? String(content).replace(/\s+/g, ' ').slice(0, 80) : '(空)';
+    toast('⚠️ AI 没按格式返回，已给兜底｜原始：' + rawPreview, 5000, 'error');
+    parsed = { heard: COACH_FALLBACK.heard, need: COACH_FALLBACK.need, versions: [], tip: COACH_FALLBACK.tip };
+  }
+  var result = {
+    heard: String(parsed.heard || COACH_FALLBACK.heard).trim(),
+    need: String(parsed.need || COACH_FALLBACK.need).trim(),
+    versions: ensureThreeCoachVersions(parsed.versions),
+    tip: String(parsed.tip || COACH_FALLBACK.tip).trim()
+  };
+  return result;
+}
+
+// ==================== 发送 ====================
 async function handleSend(){
   if (runtime.loading) return;
   var text = dom.input.value.trim();
   if (!text && !runtime.imageBase64){ toast('请输入内容', 1200); return; }
+  var inputMode = getInputMode();
+
   var usedApi, switchedForImage = false;
   if (runtime.imageBase64){
     usedApi = getImageApi();
@@ -3087,15 +3387,57 @@ async function handleSend(){
       return;
     }
   }
+
   var session = getCurrentSession();
   var requestSessionId = session.id;
+  var originalInput = text;
+
+  // ============ 教练模式 ============
+  if (inputMode === 'coach'){
+    if (!text){ toast('教练模式需要先输入你想说的话', 1500, 'error'); return; }
+    // 教练模式不落库到 messages，只作为分析输入
+    dom.input.value = '';
+    clearReplyFor(requestSessionId);
+    runtime.loading = true;
+    renderSuggestions();
+    dom.sendBtn.disabled = true;
+    try {
+      var coachResult = await callCoachAPI(usedApi, session, text);
+      if (getCurrentSession().id !== requestSessionId){
+        setReplyFor(requestSessionId, { type: 'coach', coach: coachResult, suggestions: [] });
+        runtime.loading = false;
+        save();
+        if (runtime.imageBase64) clearImage();
+        return;
+      }
+      runtime.loading = false;
+      setReplyFor(requestSessionId, { type: 'coach', coach: coachResult, suggestions: [] });
+      save();
+      renderSuggestions();
+      if (runtime.imageBase64) clearImage();
+      if (switchedForImage){
+        toast('📷 已用 ' + PROVIDERS[usedApi.provider].name + ' 识别图片', 1500, 'success');
+      }
+    } catch(err){
+      runtime.loading = false;
+      // 恢复输入框内容
+      dom.input.value = originalInput;
+      renderSuggestions();
+      var hint = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
+      toast('❌ ' + err.message + hint, 3500, 'error');
+    } finally {
+      dom.sendBtn.disabled = false;
+    }
+    return;
+  }
+
+  // ============ chat 模式 ============
   var finalText = text || '请描述这张图片';
   var pushedMsg = { role: 'ta', text: finalText };
   session.messages.push(pushedMsg);
   session.updatedAt = Date.now();
   dom.input.value = '';
-  // 开新一批前，清掉当前会话的建议
-  clearSuggestionsFor(requestSessionId);
+  clearReplyFor(requestSessionId);
   save();
   renderMessages();
   renderHeader();
@@ -3104,18 +3446,15 @@ async function handleSend(){
   dom.sendBtn.disabled = true;
   try {
     var result = await callAI(usedApi, session);
-
     if (getCurrentSession().id !== requestSessionId){
-      // 用户已切走：结果写回原会话的缓存，不刷新 UI
-      setSuggestionsFor(requestSessionId, result.suggestions || [], []);
+      setReplyFor(requestSessionId, { type: 'chat', suggestions: result.suggestions || [], avoid: [] });
       runtime.loading = false;
       save();
       if (runtime.imageBase64) clearImage();
       return;
     }
-
     runtime.loading = false;
-    setSuggestionsFor(requestSessionId, result.suggestions || [], []);
+    setReplyFor(requestSessionId, { type: 'chat', suggestions: result.suggestions || [], avoid: [] });
     save();
     renderSuggestions();
     if (runtime.imageBase64) clearImage();
@@ -3124,7 +3463,6 @@ async function handleSend(){
     }
   } catch(err){
     runtime.loading = false;
-    // 从原会话移除失败的消息
     var origin = state.sessions.find(function(s){ return s.id === requestSessionId; });
     if (origin){
       var idx = origin.messages.indexOf(pushedMsg);
@@ -3133,22 +3471,23 @@ async function handleSend(){
         origin.updatedAt = Date.now();
       }
     }
-    // 失败也清空建议缓存（避免显示旧批）
-    clearSuggestionsFor(requestSessionId);
+    clearReplyFor(requestSessionId);
     save();
     if (getCurrentSession().id === requestSessionId){
       renderMessages();
       renderSuggestions();
     }
-    var hint = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
-    toast('❌ ' + err.message + hint, 3500, 'error');
+    var hint2 = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
+    toast('❌ ' + err.message + hint2, 3500, 'error');
   } finally {
     dom.sendBtn.disabled = false;
   }
 }
 
+// ==================== 换一批 ====================
 async function regenerateSuggestions(){
   if (runtime.loading) return;
+  var inputMode = getInputMode();
   var session = getCurrentSession();
   var requestSessionId = session.id;
   var lastTa = null;
@@ -3156,11 +3495,17 @@ async function regenerateSuggestions(){
     if (session.messages[i].role === 'ta'){ lastTa = session.messages[i]; break; }
   }
   if (!lastTa){ toast('没有对方的消息可重生成', 1500, 'error'); return; }
+
+  if (inputMode === 'coach'){
+    // 教练模式：用上一句"我本来想说的"重新生成。但没存原文，只能提示用户重新输入
+    toast('教练模式请重新输入你想说的话', 2200, 'info');
+    return;
+  }
+
   var usedApi = runtime.imageBase64 ? getImageApi() : getDefaultApi();
   if (runtime.imageBase64 && !usedApi){ toast('没有已启用的图片 API', 2500, 'error'); return; }
   if (!usedApi){ toast('没有已启用的 API，请去设置里检查', 2200, 'error'); openSettings(); return; }
 
-  // 收集去重池：优先用当前会话缓存的，其次 runtime
   var cached = suggestionCache[requestSessionId];
   var avoid = [];
   if (cached && cached.avoid) avoid = avoid.concat(cached.avoid);
@@ -3180,17 +3525,14 @@ async function regenerateSuggestions(){
   renderSuggestions();
   try {
     var result = await callAI(usedApi, session, { avoid: avoid });
-
     if (getCurrentSession().id !== requestSessionId){
-      // 用户已切走：写回原会话缓存
-      setSuggestionsFor(requestSessionId, result.suggestions || [], newAvoid);
+      setReplyFor(requestSessionId, { type: 'chat', suggestions: result.suggestions || [], avoid: newAvoid });
       runtime.loading = false;
       save();
       return;
     }
-
     runtime.loading = false;
-    setSuggestionsFor(requestSessionId, result.suggestions || [], newAvoid);
+    setReplyFor(requestSessionId, { type: 'chat', suggestions: result.suggestions || [], avoid: newAvoid });
     save();
     renderSuggestions();
     toast('✅ 已换一批', 1200, 'success');
@@ -3273,6 +3615,10 @@ function bindEvents(){
   });
   dom.sRefresh.addEventListener('click', regenerateSuggestions);
 
+  // 输入模式 tab
+  dom.itabChat.addEventListener('click', function(){ setInputMode('chat'); });
+  dom.itabCoach.addEventListener('click', function(){ setInputMode('coach'); });
+
   if (dom.weightSeg){
     dom.weightSeg.querySelectorAll('button').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -3295,6 +3641,7 @@ function bindEvents(){
     session.mode = (session.mode || 'chat') === 'real' ? 'chat' : 'real';
     session.updatedAt = Date.now();
     runtime.suggestions = [];
+    runtime.coachResult = null;
     runtime.avoidSuggestions = [];
     runtime.loading = false;
     closeSpeakPanel();
@@ -3303,6 +3650,7 @@ function bindEvents(){
     renderHeader();
     renderMessages();
     renderSuggestions();
+    updateComposerPlaceholder();
     toast(session.mode === 'real' ? '🗣️ 已切换到现实对话' : '💬 已切换到线上聊天', 1200, 'success');
   });
   dom.imageBtn.addEventListener('click', function(){ dom.fileInput.click(); });
@@ -3373,7 +3721,6 @@ function bindEvents(){
       updateExportOptionStyle();
     });
   });
-
   dom.importDialogMask.addEventListener('click', closeImportDialog);
   dom.importCancel.addEventListener('click', closeImportDialog);
   dom.importConfirm.addEventListener('click', doImport);
