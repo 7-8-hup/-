@@ -156,6 +156,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-item .session-del{width:26px;height:26px;border:none;background:transparent;color:#c0c0c8;font-size:15px;cursor:pointer;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;opacity:0;transition:all .15s;}
 .session-item:hover .session-del{opacity:1;}
 .session-item .session-del:hover{background:#fee2e2;color:#dc2626;opacity:1 !important;}
+@media (hover: none){
+  .session-item .session-del{opacity:1;}
+}
 .session-empty{color:#999;font-size:13px;text-align:center;padding:30px 0;}
 .new-chat-row{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0;}
 .new-chat-row .ncr-btn{flex:1;padding:10px 8px;border:1.5px dashed #d8d8e3;background:#fff;border-radius:12px;font-size:12px;font-family:inherit;color:#666;cursor:pointer;font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
@@ -490,11 +493,17 @@ var PROVIDER_ORDER = ['deepseek', 'zhipu', 'doubao'];
 var STORAGE_KEY = 'chat_clean_v2';
 
 function genId(){ return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function esc(s){ var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 function toAscii(s){ return String(s || '').replace(/[^\x00-\x7F]/g, ''); }
 function $(id){ return document.getElementById(id); }
 
-// UTF-8 安全的 Base64 编码（支持中文账号密码）
 function utf8ToBase64(str){
   try {
     return btoa(unescape(encodeURIComponent(str)));
@@ -566,12 +575,29 @@ function toast(msg, dur, type){
 // ==================== 存储 ====================
 var syncTimer = null;
 var syncFailCount = 0;
+var saveDebounceTimer = null;
 
-function save(){
+function saveNow(){
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     scheduleSync();
   } catch(e){ console.warn('保存失败', e); }
+}
+
+function save(){
+  if (saveDebounceTimer){
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = null;
+  }
+  saveNow();
+}
+
+function saveDebounced(){
+  if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(function(){
+    saveDebounceTimer = null;
+    saveNow();
+  }, 300);
 }
 
 function load(){
@@ -743,8 +769,8 @@ function analyzeLangStyle(samples){
   var endingCount = {};
   texts.forEach(function(t){
     var c = t.trim();
-    if (c.length < 2) return;
-    var e = c.slice(-2);
+    if (c.length < 1) return;
+    var e = c.slice(-1);
     endingCount[e] = (endingCount[e] || 0) + 1;
   });
   profile.commonEndings = Object.entries(endingCount)
@@ -761,8 +787,7 @@ function analyzeScenes(samples){
     { key:'praise', name:'对方夸奖/道谢', match: function(t){ return /谢谢|感谢|好的你|真好|厉害|棒|优秀|喜欢你|爱你|么么/i.test(t); }, samples: [] },
     { key:'question', name:'对方问问题', match: function(t){ return /[？?]|吗|呢|怎么|为什么|什么|哪|谁|如何/i.test(t); }, samples: [] },
     { key:'invite', name:'对方邀约/提议', match: function(t){ return /一起|要不要|去不去|来不来|约|走|出去|吃|玩/i.test(t); }, samples: [] },
-    { key:'tease', name:'对方调侃/逗你', match: function(t){ return /哈哈|哈哈哈哈哈|笑死|逗|骗|猜|调侃/i.test(t); }, samples: [] },
-    { key:'casual', name:'日常闲聊', match: function(t){ return t.length > 0; }, samples: [] }
+    { key:'tease', name:'对方调侃/逗你', match: function(t){ return /哈哈|哈哈哈哈哈|笑死|逗|骗|猜|调侃/i.test(t); }, samples: [] }
   ];
   withCtx.forEach(function(s){
     for (var i = 0; i < scenes.length; i++){
@@ -1011,6 +1036,9 @@ async function webdavDownload(){
     }
     
     updateProfileCache();
+    // 清理旧会话残留的建议/加载状态
+    runtime.suggestions = [];
+    runtime.loading = false;
     renderAll();
     var t = new Date();
     var timeStr = t.getHours().toString().padStart(2, '0') + ':' + t.getMinutes().toString().padStart(2, '0');
@@ -1102,15 +1130,25 @@ function renderMessages(){
 function attachBubbleLongPress(bubble){
   var idx = parseInt(bubble.dataset.idx);
   var timer = null;
-  var startPress = function(){
+  var pressing = false;
+  var startPress = function(e){
+    if (pressing) return;
+    if (e && e.type === 'mousedown' && e.button !== 0) return;
+    pressing = true;
     bubble.classList.add('pressing');
     timer = setTimeout(function(){
+      timer = null;
+      pressing = false;
       bubble.classList.remove('pressing');
       openActionSheet(idx);
       if (navigator.vibrate){ try { navigator.vibrate(30); } catch(e){} }
     }, 550);
   };
-  var cancelPress = function(){ clearTimeout(timer); bubble.classList.remove('pressing'); };
+  var cancelPress = function(){
+    if (timer){ clearTimeout(timer); timer = null; }
+    pressing = false;
+    bubble.classList.remove('pressing');
+  };
   bubble.addEventListener('touchstart', startPress, { passive: true });
   bubble.addEventListener('touchend', cancelPress);
   bubble.addEventListener('touchcancel', cancelPress);
@@ -1199,7 +1237,7 @@ function renderApiForm(){
         '<span class="api-name">' + esc(p.name) + '</span>' +
         visionTag + defaultBtn + toggle +
       '</div>' +
-      '<input type="text" class="api-key-input" data-pid="' + pid + '" value="' + esc(key) + '" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">' +
+      '<input type="text" class="api-key-input" data-pid="' + pid + '" data-had-key="' + (hasKey ? '1' : '') + '" value="' + esc(key) + '" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">' +
       (hasKey ? (
         '<input type="text" class="api-model-input" data-pid="' + pid + '" value="' + esc(modelVal) + '" placeholder="' + modelPlaceholder + '" autocomplete="off" spellcheck="false" style="margin-top:8px;">' + modelWarn
       ) : '') +
@@ -1210,19 +1248,35 @@ function renderApiForm(){
   dom.apiForm.querySelectorAll('.api-key-input').forEach(function(input){
     input.addEventListener('input', function(e){
       var pid = e.target.dataset.pid;
-      var val = e.target.value.trim();
-      var hadKey = !!state.apiKeys[pid];
-      state.apiKeys[pid] = val;
-      var hasKey = !!val;
+      var val = e.target.value;
+      var hadKey = e.target.dataset.hadKey === '1';
+      state.apiKeys[pid] = val.trim();
+      var hasKey = !!val.trim();
+      
       if (hasKey && !hadKey){
         state.apiEnabled[pid] = true;
         if (!state.defaultProvider) state.defaultProvider = pid;
       }
       if (!hasKey && state.defaultProvider === pid){
-        state.defaultProvider = PROVIDER_ORDER.find(function(p){ return state.apiKeys[p] && isEnabled(p); }) || '';
+        state.defaultProvider = PROVIDER_ORDER.find(function(p){
+          return state.apiKeys[p] && isEnabled(p);
+        }) || '';
       }
-      save();
-      renderApiForm();
+      saveDebounced();
+      
+      if (hasKey !== hadKey){
+        // 结构变化才重建，并恢复焦点和光标
+        var selStart = e.target.selectionStart;
+        var selEnd = e.target.selectionEnd;
+        renderApiForm();
+        var newInput = dom.apiForm.querySelector('.api-key-input[data-pid="' + pid + '"]');
+        if (newInput){
+          try {
+            newInput.focus();
+            newInput.setSelectionRange(selStart, selEnd);
+          } catch(err){}
+        }
+      }
     });
     input.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
@@ -1233,7 +1287,7 @@ function renderApiForm(){
   dom.apiForm.querySelectorAll('.api-model-input').forEach(function(input){
     input.addEventListener('input', function(e){
       state.apiModels[e.target.dataset.pid] = e.target.value.trim();
-      save();
+      saveDebounced();
     });
     input.addEventListener('blur', function(e){
       var pid = e.target.dataset.pid;
@@ -1621,7 +1675,7 @@ function enterEditMode(idx){
   var input = card.querySelector('.edit-input');
   input.focus();
   try { input.setSelectionRange(input.value.length, input.value.length); } catch(e){}
-  var confirm = function(){
+  var confirmEdit = function(){
     var val = input.value.trim();
     if (!val){ toast('不能为空', 1200, 'error'); return; }
     var session = getCurrentSession();
@@ -1643,12 +1697,12 @@ function enterEditMode(idx){
     if (isReal){ afterAction(); }
     else { copyText(val, afterAction); }
   };
-  var cancel = function(){ renderSuggestions(); };
-  card.querySelector('.btn-ok').addEventListener('click', confirm);
-  card.querySelector('.btn-cancel').addEventListener('click', cancel);
+  var cancelEdit = function(){ renderSuggestions(); };
+  card.querySelector('.btn-ok').addEventListener('click', confirmEdit);
+  card.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
   input.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); confirm(); }
-    else if (e.key === 'Escape'){ e.preventDefault(); cancel(); }
+    if (e.key === 'Enter'){ e.preventDefault(); confirmEdit(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); cancelEdit(); }
   });
 }
 
@@ -2084,8 +2138,8 @@ function bindEvents(){
   dom.previewImg.addEventListener('click', function(){
     if (dom.previewImg.src && dom.previewImg.src.startsWith('data:image')) showImageModal(dom.previewImg.src);
   });
-  dom.myName.addEventListener('input', function(){ state.myName = dom.myName.value.trim(); save(); });
-  dom.myStyle.addEventListener('input', function(){ state.myStyle = dom.myStyle.value; save(); });
+  dom.myName.addEventListener('input', function(){ state.myName = dom.myName.value.trim(); saveDebounced(); });
+  dom.myStyle.addEventListener('input', function(){ state.myStyle = dom.myStyle.value; saveDebounced(); });
   dom.profileDialogMask.addEventListener('click', closeProfileDialog);
   dom.pdCancel.addEventListener('click', closeProfileDialog);
   dom.pdSave.addEventListener('click', saveProfileDialog);
@@ -2126,10 +2180,10 @@ function bindEvents(){
   dom.cardSync.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('sync'); });
   dom.cardApi.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('api'); });
   dom.cardStyle.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('style'); });
-  dom.syncUrl.addEventListener('input', function(){ state.webdav.url = dom.syncUrl.value.trim(); save(); });
-  dom.syncUser.addEventListener('input', function(){ state.webdav.user = dom.syncUser.value.trim(); save(); });
-  dom.syncPass.addEventListener('input', function(){ state.webdav.pass = dom.syncPass.value; save(); });
-  dom.syncPath.addEventListener('input', function(){ state.webdav.path = dom.syncPath.value.trim() || 'chat-assistant/data.json'; save(); });
+  dom.syncUrl.addEventListener('input', function(){ state.webdav.url = dom.syncUrl.value.trim(); saveDebounced(); });
+  dom.syncUser.addEventListener('input', function(){ state.webdav.user = dom.syncUser.value.trim(); saveDebounced(); });
+  dom.syncPass.addEventListener('input', function(){ state.webdav.pass = dom.syncPass.value; saveDebounced(); });
+  dom.syncPath.addEventListener('input', function(){ state.webdav.path = dom.syncPath.value.trim() || 'chat-assistant/data.json'; saveDebounced(); });
   dom.syncAuto.addEventListener('change', function(){
     state.webdav.auto = dom.syncAuto.checked;
     save();
@@ -2185,6 +2239,7 @@ function init(){
       setTimeout(function(){
         openSettings();
         state.uiOpen.api = true;
+        save();
         applyCollapse();
       }, 400);
       try { localStorage.setItem(STORAGE_KEY + '_guided', '1'); } catch(e){}
