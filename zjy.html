@@ -52,7 +52,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-refresh{padding:10px 14px;border:1.5px dashed #d8d8e3;background:#fff;border-radius:12px;font-size:14px;font-family:inherit;color:#7c5cff;font-weight:500;cursor:pointer;transition:all .15s;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;}
 .s-refresh:hover{border-color:#7c5cff;background:#faf8ff;}
 .s-refresh:active{transform:scale(0.98);}
-.s-refresh:disabled{opacity:0.5;cursor:not-allowed;}
+.s-refresh:disabled{opacity:0.55;cursor:not-allowed;}
+.s-refresh:disabled:hover{border-color:#d8d8e3;background:#fff;}
 .status-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:#fffbeb;border-top:1px solid #fef3c7;font-size:12px;color:#92400e;cursor:pointer;flex-shrink:0;transition:background .15s;min-height:36px;}
 .status-bar:hover{background:#fef3c7;}
 .status-bar.empty .status-text{color:#b45309;opacity:0.75;}
@@ -648,7 +649,6 @@ var SCHEMA_VERSION = 5;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
 
-// 对话历史最多带入的消息条数（防止 token 爆炸）
 var MAX_HISTORY_MESSAGES = 100;
 
 var PROVIDERS = {
@@ -662,7 +662,14 @@ var PROVIDERS = {
 var PROVIDER_ORDER = ['deepseek', 'zhipu', 'doubao'];
 var STORAGE_KEY = 'chat_clean_v2';
 
-var FALLBACK_SUGGESTIONS = ['嗯', '？', '怎么了', '然后呢', '说说看', '哈哈哈哈', '笑死', '真的假的', '啊这', '是吗', '说来听听', '继续'];
+// 兜底句池（AI 少给或不给时补齐用，尽量是能直接发出去的完整短句）
+var FALLBACK_SUGGESTIONS = [
+  '我想想', '让我缓一下', '你说呢', '我等下回你', '诶等一下',
+  '嗯嗯好的', '我想说', '你继续', '先这样吧', '随便啊',
+  '那也行', '再看吧', '真的假的', '哈哈哈哈', '笑死',
+  '啊这', '？？？', 'emmm', '怎么说呢', '有道理',
+  '好家伙', '绝了', '我服了', '可以啊', '你小子'
+];
 var FALLBACK_STYLES = ['短', '情绪', '展开'];
 
 var SCENE_TAGS = [
@@ -1705,19 +1712,28 @@ function attachBubbleLongPress(bubble){
   bubble.addEventListener('contextmenu', function(e){ e.preventDefault(); openActionSheet(idx); });
 }
 
+// 关键改动：loading 时"换一批"按钮**不再消失**，而是变成"⏳ 生成中..."并禁用
 function renderSuggestions(){
   var session = getCurrentSession();
   var mode = session.mode || 'chat';
+
   if (runtime.loading){
     dom.suggestions.classList.add('show');
     dom.sList.innerHTML = '';
     dom.sTitleText.textContent = mode === 'real' ? '正在想你可以怎么说...' : '生成中...';
     dom.sTitleTip.style.display = 'none';
     dom.sTitleSpinner.style.display = 'inline-block';
-    dom.sRefresh.style.display = 'none';
+    // 保持按钮可见，显示加载中
+    dom.sRefresh.style.display = 'flex';
+    dom.sRefresh.disabled = true;
+    dom.sRefresh.innerHTML = '<span>⏳</span><span>生成中...</span>';
     return;
   }
+
   dom.sTitleSpinner.style.display = 'none';
+  dom.sRefresh.disabled = false;
+  dom.sRefresh.innerHTML = '<span>🔄</span><span>换一批</span>';
+
   if (!runtime.suggestions || runtime.suggestions.length === 0){
     dom.suggestions.classList.remove('show');
     dom.sList.innerHTML = '';
@@ -2487,7 +2503,6 @@ function saveMeInput(){
 }
 
 function enterEditMode(idx){
-  // 守卫：建议列表可能已被清空（切会话/切模式/发送新消息等）
   if (!runtime.suggestions || !runtime.suggestions[idx]) return;
   var card = dom.sList.querySelector('.s-card[data-idx="' + idx + '"]');
   if (!card || card.classList.contains('editing')) return;
@@ -2704,7 +2719,7 @@ function ensureThreeSuggestions(list){
   });
   var k = 0;
   while (out.length < 3 && k < FALLBACK_SUGGESTIONS.length * 2){
-    var candidate = FALLBACK_SUGGESTIONS[(out.length + k) % FALLBACK_SUGGESTIONS.length];
+    var candidate = FALLBACK_SUGGESTIONS[(out.length * 7 + k) % FALLBACK_SUGGESTIONS.length];
     var dup = out.some(function(x){ return x.text === candidate; });
     if (!dup){
       out.push({ text: candidate, style: FALLBACK_STYLES[out.length] || '建议' });
@@ -2743,7 +2758,6 @@ async function callAI(apiEntry, session, opts){
   var isReal = (session.mode || 'chat') === 'real';
   var sessionTaName = session.taName || '';
 
-  // 对话历史（最多 MAX_HISTORY_MESSAGES 条）
   var allMessages = session.messages || [];
   var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
     ? allMessages.slice(-MAX_HISTORY_MESSAGES)
@@ -2805,11 +2819,21 @@ async function callAI(apiEntry, session, opts){
     ? '\n【这是现实对话】\n你和' + ta + '正在面对面聊天，不是打字。\n对方刚说了句话，你需要给出 3 句"你可以直接开口说"的话。\n⚠️ 因为是当面说的，必须：\n- 极度口语化，一开口就能说出来\n- 不要太长（不超过 25 字，越短越好）\n- 句子结构简单，不用"其实""但是""因为"这种转折\n- 可以用语气词、停顿词（诶、那个、就、嗯）\n- 就像你平时张嘴说话的样子，不书面'
     : '\n【这是线上打字聊天】\n你和' + ta + '在用微信等聊天软件打字。';
 
+  // 强化"换一批"时的不重复约束
   var avoidBlock = '';
   if (opts.avoid && opts.avoid.length > 0){
-    avoidBlock = '\n【避免重复】上一次给的建议是："' +
-      opts.avoid.map(function(t){ return String(t).replace(/"/g, '”'); }).join('" "') +
-      '"。这次不要给类似的，换个角度/换种语气。\n';
+    avoidBlock =
+      '\n═══════════════════════════════\n' +
+      '【重要：避免重复】\n' +
+      '═══════════════════════════════\n' +
+      '上一批给的建议是：\n' +
+      opts.avoid.map(function(t, i){ return '  ' + (i+1) + '. "' + String(t).replace(/"/g, '”') + '"'; }).join('\n') + '\n' +
+      '⚠️ 这一批必须完全换掉：\n' +
+      '· 每一条都不能和上面任何一条意思相近\n' +
+      '· 不能只是换个说法、换个语气词\n' +
+      '· 必须换角度、换态度、换话题切入点\n' +
+      '· 如果上一批都是"短句"，这次至少有 1-2 条要更长、更具体\n' +
+      '· 如果上一批都是"敷衍/中性"，这次要更主动、更具体\n';
   }
 
   var systemPrompt = '你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。\n' +
@@ -2836,6 +2860,7 @@ async function callAI(apiEntry, session, opts){
     '【绝对禁止 —— 出现一处就露馅】\n' +
     '═══════════════════════════════\n' +
     '❌ 忽略对话历史，只看【当前情境】就瞎回\n' +
+    '❌ 3 条建议互相重复或换汤不换药\n' +
     '❌ "听起来你…" "我感觉你…" "我理解…"（心理咨询师腔）\n' +
     '❌ "首先""其次""总的来说""总之""不过话说回来""其实吧"\n' +
     '❌ "既…又…" "不是…而是…" 这种排比\n' +
@@ -2850,7 +2875,10 @@ async function callAI(apiEntry, session, opts){
     '1. 【短】超短，像画像里最短的那几条\n' +
     '2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个\n' +
     '3. 【展开】问个问题，或说件具体的事\n' +
-    '⚠️ 必须输出 3 条，即使对方只发了一个字或一个问号，也要给满 3 条不同方向的候选。\n' +
+    '⚠️ 硬性要求：\n' +
+    '· 必须输出 3 条，即使对方只发一个字也要给满 3 条。\n' +
+    '· 3 条必须明显不同：开头不同、语气不同、长度不同。\n' +
+    '· 3 条都要"读完就能直接发出去"，不能是"嗯""？"这种半成品。\n' +
     (statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字。\n' : '') +
     avoidBlock +
     '输出纯 JSON，无其他内容，第一个字符是 {：\n' +
@@ -2872,7 +2900,7 @@ async function callAI(apiEntry, session, opts){
       messages.push({ role: role, content: m.text });
     }
   });
-  var body = { model: model, messages: messages, temperature: 1.0, max_tokens: 800 };
+  var body = { model: model, messages: messages, temperature: 1.05, max_tokens: 800 };
   if (pConf.jsonMode && !imageData) body.response_format = { type: 'json_object' };
   var ctrl = new AbortController();
   var timer = setTimeout(function(){ ctrl.abort(); }, 60000);
@@ -2987,9 +3015,18 @@ async function regenerateSuggestions(){
   var usedApi = runtime.imageBase64 ? getImageApi() : getDefaultApi();
   if (runtime.imageBase64 && !usedApi){ toast('没有已启用的图片 API', 2500, 'error'); return; }
   if (!usedApi){ toast('没有已启用的 API，请去设置里检查', 2200, 'error'); openSettings(); return; }
-  var avoid = (runtime.suggestions || []).map(function(s){ return s.text; });
+  // 收集所有历史建议避免重复（当前 + 上几批）
+  var avoid = [];
+  if (runtime.avoidSuggestions && runtime.avoidSuggestions.length > 0){
+    avoid = avoid.concat(runtime.avoidSuggestions);
+  }
+  if (runtime.suggestions && runtime.suggestions.length > 0){
+    runtime.suggestions.forEach(function(s){
+      if (avoid.indexOf(s.text) < 0) avoid.push(s.text);
+    });
+  }
   runtime.loading = true;
-  runtime.avoidSuggestions = avoid;
+  runtime.avoidSuggestions = avoid.slice(-20);  // 最多记 20 条
   renderSuggestions();
   try {
     var result = await callAI(usedApi, session, { avoid: avoid });
@@ -2997,6 +3034,7 @@ async function regenerateSuggestions(){
     runtime.loading = false;
     save();
     renderSuggestions();
+    toast('✅ 已换一批', 1200, 'success');
   } catch(err){
     runtime.loading = false;
     renderSuggestions();
