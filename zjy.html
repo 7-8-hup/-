@@ -722,6 +722,7 @@ var runtime = {
   loading: false,
   pendingDeleteIdx: -1,
   currentSpeakIdx: -1,
+  currentSpeakText: '',
   suggestions: [],
   avoidSuggestions: [],
   langProfile: null,
@@ -1133,7 +1134,6 @@ function refreshSceneProfiles(){
   runtime.sceneProfile = analyzeScenes(state.styleSamples, '');
   runtime.taSceneProfile = curTaName ? analyzeScenes(state.styleSamples, curTaName) : null;
 }
-// 修复 #3：移除内部 save()，由调用方决定何时保存
 function updateProfileCache(){
   var session = getCurrentSession();
   var curTaName = session ? (session.taName || '') : '';
@@ -1513,6 +1513,7 @@ function doImport(){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  closeSpeakPanel();
   renderAll();
   renderBackupPanel();
   closeImportDialog();
@@ -1652,7 +1653,6 @@ function renderMessages(){
   dom.messages.scrollTop = dom.messages.scrollHeight;
 }
 
-// 修复 #5（小问题）：加 lastTouchTime 避免触屏笔电双触发
 function attachBubbleLongPress(bubble){
   var idx = parseInt(bubble.dataset.idx);
   var timer = null, pressing = false, lastTouchTime = 0;
@@ -1797,7 +1797,6 @@ function renderApiForm(){
         if (newInput){ try { newInput.focus(); newInput.setSelectionRange(selStart, selEnd); } catch(err){} }
       }
     });
-    // 修复 #4：填完 Key 后若已有待分类样本，立即安排分类
     input.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
       save();
@@ -2199,7 +2198,6 @@ function togglePin(id){
   toast(s.pinned ? '已置顶' : '已取消置顶', 1000, 'success');
 }
 
-// 修复 #2（小问题）：优先用 navigator.canShare 判断
 function shareSession(id){
   var s = state.sessions.find(function(x){ return x.id === id; });
   if (!s) return;
@@ -2300,6 +2298,7 @@ function deleteSelectedSessions(){
     runtime.suggestions = [];
     runtime.avoidSuggestions = [];
     runtime.loading = false;
+    closeSpeakPanel();
   }
   updateProfileCache();
   exitMultiSelect();
@@ -2321,6 +2320,7 @@ function switchSession(id){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  closeSpeakPanel();
   updateProfileCache();
   save();
   renderHeader();
@@ -2343,6 +2343,7 @@ function handleNewChat(mode){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  closeSpeakPanel();
   updateProfileCache();
   save();
   closeDrawer();
@@ -2411,6 +2412,7 @@ function deletePendingMessage(){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  closeSpeakPanel();
   save();
   closeActionSheet();
   renderMessages();
@@ -2457,6 +2459,7 @@ function saveMeInput(){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  closeSpeakPanel();
   addStyleSample(text, lastTa, taName);
   save();
   closeMeInput();
@@ -2487,7 +2490,6 @@ function enterEditMode(idx){
     var lastTa = getLastTaText(session);
     var taName = session.taName || '';
     var afterAction = function(){
-      // 修复 #4（小问题）：统一带 manual:true
       session.messages.push({ role: 'me', text: val, manual: true });
       session.updatedAt = Date.now();
       if (val !== origText) addStyleSample(val, lastTa, taName);
@@ -2529,15 +2531,19 @@ function fallbackCopy(text, cb){
   document.body.removeChild(ta);
 }
 
+// ==================== 现实说话面板 ====================
 function openSpeakPanel(idx){
   if (!runtime.suggestions[idx]) return;
   runtime.currentSpeakIdx = idx;
-  dom.speakText.textContent = runtime.suggestions[idx].text;
+  // 快照当前文本，之后面板所说/所复制/所记录的都以快照为准
+  runtime.currentSpeakText = runtime.suggestions[idx].text;
+  dom.speakText.textContent = runtime.currentSpeakText;
   dom.speakPanel.classList.add('show');
 }
 function closeSpeakPanel(){
   dom.speakPanel.classList.remove('show');
   runtime.currentSpeakIdx = -1;
+  runtime.currentSpeakText = '';
   if (window.speechSynthesis) speechSynthesis.cancel();
 }
 function loadVoices(){
@@ -2557,9 +2563,8 @@ function speakText(text){
   speechSynthesis.speak(u);
 }
 function confirmSpeakSaid(){
-  var idx = runtime.currentSpeakIdx;
-  if (idx < 0){ closeSpeakPanel(); return; }
-  var val = runtime.suggestions[idx].text;
+  var val = runtime.currentSpeakText;
+  if (!val){ closeSpeakPanel(); return; }
   var session = getCurrentSession();
   var lastTa = getLastTaText(session);
   var taName = session.taName || '';
@@ -3018,6 +3023,7 @@ function bindEvents(){
     runtime.suggestions = [];
     runtime.avoidSuggestions = [];
     runtime.loading = false;
+    closeSpeakPanel();
     save();
     updateModeBtn();
     renderHeader();
@@ -3047,14 +3053,14 @@ function bindEvents(){
   });
   dom.speakClose.addEventListener('click', closeSpeakPanel);
   dom.speakCopy.addEventListener('click', function(){
-    var idx = runtime.currentSpeakIdx;
-    if (idx < 0) return;
-    copyText(runtime.suggestions[idx].text, function(){ toast('已复制', 1000, 'success'); });
+    var val = runtime.currentSpeakText;
+    if (!val) return;
+    copyText(val, function(){ toast('已复制', 1000, 'success'); });
   });
   dom.speakPlay.addEventListener('click', function(){
-    var idx = runtime.currentSpeakIdx;
-    if (idx < 0) return;
-    speakText(runtime.suggestions[idx].text);
+    var val = runtime.currentSpeakText;
+    if (!val) return;
+    speakText(val);
   });
   dom.speakSaid.addEventListener('click', confirmSpeakSaid);
   dom.speakPanel.addEventListener('click', function(e){
@@ -3077,7 +3083,6 @@ function bindEvents(){
   dom.cardStyle.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('style'); });
   dom.cardBackup.querySelector('.collapse-head').addEventListener('click', function(){ toggleCollapse('backup'); });
 
-  // ============ 备份 ============
   dom.exportBtn.addEventListener('click', openExportDialog);
   dom.importBtn.addEventListener('click', openImportFileDialog);
   dom.exportDialogMask.addEventListener('click', closeExportDialog);
@@ -3114,7 +3119,6 @@ function bindEvents(){
     e.target.value = '';
   });
 
-  // ============ 三点菜单 & 多选 & 重命名 ============
   dom.sessionMenuMask.addEventListener('click', closeSessionMenu);
   dom.sessionMenu.querySelectorAll('button').forEach(function(b){
     b.addEventListener('click', function(){
