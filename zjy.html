@@ -708,7 +708,13 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 var SCHEMA_VERSION = 6;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
-var MAX_HISTORY_MESSAGES = 100;
+var MAX_HISTORY_MESSAGES = 20; // 从100降到20，防止Token超限和坏字符累积
+
+// 清理孤立的代理字符（损坏的emoji），防止JSON解析失败
+function cleanUnicode(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '');
+}
 
 var PROVIDERS = {
   deepseek: { name:'DeepSeek', icon:'🐋', url:'https://api.deepseek.com/chat/completions',
@@ -3147,7 +3153,7 @@ async function callAI(apiEntry, session, opts){
   var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
   var historyLines = historyMessages.map(function(m){
     var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
-    return who + '：' + m.text;
+    return who + '：' + cleanUnicode(m.text); // 清理历史消息中的坏字符
   }).join('\n');
 
   var historyBlock = '';
@@ -3270,12 +3276,12 @@ async function callAI(apiEntry, session, opts){
       messages.push({
         role: 'user',
         content: [
-          { type: 'text', text: m.text || '请描述图片' },
+          { type: 'text', text: cleanUnicode(m.text) || '请描述图片' },
           { type: 'image_url', image_url: { url: imageData } }
         ]
       });
     } else {
-      messages.push({ role: role, content: m.text });
+      messages.push({ role: role, content: cleanUnicode(m.text) }); // 清理后发送
     }
   });
   var body = { model: model, messages: messages, temperature: 1.05, max_tokens: 800 };
@@ -3329,7 +3335,7 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
   var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
   var historyLines = historyMessages.map(function(m){
     var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
-    return who + '：' + m.text;
+    return who + '：' + cleanUnicode(m.text); // 清理历史消息中的坏字符
   }).join('\n');
   var historyBlock = historyLines
     ? '【最近的完整对话历史】' + (historyTruncated ? '（仅展示最近 ' + MAX_HISTORY_MESSAGES + ' 条）' : '') + '\n' +
@@ -3411,12 +3417,12 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
       messages.push({
         role: 'user',
         content: [
-          { type: 'text', text: m.text || '（图片）' },
+          { type: 'text', text: cleanUnicode(m.text) || '（图片）' },
           { type: 'image_url', image_url: { url: imageData } }
         ]
       });
     } else {
-      messages.push({ role: role, content: m.text });
+      messages.push({ role: role, content: cleanUnicode(m.text) }); // 清理后发送
     }
   });
   if (messages.length === 1){
