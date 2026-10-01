@@ -647,6 +647,9 @@ var SCHEMA_VERSION = 5;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
 
+// 对话历史最多带入的消息条数（防止 token 爆炸）。想全带可以把它调大。
+var MAX_HISTORY_MESSAGES = 500;
+
 var PROVIDERS = {
   deepseek: { name:'DeepSeek', icon:'🐋', url:'https://api.deepseek.com/chat/completions',
     model:'deepseek-chat', visionModel:null, format:'openai', vision:false },
@@ -657,6 +660,9 @@ var PROVIDERS = {
 };
 var PROVIDER_ORDER = ['deepseek', 'zhipu', 'doubao'];
 var STORAGE_KEY = 'chat_clean_v2';
+
+var FALLBACK_SUGGESTIONS = ['嗯', '？', '怎么了', '然后呢', '说说看', '哈哈哈哈', '笑死', '真的假的', '啊这', '是吗', '说来听听', '继续'];
+var FALLBACK_STYLES = ['短', '情绪', '展开'];
 
 var SCENE_TAGS = [
   '情绪支持','夸奖回应','提问回答','邀约协商','玩笑互怼','撒娇亲密',
@@ -2535,7 +2541,6 @@ function fallbackCopy(text, cb){
 function openSpeakPanel(idx){
   if (!runtime.suggestions[idx]) return;
   runtime.currentSpeakIdx = idx;
-  // 快照当前文本，之后面板所说/所复制/所记录的都以快照为准
   runtime.currentSpeakText = runtime.suggestions[idx].text;
   dom.speakText.textContent = runtime.currentSpeakText;
   dom.speakPanel.classList.add('show');
@@ -2660,6 +2665,7 @@ function extractJSON(content){
   }
   return null;
 }
+
 function textFallback(content){
   if (!content) return null;
   var styles = ['短', '情绪', '展开'];
@@ -2670,12 +2676,34 @@ function textFallback(content){
       .replace(/^["「『]+|["」』]+$/g, '')
       .trim();
   }).filter(function(l){
-    if (l.length < 2 || l.length > 100) return false;
+    if (l.length < 1 || l.length > 200) return false;
     if (/^(以下是|下面是|建议如下|回复建议|响应)[:：]?$/.test(l)) return false;
     return true;
   });
   if (lines.length === 0) return null;
   return { suggestions: lines.slice(0, 3).map(function(text, i){ return { text: text, style: styles[i] || '建议' }; }) };
+}
+
+function ensureThreeSuggestions(list){
+  var out = (list || []).filter(function(s){
+    return s && s.text && String(s.text).trim().length > 0;
+  }).slice(0, 3).map(function(s, i){
+    return { text: String(s.text).trim(), style: s.style || FALLBACK_STYLES[i] || '建议' };
+  });
+  var k = 0;
+  while (out.length < 3 && k < FALLBACK_SUGGESTIONS.length * 2){
+    var candidate = FALLBACK_SUGGESTIONS[(out.length + k) % FALLBACK_SUGGESTIONS.length];
+    var dup = out.some(function(x){ return x.text === candidate; });
+    if (!dup){
+      out.push({ text: candidate, style: FALLBACK_STYLES[out.length] || '建议' });
+    } else {
+      k++;
+    }
+  }
+  while (out.length < 3){
+    out.push({ text: '嗯', style: FALLBACK_STYLES[out.length] || '建议' });
+  }
+  return out;
 }
 
 async function callAI(apiEntry, session, opts){
@@ -2702,6 +2730,36 @@ async function callAI(apiEntry, session, opts){
   }
   var isReal = (session.mode || 'chat') === 'real';
   var sessionTaName = session.taName || '';
+
+  // ============ 关键改动：对话历史全部带入 ============
+  var allMessages = session.messages || [];
+  var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
+    ? allMessages.slice(-MAX_HISTORY_MESSAGES)
+    : allMessages;
+  var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
+
+  var historyLines = historyMessages.map(function(m){
+    var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
+    return who + '：' + m.text;
+  }).join('\n');
+
+  var historyBlock = '';
+  if (historyLines){
+    historyBlock =
+      '\n═══════════════════════════════\n' +
+      '【最近的完整对话历史】' +
+      (historyTruncated ? '（仅展示最近 ' + MAX_HISTORY_MESSAGES + ' 条，共 ' + allMessages.length + ' 条）' : '（共 ' + allMessages.length + ' 条）') + '\n' +
+      '═══════════════════════════════\n' +
+      '⚠️ 下面是你和' + (sessionTaName || '对方') + '真实的聊天记录，请仔细读完再回。\n' +
+      '· 上面一行是"' + (sessionTaName || '对方') + '"，下一行是"我"，一来一回。\n' +
+      '· 先理解：现在聊到哪、什么话题、对方什么语气、我前面说过什么。\n' +
+      '· 你给的建议必须和这段上下文连贯，不能只看"当前情境"就凭空乱回。\n' +
+      '· 如果对方问过某件事、提过某个时间/地点/人物，你的回复要接上。\n' +
+      '───────────────────────────────\n' +
+      historyLines + '\n' +
+      '═══════════════════════════════\n';
+  }
+  // ====================================================
 
   var langProfile = runtime.taLangProfile || runtime.langProfile;
   var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
@@ -2744,8 +2802,9 @@ async function callAI(apiEntry, session, opts){
   }
 
   var systemPrompt = '你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。\n' +
-    ta + '刚发来消息。你要以【我】的身份回复 3 条候选。\n' +
-    '═══════════════════════════════\n' +
+    '现在你和' + ta + '正在聊天，你要以【我】的身份回复 3 条候选。\n' +
+    historyBlock +
+    '\n═══════════════════════════════\n' +
     '【我说话的整体画像】' + sampleCount + '\n' +
     '═══════════════════════════════\n' +
     (profileText || '（样本较少，按普通年轻人聊天风格）') + '\n' +
@@ -2753,17 +2812,19 @@ async function callAI(apiEntry, session, opts){
     '═══════════════════════════════\n' +
     '【核心原则】\n' +
     '═══════════════════════════════\n' +
-    '你不是"参考"上面的画像，你"就是"写出那些句子的人。\n' +
+    '① 先读【最近的完整对话历史】，理解上下文，再动笔。\n' +
+    '② 你不是"参考"上面的画像，你"就是"写出那些句子的人。\n' +
     '复制这个人的整个语言 DNA —— 包括 TA 的怪癖、不完美。\n' +
-    '① 长度照搬 —— 画像里平均几字就几字\n' +
-    '② 标点照搬 —— 不打句号就别打；用空格断句就用空格\n' +
-    '③ 开头/结尾照搬 —— 常用什么开头结尾，就用什么\n' +
-    '④ 语气词照搬 —— 只用画像里出现过的\n' +
-    '⑤ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回\n' +
-    '⑥ 允许不完美 —— 半句、答非所问、跳话题、一个字回复\n' +
+    '③ 长度照搬 —— 画像里平均几字就几字\n' +
+    '④ 标点照搬 —— 不打句号就别打；用空格断句就用空格\n' +
+    '⑤ 开头/结尾照搬 —— 常用什么开头结尾，就用什么\n' +
+    '⑥ 语气词照搬 —— 只用画像里出现过的\n' +
+    '⑦ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回\n' +
+    '⑧ 允许不完美 —— 半句、答非所问、跳话题、一个字回复\n' +
     '═══════════════════════════════\n' +
     '【绝对禁止 —— 出现一处就露馅】\n' +
     '═══════════════════════════════\n' +
+    '❌ 忽略对话历史，只看【当前情境】就瞎回\n' +
     '❌ "听起来你…" "我感觉你…" "我理解…"（心理咨询师腔）\n' +
     '❌ "首先""其次""总的来说""总之""不过话说回来""其实吧"\n' +
     '❌ "既…又…" "不是…而是…" 这种排比\n' +
@@ -2778,13 +2839,15 @@ async function callAI(apiEntry, session, opts){
     '1. 【短】超短，像画像里最短的那几条\n' +
     '2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个\n' +
     '3. 【展开】问个问题，或说件具体的事\n' +
+    '⚠️ 必须输出 3 条，即使对方只发了一个字或一个问号，也要给满 3 条不同方向的候选。\n' +
     (statusLine ? '⚠️ 结合【当前情境】，但不要提"情境"两个字。\n' : '') +
     avoidBlock +
     '输出纯 JSON，无其他内容，第一个字符是 {：\n' +
     '{"suggestions":[{"text":"...","style":"短"},{"text":"...","style":"情绪"},{"text":"...","style":"展开"}]}';
 
+  // messages 数组：全部对话历史（不再 slice(-10)），带图时最后一条改为多模态
   var messages = [{ role: 'system', content: systemPrompt }];
-  (session.messages || []).slice(-10).forEach(function(m, i, arr){
+  historyMessages.forEach(function(m, i, arr){
     var isLast = i === arr.length - 1;
     var role = m.role === 'ta' ? 'user' : 'assistant';
     if (isLast && m.role === 'ta' && imageData){
@@ -2832,15 +2895,16 @@ async function callAI(apiEntry, session, opts){
     parsed = textFallback(content);
   }
   if (!parsed || !parsed.suggestions || parsed.suggestions.length === 0){
-    throw new Error('AI 返回格式无法解析');
+    console.warn('AI 原始返回：', content);
+    var rawPreview = content ? String(content).replace(/\s+/g, ' ').slice(0, 80) : '(空)';
+    toast('⚠️ AI 没按格式返回，已给兜底建议｜原始：' + rawPreview, 5000, 'error');
+    parsed = { suggestions: [
+      { text: '嗯', style: '短' },
+      { text: '？', style: '情绪' },
+      { text: '怎么了', style: '展开' }
+    ]};
   }
-  parsed.suggestions = parsed.suggestions
-    .filter(function(s){ return s && s.text && String(s.text).trim().length > 0; })
-    .slice(0, 3)
-    .map(function(s, i){
-      return { text: String(s.text).trim(), style: s.style || ['短', '情绪', '展开'][i] || '建议' };
-    });
-  if (parsed.suggestions.length === 0) throw new Error('AI 未生成有效建议');
+  parsed.suggestions = ensureThreeSuggestions(parsed.suggestions);
   return parsed;
 }
 
