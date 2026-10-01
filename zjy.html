@@ -2378,22 +2378,38 @@ addText(m.text);
 collected++;
 }
 if(texts.length<2){toast('当前对话里对方的话太少（至少 2 条）',2200,'error');return}
-}else{
-// 性格分析：汇总所有同名会话的对方消息
-var collectFrom=function(s){
-(s.messages||[]).forEach(function(m){
-if(m.role!=='ta'||!m.text)return;
-addText(m.text);
-});
-};
-collectFrom(session);
-if(taName){
-state.sessions.forEach(function(s){
-if(s.id===session.id)return;
-if((s.taName||'')!==taName)return;
-collectFrom(s);
-});
-}
+    }else{
+      // 性格分析：汇总所有同名会话的对方消息
+      var collectFrom=function(s){
+        (s.messages||[]).forEach(function(m){
+          if(m.role!=='ta'||!m.text)return;
+          addText(m.text);
+        });
+      };
+      collectFrom(session);
+      if(taName){
+        state.sessions.forEach(function(s){
+          if(s.id===session.id)return;
+          if((s.taName||'')!==taName)return;
+          collectFrom(s);
+        });
+      }
+      if(texts.length<3){toast('对方说的话太少（至少 3 条），无法分析。设置对方昵称后可跨会话汇总',2600,'error');return}
+    }
+    // 上限 500 条。超了就从全部消息里均匀采样，保留时间跨度
+    var MAX_ANALYZE = 500;
+    if(texts.length>MAX_ANALYZE){
+      var step = texts.length / MAX_ANALYZE;
+      var sampled = [];
+      for(var j=0;j<MAX_ANALYZE;j++){
+        sampled.push(texts[Math.floor(j*step)]);
+      }
+      // 确保最后一条（最新的）一定包含
+      if(sampled[sampled.length-1]!==texts[texts.length-1]){
+        sampled[sampled.length-1]=texts[texts.length-1];
+      }
+      texts = sampled;
+    }
 if(texts.length<3){toast('对方说的话太少（至少 3 条），无法分析。设置对方昵称后可跨会话汇总',2600,'error');return}
 }
 if(texts.length>200)texts=texts.slice(-200);
