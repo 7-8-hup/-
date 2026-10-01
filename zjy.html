@@ -662,7 +662,6 @@ var PROVIDERS = {
 var PROVIDER_ORDER = ['deepseek', 'zhipu', 'doubao'];
 var STORAGE_KEY = 'chat_clean_v2';
 
-// 兜底句池（AI 少给或不给时补齐用，尽量是能直接发出去的完整短句）
 var FALLBACK_SUGGESTIONS = [
   '我想想', '让我缓一下', '你说呢', '我等下回你', '诶等一下',
   '嗯嗯好的', '我想说', '你继续', '先这样吧', '随便啊',
@@ -722,6 +721,11 @@ function safeSetStorage(key, val){
   catch(e){ return false; }
 }
 
+// 检查是否是真正"用户想提交"的回车（排除输入法组合状态）
+function isRealEnter(e){
+  return e.key === 'Enter' && !e.isComposing && e.keyCode !== 229;
+}
+
 function createEmptyState(){
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -753,6 +757,7 @@ var runtime = {
   taLangProfile: null,
   taSceneProfile: null,
   toastTimer: null,
+  quotaWarnedAt: 0,
   cachedVoices: null,
   sessionMenu: { targetId: '' },
   renameTargetId: '',
@@ -765,6 +770,32 @@ var runtime = {
   },
   pendingImport: { payload: null, fileName: '' }
 };
+
+// ═══════════ 建议内存缓存（不落 localStorage，刷新后自动清空）═══════════
+// 结构：{ sessionId: { suggestions: [...], avoid: [...] } }
+var suggestionCache = {};
+
+function setSuggestionsFor(sid, suggestions, avoid){
+  if (!suggestions || suggestions.length === 0){
+    delete suggestionCache[sid];
+  } else {
+    suggestionCache[sid] = {
+      suggestions: suggestions,
+      avoid: avoid || []
+    };
+  }
+  if (sid === state.currentSessionId){
+    runtime.suggestions = suggestions || [];
+    runtime.avoidSuggestions = avoid || [];
+  }
+}
+function clearSuggestionsFor(sid){
+  delete suggestionCache[sid];
+  if (sid === state.currentSessionId){
+    runtime.suggestions = [];
+    runtime.avoidSuggestions = [];
+  }
+}
 
 var dom = {};
 function bindDomRefs(){
@@ -811,7 +842,16 @@ var saveDebounceTimer = null;
 function saveNow(){
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e){ console.warn('保存失败', e); }
+  } catch(e){
+    console.warn('保存失败', e);
+    if (e && (e.name === 'QuotaExceededError' || e.code === 22)){
+      var now = Date.now();
+      if (now - runtime.quotaWarnedAt > 30000){
+        runtime.quotaWarnedAt = now;
+        toast('⚠️ 本地存储已满，请导出备份后清理旧对话', 4000, 'error');
+      }
+    }
+  }
 }
 function save(){
   if (saveDebounceTimer){ clearTimeout(saveDebounceTimer); saveDebounceTimer = null; }
@@ -1403,6 +1443,13 @@ function doExport(){
     data: dataClone
   };
   var json = JSON.stringify(payload, null, 2);
+  var sizeMB = json.length / 1024 / 1024;
+  if (sizeMB > 5){
+    // 大文件提醒（confirm 可能在某些浏览器被拦截，失败则忽略继续）
+    try {
+      if (!confirm('导出文件约 ' + sizeMB.toFixed(1) + ' MB，可能较大，继续吗？')) return;
+    } catch(e){}
+  }
   var ts = new Date();
   var fname = 'chat-assistant-'
     + ts.getFullYear() + pad2(ts.getMonth()+1) + pad2(ts.getDate()) + '-'
@@ -1530,6 +1577,9 @@ function doImport(){
   } else {
     mergeImportedData(normalized, localKeys, localModels, localEnabled, localDefaultProvider);
   }
+
+  // 导入会替换/合并会话，建议缓存全部失效
+  suggestionCache = {};
 
   updateProfileCache();
   save();
@@ -1712,7 +1762,6 @@ function attachBubbleLongPress(bubble){
   bubble.addEventListener('contextmenu', function(e){ e.preventDefault(); openActionSheet(idx); });
 }
 
-// 关键改动：loading 时"换一批"按钮**不再消失**，而是变成"⏳ 生成中..."并禁用
 function renderSuggestions(){
   var session = getCurrentSession();
   var mode = session.mode || 'chat';
@@ -1723,7 +1772,6 @@ function renderSuggestions(){
     dom.sTitleText.textContent = mode === 'real' ? '正在想你可以怎么说...' : '生成中...';
     dom.sTitleTip.style.display = 'none';
     dom.sTitleSpinner.style.display = 'inline-block';
-    // 保持按钮可见，显示加载中
     dom.sRefresh.style.display = 'flex';
     dom.sRefresh.disabled = true;
     dom.sRefresh.innerHTML = '<span>⏳</span><span>生成中...</span>';
@@ -1769,46 +1817,46 @@ function renderSuggestions(){
   });
 }
 
-function renderApiForm(){
-  var html = '';
-  PROVIDER_ORDER.forEach(function(pid){
-    var p = PROVIDERS[pid];
-    var key = state.apiKeys[pid] || '';
-    var hasKey = !!key;
-    var isDefault = state.defaultProvider === pid && hasKey;
-    var enabled = isEnabled(pid);
-    var visionTag = p.vision ? '<span class="api-tag vision">📷</span>' : '<span class="api-tag no-vision">无图</span>';
-    var defaultBtn = (hasKey && enabled)
-      ? (isDefault
-        ? '<button class="default-btn active" data-pid="' + pid + '" data-act="unset">✓ 默认</button>'
-        : '<button class="default-btn" data-pid="' + pid + '" data-act="set">设为默认</button>')
-      : '';
-    var toggle = hasKey
-      ? '<label class="toggle-wrap"><input type="checkbox" data-enable="' + pid + '"' + (enabled ? ' checked' : '') + '><span class="toggle-track"></span></label>'
-      : '';
-    var rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '') + (hasKey && !enabled ? ' disabled' : '');
-    var modelVal = state.apiModels[pid] || '';
-    var modelPlaceholder = '';
-    var modelRequired = false;
-    if (pid === 'doubao'){ modelPlaceholder = '推理接入点 ID（ep-xxxxx 必填）'; modelRequired = true; }
-    else if (pid === 'zhipu'){ modelPlaceholder = 'glm-4-air（默认，可不填）'; }
-    else if (pid === 'deepseek'){ modelPlaceholder = 'deepseek-chat（默认，可不填）'; }
-    var modelWarn = (modelRequired && hasKey && !modelVal)
-      ? '<div class="model-warn">⚠️ 必填，否则 404</div>' : '';
-    html += '<div class="' + rowCls + '" data-pid="' + pid + '">' +
-      '<div class="api-row-header">' +
-        '<span class="api-icon">' + p.icon + '</span>' +
-        '<span class="api-name">' + esc(p.name) + '</span>' +
-        visionTag + defaultBtn + toggle +
-      '</div>' +
-      '<input type="text" class="api-key-input" data-pid="' + pid + '" data-had-key="' + (hasKey ? '1' : '') + '" value="' + esc(key) + '" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">' +
-      (hasKey ? ('<input type="text" class="api-model-input" data-pid="' + pid + '" value="' + esc(modelVal) + '" placeholder="' + modelPlaceholder + '" autocomplete="off" spellcheck="false" style="margin-top:8px;">' + modelWarn) : '') +
-      '</div>';
-  });
-  dom.apiForm.innerHTML = html;
+// ═══════════ API 表单：整表渲染 + 单行重建 ═══════════
+function buildApiRowHtml(pid){
+  var p = PROVIDERS[pid];
+  var key = state.apiKeys[pid] || '';
+  var hasKey = !!key;
+  var isDefault = state.defaultProvider === pid && hasKey;
+  var enabled = isEnabled(pid);
+  var visionTag = p.vision ? '<span class="api-tag vision">📷</span>' : '<span class="api-tag no-vision">无图</span>';
+  var defaultBtn = (hasKey && enabled)
+    ? (isDefault
+      ? '<button class="default-btn active" data-pid="' + pid + '" data-act="unset">✓ 默认</button>'
+      : '<button class="default-btn" data-pid="' + pid + '" data-act="set">设为默认</button>')
+    : '';
+  var toggle = hasKey
+    ? '<label class="toggle-wrap"><input type="checkbox" data-enable="' + pid + '"' + (enabled ? ' checked' : '') + '><span class="toggle-track"></span></label>'
+    : '';
+  var rowCls = 'api-row' + (hasKey ? ' has-key' : '') + (isDefault ? ' is-default' : '') + (hasKey && !enabled ? ' disabled' : '');
+  var modelVal = state.apiModels[pid] || '';
+  var modelPlaceholder = '';
+  var modelRequired = false;
+  if (pid === 'doubao'){ modelPlaceholder = '推理接入点 ID（ep-xxxxx 必填）'; modelRequired = true; }
+  else if (pid === 'zhipu'){ modelPlaceholder = 'glm-4-air（默认，可不填）'; }
+  else if (pid === 'deepseek'){ modelPlaceholder = 'deepseek-chat（默认，可不填）'; }
+  var modelWarn = (modelRequired && hasKey && !modelVal)
+    ? '<div class="model-warn">⚠️ 必填，否则 404</div>' : '';
+  return '<div class="' + rowCls + '" data-pid="' + pid + '">' +
+    '<div class="api-row-header">' +
+      '<span class="api-icon">' + p.icon + '</span>' +
+      '<span class="api-name">' + esc(p.name) + '</span>' +
+      visionTag + defaultBtn + toggle +
+    '</div>' +
+    '<input type="text" class="api-key-input" data-pid="' + pid + '" data-had-key="' + (hasKey ? '1' : '0') + '" value="' + esc(key) + '" placeholder="粘贴 API Key（可留空）" autocomplete="off" spellcheck="false">' +
+    (hasKey ? ('<input type="text" class="api-model-input" data-pid="' + pid + '" value="' + esc(modelVal) + '" placeholder="' + modelPlaceholder + '" autocomplete="off" spellcheck="false" style="margin-top:8px;">' + modelWarn) : '') +
+    '</div>';
+}
 
-  dom.apiForm.querySelectorAll('.api-key-input').forEach(function(input){
-    input.addEventListener('input', function(e){
+function bindApiRowEvents(row){
+  var keyInput = row.querySelector('.api-key-input');
+  if (keyInput){
+    keyInput.addEventListener('input', function(e){
       var pid = e.target.dataset.pid;
       var val = e.target.value;
       var hadKey = e.target.dataset.hadKey === '1';
@@ -1823,41 +1871,40 @@ function renderApiForm(){
       }
       saveDebounced();
       if (hasKey !== hadKey){
+        // 只重建这一行
         var selStart = e.target.selectionStart, selEnd = e.target.selectionEnd;
-        renderApiForm();
+        renderApiRow(pid);
         var newInput = dom.apiForm.querySelector('.api-key-input[data-pid="' + pid + '"]');
         if (newInput){ try { newInput.focus(); newInput.setSelectionRange(selStart, selEnd); } catch(err){} }
+        updateApiHeadBadge();
       }
     });
-    input.addEventListener('blur', function(e){
+    keyInput.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
       save();
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
     });
-  });
-
-  dom.apiForm.querySelectorAll('.api-model-input').forEach(function(input){
-    input.addEventListener('input', function(e){
+  }
+  var modelInput = row.querySelector('.api-model-input');
+  if (modelInput){
+    modelInput.addEventListener('input', function(e){
       var pid = e.target.dataset.pid;
       var val = e.target.value.trim();
       state.apiModels[pid] = val;
       saveDebounced();
       if (pid === 'doubao'){
-        var row = e.target.closest('.api-row');
-        if (row){
-          var warn = row.querySelector('.model-warn');
-          if (!val && !warn){
-            var warnEl = document.createElement('div');
-            warnEl.className = 'model-warn';
-            warnEl.textContent = '⚠️ 必填，否则 404';
-            e.target.parentNode.insertBefore(warnEl, e.target.nextSibling);
-          } else if (val && warn){ warn.remove(); }
-        }
+        var w = row.querySelector('.model-warn');
+        if (!val && !w){
+          var warnEl = document.createElement('div');
+          warnEl.className = 'model-warn';
+          warnEl.textContent = '⚠️ 必填，否则 404';
+          e.target.parentNode.insertBefore(warnEl, e.target.nextSibling);
+        } else if (val && w){ w.remove(); }
       }
     });
-    input.addEventListener('blur', function(e){
+    modelInput.addEventListener('blur', function(e){
       var pid = e.target.dataset.pid;
       state.apiModels[pid] = e.target.value.trim();
       save();
@@ -1865,30 +1912,54 @@ function renderApiForm(){
         toast('豆包必须填接入点 ID（ep-开头）', 2200, 'error');
       }
     });
-  });
-
-  dom.apiForm.querySelectorAll('.default-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      state.defaultProvider = btn.dataset.act === 'unset' ? '' : btn.dataset.pid;
-      save(); renderApiForm();
+  }
+  var defaultBtn = row.querySelector('.default-btn');
+  if (defaultBtn){
+    defaultBtn.addEventListener('click', function(){
+      state.defaultProvider = defaultBtn.dataset.act === 'unset' ? '' : defaultBtn.dataset.pid;
+      save();
+      // 所有行都要更新（因为可能取消/切换默认）
+      dom.apiForm.querySelectorAll('.api-row').forEach(function(r){
+        renderApiRow(r.dataset.pid);
+      });
+      updateApiHeadBadge();
     });
-  });
-
-  dom.apiForm.querySelectorAll('input[data-enable]').forEach(function(cb){
-    cb.addEventListener('change', function(){
-      var pid = cb.dataset.enable;
-      state.apiEnabled[pid] = cb.checked;
-      if (!cb.checked && state.defaultProvider === pid){
+  }
+  var enableCb = row.querySelector('input[data-enable]');
+  if (enableCb){
+    enableCb.addEventListener('change', function(){
+      var pid = enableCb.dataset.enable;
+      state.apiEnabled[pid] = enableCb.checked;
+      if (!enableCb.checked && state.defaultProvider === pid){
         var next = PROVIDER_ORDER.find(function(p){ return state.apiKeys[p] && isEnabled(p); });
         state.defaultProvider = next || '';
       }
-      save(); renderApiForm();
+      save();
+      renderApiRow(pid);
+      updateApiHeadBadge();
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
     });
-  });
+  }
+}
 
+function renderApiRow(pid){
+  var row = dom.apiForm.querySelector('.api-row[data-pid="' + pid + '"]');
+  if (!row) return;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = buildApiRowHtml(pid);
+  var newRowEl = tmp.firstElementChild;
+  if (!newRowEl) return;
+  row.parentNode.replaceChild(newRowEl, row);
+  bindApiRowEvents(newRowEl);
+}
+
+function renderApiForm(){
+  var html = '';
+  PROVIDER_ORDER.forEach(function(pid){ html += buildApiRowHtml(pid); });
+  dom.apiForm.innerHTML = html;
+  dom.apiForm.querySelectorAll('.api-row').forEach(function(row){ bindApiRowEvents(row); });
   updateApiHeadBadge();
 }
 
@@ -2200,6 +2271,9 @@ function openSessionMenu(id, btnEl){
   dom.pinLabel.textContent = session.pinned ? '取消置顶' : '置顶';
 
   var menu = dom.sessionMenu;
+  // 先在屏幕外测量，避免出现在默认位置造成闪烁
+  menu.style.top = '-9999px';
+  menu.style.left = '0px';
   menu.classList.add('show');
   var mw = menu.offsetWidth;
   var mh = menu.offsetHeight;
@@ -2244,13 +2318,20 @@ function shareSession(id){
     lines.push(who + '：' + m.text);
   });
   var text = lines.join('\n');
-  if (navigator.share && navigator.canShare && navigator.canShare({ text: text })){
-    navigator.share({ title: '对话记录', text: text }).catch(function(){});
-    return;
-  }
-  if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-    navigator.share({ title: '对话记录', text: text }).catch(function(){});
-    return;
+  if (navigator.share){
+    var canShare = false;
+    try {
+      canShare = navigator.canShare ? navigator.canShare({ text: text }) : true;
+    } catch(e){
+      canShare = false;
+    }
+    // 移动端即使 canShare 判断不准，也尝试一次原生分享
+    if (canShare || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+      try {
+        navigator.share({ title: '对话记录', text: text }).catch(function(){});
+        return;
+      } catch(e){}
+    }
   }
   copyText(text, function(){ toast('对话已复制到剪贴板', 1800, 'success'); });
 }
@@ -2320,22 +2401,27 @@ function toggleSelectAll(){
 function deleteSelectedSessions(){
   var ids = Object.keys(runtime.multiSelect.selected);
   if (ids.length === 0) return;
-  if (!confirm('删除选中的 ' + ids.length + ' 个对话？此操作不可恢复。')) return;
+  var ok = true;
+  try { ok = confirm('删除选中的 ' + ids.length + ' 个对话？此操作不可恢复。'); }
+  catch(e){ ok = true; }  // confirm 被拦截时默认继续
+  if (!ok) return;
   state.sessions = state.sessions.filter(function(s){ return ids.indexOf(s.id) < 0; });
+  ids.forEach(function(id){ delete suggestionCache[id]; });
   if (state.sessions.length === 0){
     createSession(true, 'chat');
   } else if (ids.indexOf(state.currentSessionId) >= 0){
     var sorted = sortSessions(state.sessions);
     state.currentSessionId = sorted[0].id;
-    runtime.suggestions = [];
-    runtime.avoidSuggestions = [];
+    var cached = suggestionCache[state.currentSessionId];
+    runtime.suggestions = (cached && cached.suggestions) || [];
+    runtime.avoidSuggestions = (cached && cached.avoid) || [];
     runtime.loading = false;
     closeSpeakPanel();
   }
   updateProfileCache();
-  exitMultiSelect();
   save();
-  renderSessionList();
+  // exitMultiSelect 内部已经 renderSessionList
+  exitMultiSelect();
   renderHeader();
   renderStatusBar();
   renderMessages();
@@ -2348,10 +2434,31 @@ function deleteSelectedSessions(){
 // ==================== 会话切换 / 删除 ====================
 function switchSession(id){
   if (state.currentSessionId === id){ closeDrawer(); return; }
+
+  // 保存当前会话的建议到缓存
+  var prevSid = state.currentSessionId;
+  if (runtime.suggestions && runtime.suggestions.length > 0){
+    suggestionCache[prevSid] = {
+      suggestions: runtime.suggestions.slice(),
+      avoid: (runtime.avoidSuggestions || []).slice()
+    };
+  } else if (runtime.avoidSuggestions && runtime.avoidSuggestions.length > 0){
+    suggestionCache[prevSid] = {
+      suggestions: [],
+      avoid: runtime.avoidSuggestions.slice()
+    };
+  } else {
+    delete suggestionCache[prevSid];
+  }
+
   state.currentSessionId = id;
-  runtime.suggestions = [];
-  runtime.avoidSuggestions = [];
+
+  // 从缓存恢复目标会话的建议
+  var cached = suggestionCache[id];
+  runtime.suggestions = (cached && cached.suggestions) || [];
+  runtime.avoidSuggestions = (cached && cached.avoid) || [];
   runtime.loading = false;
+  if (runtime.imageBase64) clearImage();
   closeSpeakPanel();
   updateProfileCache();
   save();
@@ -2375,6 +2482,7 @@ function handleNewChat(mode){
   runtime.suggestions = [];
   runtime.avoidSuggestions = [];
   runtime.loading = false;
+  if (runtime.imageBase64) clearImage();
   closeSpeakPanel();
   updateProfileCache();
   save();
@@ -2441,8 +2549,7 @@ function deletePendingMessage(){
   if (idx < 0 || !session.messages[idx]){ closeActionSheet(); return; }
   session.messages.splice(idx, 1);
   session.updatedAt = Date.now();
-  runtime.suggestions = [];
-  runtime.avoidSuggestions = [];
+  clearSuggestionsFor(session.id);
   runtime.loading = false;
   closeSpeakPanel();
   save();
@@ -2486,20 +2593,31 @@ function saveMeInput(){
   var session = getCurrentSession();
   var lastTa = getLastTaText(session);
   var taName = session.taName || '';
+
+  // 样本去重：完全相同的 (myText, taText, taName) 不再重复学习
+  var isDup = state.styleSamples.some(function(s){
+    return s.myText === text
+      && (s.taText || '') === (lastTa || '')
+      && (s.taName || '') === (taName || '');
+  });
+
   session.messages.push({ role: 'me', text: text, manual: true });
   session.updatedAt = Date.now();
-  runtime.suggestions = [];
-  runtime.avoidSuggestions = [];
+  clearSuggestionsFor(session.id);
   runtime.loading = false;
   closeSpeakPanel();
-  addStyleSample(text, lastTa, taName);
+  if (!isDup) addStyleSample(text, lastTa, taName);
   save();
   closeMeInput();
   renderMessages();
   renderSuggestions();
   renderHeader();
   var tail = taName ? '（' + taName + '）' : '';
-  toast('✅ 已记录' + tail + ' · 样本 ' + state.styleSamples.length + ' 条', 1600, 'success');
+  if (isDup){
+    toast('✅ 已记录' + tail + '（样本已存在，未重复学习）', 1800, 'success');
+  } else {
+    toast('✅ 已记录' + tail + ' · 样本 ' + state.styleSamples.length + ' 条', 1600, 'success');
+  }
 }
 
 function enterEditMode(idx){
@@ -2526,8 +2644,7 @@ function enterEditMode(idx){
       session.messages.push({ role: 'me', text: val, manual: true });
       session.updatedAt = Date.now();
       if (val !== origText) addStyleSample(val, lastTa, taName);
-      runtime.suggestions = [];
-      runtime.avoidSuggestions = [];
+      clearSuggestionsFor(session.id);
       save();
       renderMessages();
       renderSuggestions();
@@ -2542,7 +2659,7 @@ function enterEditMode(idx){
   card.querySelector('.btn-ok').addEventListener('click', confirmEdit);
   card.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
   input.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); confirmEdit(); }
+    if (isRealEnter(e)){ e.preventDefault(); confirmEdit(); }
     else if (e.key === 'Escape'){ e.preventDefault(); cancelEdit(); }
   });
 }
@@ -2559,9 +2676,17 @@ function fallbackCopy(text, cb){
   ta.style.left = '-9999px';
   document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand('copy'); cb(); }
-  catch(e){ toast('复制失败', 1500, 'error'); }
+  var ok = false;
+  try { ok = document.execCommand('copy'); }
+  catch(e){ ok = false; }
   document.body.removeChild(ta);
+  if (ok){
+    cb();
+  } else {
+    toast('复制失败，请手动选中复制', 2000, 'error');
+    // 仍然回调，保证后续逻辑（如记录样本、推送消息）能继续
+    cb();
+  }
 }
 
 // ==================== 现实说话面板 ====================
@@ -2603,8 +2728,7 @@ function confirmSpeakSaid(){
   session.messages.push({ role: 'me', text: val, manual: true });
   session.updatedAt = Date.now();
   addStyleSample(val, lastTa, taName);
-  runtime.suggestions = [];
-  runtime.avoidSuggestions = [];
+  clearSuggestionsFor(session.id);
   save();
   closeSpeakPanel();
   renderMessages();
@@ -2819,7 +2943,6 @@ async function callAI(apiEntry, session, opts){
     ? '\n【这是现实对话】\n你和' + ta + '正在面对面聊天，不是打字。\n对方刚说了句话，你需要给出 3 句"你可以直接开口说"的话。\n⚠️ 因为是当面说的，必须：\n- 极度口语化，一开口就能说出来\n- 不要太长（不超过 25 字，越短越好）\n- 句子结构简单，不用"其实""但是""因为"这种转折\n- 可以用语气词、停顿词（诶、那个、就、嗯）\n- 就像你平时张嘴说话的样子，不书面'
     : '\n【这是线上打字聊天】\n你和' + ta + '在用微信等聊天软件打字。';
 
-  // 强化"换一批"时的不重复约束
   var avoidBlock = '';
   if (opts.avoid && opts.avoid.length > 0){
     avoidBlock =
@@ -2965,22 +3088,34 @@ async function handleSend(){
     }
   }
   var session = getCurrentSession();
+  var requestSessionId = session.id;
   var finalText = text || '请描述这张图片';
   var pushedMsg = { role: 'ta', text: finalText };
   session.messages.push(pushedMsg);
   session.updatedAt = Date.now();
   dom.input.value = '';
+  // 开新一批前，清掉当前会话的建议
+  clearSuggestionsFor(requestSessionId);
   save();
   renderMessages();
   renderHeader();
   runtime.loading = true;
-  runtime.avoidSuggestions = [];
   renderSuggestions();
   dom.sendBtn.disabled = true;
   try {
     var result = await callAI(usedApi, session);
-    runtime.suggestions = result.suggestions || [];
+
+    if (getCurrentSession().id !== requestSessionId){
+      // 用户已切走：结果写回原会话的缓存，不刷新 UI
+      setSuggestionsFor(requestSessionId, result.suggestions || [], []);
+      runtime.loading = false;
+      save();
+      if (runtime.imageBase64) clearImage();
+      return;
+    }
+
     runtime.loading = false;
+    setSuggestionsFor(requestSessionId, result.suggestions || [], []);
     save();
     renderSuggestions();
     if (runtime.imageBase64) clearImage();
@@ -2989,14 +3124,22 @@ async function handleSend(){
     }
   } catch(err){
     runtime.loading = false;
-    var idx = session.messages.indexOf(pushedMsg);
-    if (idx >= 0){
-      session.messages.splice(idx, 1);
-      session.updatedAt = Date.now();
-      save();
-      renderMessages();
+    // 从原会话移除失败的消息
+    var origin = state.sessions.find(function(s){ return s.id === requestSessionId; });
+    if (origin){
+      var idx = origin.messages.indexOf(pushedMsg);
+      if (idx >= 0){
+        origin.messages.splice(idx, 1);
+        origin.updatedAt = Date.now();
+      }
     }
-    renderSuggestions();
+    // 失败也清空建议缓存（避免显示旧批）
+    clearSuggestionsFor(requestSessionId);
+    save();
+    if (getCurrentSession().id === requestSessionId){
+      renderMessages();
+      renderSuggestions();
+    }
     var hint = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
     toast('❌ ' + err.message + hint, 3500, 'error');
   } finally {
@@ -3007,6 +3150,7 @@ async function handleSend(){
 async function regenerateSuggestions(){
   if (runtime.loading) return;
   var session = getCurrentSession();
+  var requestSessionId = session.id;
   var lastTa = null;
   for (var i = session.messages.length - 1; i >= 0; i--){
     if (session.messages[i].role === 'ta'){ lastTa = session.messages[i]; break; }
@@ -3015,23 +3159,38 @@ async function regenerateSuggestions(){
   var usedApi = runtime.imageBase64 ? getImageApi() : getDefaultApi();
   if (runtime.imageBase64 && !usedApi){ toast('没有已启用的图片 API', 2500, 'error'); return; }
   if (!usedApi){ toast('没有已启用的 API，请去设置里检查', 2200, 'error'); openSettings(); return; }
-  // 收集所有历史建议避免重复（当前 + 上几批）
+
+  // 收集去重池：优先用当前会话缓存的，其次 runtime
+  var cached = suggestionCache[requestSessionId];
   var avoid = [];
-  if (runtime.avoidSuggestions && runtime.avoidSuggestions.length > 0){
-    avoid = avoid.concat(runtime.avoidSuggestions);
+  if (cached && cached.avoid) avoid = avoid.concat(cached.avoid);
+  if (cached && cached.suggestions){
+    cached.suggestions.forEach(function(s){
+      if (avoid.indexOf(s.text) < 0) avoid.push(s.text);
+    });
   }
   if (runtime.suggestions && runtime.suggestions.length > 0){
     runtime.suggestions.forEach(function(s){
       if (avoid.indexOf(s.text) < 0) avoid.push(s.text);
     });
   }
+  var newAvoid = avoid.slice(-20);
+
   runtime.loading = true;
-  runtime.avoidSuggestions = avoid.slice(-20);  // 最多记 20 条
   renderSuggestions();
   try {
     var result = await callAI(usedApi, session, { avoid: avoid });
-    runtime.suggestions = result.suggestions || [];
+
+    if (getCurrentSession().id !== requestSessionId){
+      // 用户已切走：写回原会话缓存
+      setSuggestionsFor(requestSessionId, result.suggestions || [], newAvoid);
+      runtime.loading = false;
+      save();
+      return;
+    }
+
     runtime.loading = false;
+    setSuggestionsFor(requestSessionId, result.suggestions || [], newAvoid);
     save();
     renderSuggestions();
     toast('✅ 已换一批', 1200, 'success');
@@ -3043,7 +3202,10 @@ async function regenerateSuggestions(){
 }
 
 function clearStyleSamples(){
-  if (!confirm('清空所有学习样本？AI 会忘记你的说话方式。')) return;
+  var ok = true;
+  try { ok = confirm('清空所有学习样本？AI 会忘记你的说话方式。'); }
+  catch(e){ ok = true; }
+  if (!ok) return;
   state.styleSamples = [];
   runtime.langProfile = null;
   runtime.sceneProfile = [];
@@ -3107,7 +3269,7 @@ function bindEvents(){
   dom.statusBar.addEventListener('click', openProfileDialog);
   dom.sendBtn.addEventListener('click', handleSend);
   dom.input.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); handleSend(); }
+    if (isRealEnter(e)){ e.preventDefault(); handleSend(); }
   });
   dom.sRefresh.addEventListener('click', regenerateSuggestions);
 
@@ -3157,10 +3319,10 @@ function bindEvents(){
   dom.pdCancel.addEventListener('click', closeProfileDialog);
   dom.pdSave.addEventListener('click', saveProfileDialog);
   dom.pdTaName.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); dom.pdStatus.focus(); }
+    if (isRealEnter(e)){ e.preventDefault(); dom.pdStatus.focus(); }
   });
   dom.pdStatus.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); saveProfileDialog(); }
+    if (isRealEnter(e)){ e.preventDefault(); saveProfileDialog(); }
     else if (e.key === 'Escape'){ e.preventDefault(); closeProfileDialog(); }
   });
   dom.speakClose.addEventListener('click', closeSpeakPanel);
@@ -3183,7 +3345,7 @@ function bindEvents(){
   dom.meInputCancel.addEventListener('click', closeMeInput);
   dom.meInputSave.addEventListener('click', saveMeInput);
   dom.meInputArea.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); saveMeInput(); }
+    if (isRealEnter(e) && (e.ctrlKey || e.metaKey)){ e.preventDefault(); saveMeInput(); }
     else if (e.key === 'Escape'){ e.preventDefault(); closeMeInput(); }
   });
   dom.closeSamples.addEventListener('click', closeSamplesModal);
@@ -3250,7 +3412,7 @@ function bindEvents(){
   dom.renameCancel.addEventListener('click', closeRenameDialog);
   dom.renameSave.addEventListener('click', saveRenameDialog);
   dom.renameInput.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); saveRenameDialog(); }
+    if (isRealEnter(e)){ e.preventDefault(); saveRenameDialog(); }
     else if (e.key === 'Escape'){ e.preventDefault(); closeRenameDialog(); }
   });
 
