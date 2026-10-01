@@ -105,6 +105,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .status-bar .sep{color:#d97706;opacity:0.5;margin:0 2px;}
 .status-bar .status-edit{border:none;background:transparent;color:#b45309;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
 .status-bar .status-edit:hover{background:#fde68a;}
+.status-bar .status-brain{border:none;background:transparent;color:#b45309;font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
+.status-bar .status-brain:hover{background:#fde68a;}
 
 .input-tabs{display:flex;gap:4px;padding:8px 16px 4px;background:#fff;border-top:1px solid #ebebf0;flex-shrink:0;}
 .itab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:none;background:transparent;border-radius:10px;font-size:12.5px;font-family:inherit;color:#888;cursor:pointer;font-weight:500;transition:all .15s;line-height:1.3;}
@@ -219,9 +221,13 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-empty{color:#999;font-size:13px;text-align:center;padding:30px 0;}
 
 /* ============ 会话分组标题 ============ */
-.session-group-title{padding:8px 12px 4px;font-size:11px;color:#888;font-weight:700;display:flex;align-items:center;gap:6px;letter-spacing:0.3px;}
+.session-group-title{padding:8px 12px 4px;font-size:12px;color:#666;font-weight:700;display:flex;align-items:center;gap:6px;letter-spacing:0.3px;cursor:pointer;user-select:none;transition:background .15s;}
+.session-group-title:hover{background:rgba(0,0,0,0.03);border-radius:8px;}
 .session-group-title .sg-count{background:#ebebf0;color:#666;padding:0 6px;border-radius:8px;font-size:10px;font-weight:700;line-height:16px;}
 .session-group-title .sg-pin{color:#d97706;font-size:11px;}
+.session-group-title .sg-arrow{transition:transform .2s;display:inline-block;font-size:10px;color:#999;margin-left:auto;}
+.session-group.collapsed .sg-arrow{transform:rotate(-90deg);}
+.session-group.collapsed .session-item{display:none;}
 .session-group + .session-group{margin-top:4px;}
 
 .new-chat-row{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0;}
@@ -436,6 +442,29 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .img-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .img-modal img{max-width:92vw;max-height:90vh;border-radius:12px;object-fit:contain;}
+
+/* ============ 对方性格分析面板 ============ */
+.personality-panel{position:fixed;inset:0;background:#fff;z-index:700;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(0.4,0,0.2,1);}
+.personality-panel.show{transform:translateY(0);}
+.pp-head2{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #ebebf0;flex-shrink:0;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
+.pp-head2 h2{font-size:16px;font-weight:600;}
+.pp-body2{flex:1;overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
+.pp-loading{text-align:center;padding:60px 0;color:#999;font-size:13px;}
+.pp-loading .spinner{margin-bottom:12px;display:inline-block;}
+.pp-section2{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.pp-section2 .s-title2{font-size:12px;font-weight:700;color:#7c5cff;letter-spacing:0.3px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.pp-section2 .s-text2{font-size:14px;color:#2a2a3a;line-height:1.65;white-space:pre-line;}
+.pp-tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.pp-tag2{font-size:12px;padding:4px 10px;background:#fff;border:1px solid #e0d7ff;border-radius:8px;color:#5b21b6;font-weight:500;line-height:1.4;}
+.pp-tag2.highlight{background:#fef3c7;border-color:#fde68a;color:#92400e;}
+.pp-empty2{text-align:center;padding:60px 20px;color:#999;font-size:14px;line-height:1.8;}
+.pp-actions2{display:flex;gap:8px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;background:#fff;flex-shrink:0;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
+.pp-actions2 button{flex:1;height:44px;border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+.pp-btn-reanalyze{border:none;background:#7c5cff;color:#fff;}
+.pp-btn-reanalyze:hover{background:#6a4ae6;}
+.pp-btn-reanalyze:disabled{opacity:0.5;cursor:not-allowed;}
+.pp-btn-close2{border:1.5px solid #ebebf0;background:#fff;color:#666;}
+.pp-btn-close2:hover{background:#f5f5f7;}
 </style>
 </head>
 <body>
@@ -709,15 +738,27 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
   </div>
 </div>
 <input type="file" id="importFileInput" accept=".json,application/json" style="display:none">
+<div class="personality-panel" id="personalityPanel">
+  <div class="pp-head2">
+    <h2>🧠 对方性格分析</h2>
+    <button class="icon-btn" id="closePersonality" aria-label="关闭">✕</button>
+  </div>
+  <div class="pp-body2" id="personalityBody"></div>
+  <div class="pp-actions2">
+    <button class="pp-btn-close2" id="personalityCloseBtn">关闭</button>
+    <button class="pp-btn-reanalyze" id="personalityReanalyze">🔄 重新分析</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 (function(){
 'use strict';
 
-var SCHEMA_VERSION = 6;
+var SCHEMA_VERSION = 7;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
 var MAX_HISTORY_MESSAGES = 20;
+var COLLAPSE_KEY = 'chat_collapse_v1';
 
 // 彻底清理孤立代理字符的终极兼容版（解决手机浏览器正则兼容问题）
 function cleanUnicode(str) {
@@ -848,6 +889,8 @@ var runtime = {
   cachedVoices: null,
   clearArmed: false,
   clearArmedTimer: null,
+  collapsedGroups: {},
+  personalityRunning: false,
   sessionMenu: { targetId: '' },
   renameTargetId: '',
   multiSelect: { active: false, selected: {} },
@@ -919,7 +962,8 @@ function bindDomRefs(){
     'exportBtn','importBtn',
     'exportDialogMask','exportDialog','exportCancel','exportConfirm',
     'importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput',
-    'inputTabs','itabChat','itabCoach'
+    'inputTabs','itabChat','itabCoach',
+    'personalityPanel','personalityBody','closePersonality','personalityCloseBtn','personalityReanalyze'
   ];
   ids.forEach(function(id){ dom[id] = document.getElementById(id); });
 }
@@ -1005,6 +1049,7 @@ function migrateState(d){
     d.schemaVersion = 5; v = 5;
   }
   if (v < 6){ d.schemaVersion = 6; v = 6; }
+  if (v < 7){ d.schemaVersion = 7; v = 7; }
   return d;
 }
 
@@ -1026,7 +1071,9 @@ function normalizeRawState(d){
           mode: (s.mode === 'real' || s.mode === 'chat') ? s.mode : 'chat',
           inputMode: (s.inputMode === 'coach' || s.inputMode === 'chat') ? s.inputMode : 'chat',
           createdAt: typeof s.createdAt === 'number' ? s.createdAt : Date.now(),
-          updatedAt: typeof s.updatedAt === 'number' ? s.updatedAt : Date.now()
+          updatedAt: typeof s.updatedAt === 'number' ? s.updatedAt : Date.now(),
+          personality: (s.personality && typeof s.personality === 'object') ? s.personality : null,
+          personalityUpdatedAt: typeof s.personalityUpdatedAt === 'number' ? s.personalityUpdatedAt : 0
         };
       });
     }
@@ -1119,7 +1166,9 @@ function createSession(switchTo, mode){
     mode: mode,
     inputMode: 'chat',
     createdAt: Date.now(),
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
+    personality: null,
+    personalityUpdatedAt: 0
   };
   state.sessions.unshift(session);
   if (switchTo) state.currentSessionId = session.id;
@@ -1147,7 +1196,6 @@ function generateSessionTitle(session){
   return text.length > 18 ? text.slice(0, 18) + '…' : text;
 }
 
-// 会话排序（保留作为备用；分组渲染时不直接调用）
 function sortSessions(list){
   return list.slice().sort(function(a, b){
     var an = a.taName || '';
@@ -1169,6 +1217,17 @@ function formatTime(ts){
   if (diff < 7 * 24 * 60 * 60 * 1000) return Math.floor(diff / 86400000) + '天前';
   var d = new Date(ts);
   return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+
+// 折叠状态
+function loadCollapsedGroups(){
+  try {
+    var raw = safeGetStorage(COLLAPSE_KEY);
+    if (raw) runtime.collapsedGroups = JSON.parse(raw) || {};
+  } catch(e){ runtime.collapsedGroups = {}; }
+}
+function saveCollapsedGroups(){
+  try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(runtime.collapsedGroups)); } catch(e){}
 }
 
 // ==================== 输入模式 ====================
@@ -1803,19 +1862,20 @@ function renderStatusBar(){
   var session = getCurrentSession();
   var taName = session.taName || '';
   var status = session.status || '';
+  var brainBtn = '<button class="status-brain" aria-label="性格分析" title="分析对方性格">🧠</button>';
   if (taName || status){
     dom.statusBar.classList.remove('empty');
     var inner = '<span class="status-icon">📌</span><div class="status-content">';
     if (taName) inner += '<span class="ta-name">' + esc(taName) + '</span>';
     if (taName && status) inner += '<span class="sep">·</span>';
     if (status) inner += '<span class="status-text">' + esc(status) + '</span>';
-    inner += '</div><button class="status-edit" aria-label="编辑">✎</button>';
+    inner += '</div>' + brainBtn + '<button class="status-edit" aria-label="编辑">✎</button>';
     dom.statusBar.innerHTML = inner;
   } else {
     dom.statusBar.classList.add('empty');
     dom.statusBar.innerHTML = '<span class="status-icon">📌</span>' +
       '<div class="status-content"><span class="status-text placeholder">点这里设置对方昵称和情境</span></div>' +
-      '<button class="status-edit" aria-label="编辑">✎</button>';
+      brainBtn + '<button class="status-edit" aria-label="编辑">✎</button>';
   }
 }
 
@@ -2456,7 +2516,7 @@ function closeDrawer(){
   closeSessionMenu();
 }
 
-// ============ 会话列表：按对方昵称分组 ============
+// ============ 会话列表：按对方昵称分组 + 折叠 ============
 function renderSessionList(){
   var isMulti = runtime.multiSelect.active;
   dom.multiToolbar.classList.toggle('show', isMulti);
@@ -2468,7 +2528,6 @@ function renderSessionList(){
     return;
   }
 
-  // 1) 按对方昵称分组，没名字的归一组
   var UNNAMED = '__unnamed__';
   var groups = {};
   state.sessions.forEach(function(s){
@@ -2477,7 +2536,6 @@ function renderSessionList(){
     groups[key].sessions.push(s);
   });
 
-  // 2) 组内排序，并算出组的排序键
   var groupList = Object.keys(groups).map(function(key){
     var g = groups[key];
     g.sessions.sort(function(a, b){
@@ -2491,32 +2549,34 @@ function renderSessionList(){
     return g;
   });
 
-  // 3) 组排序：有置顶的在最前 → 其余按最近活跃 → 未命名组垫底
   groupList.sort(function(a, b){
     if (a.isUnnamed !== b.isUnnamed) return a.isUnnamed ? 1 : -1;
     if (a.hasPinned !== b.hasPinned) return a.hasPinned ? -1 : 1;
     return b.latestAt - a.latestAt;
   });
 
-  // 4) 渲染：只有 1 个未命名组时，不显示组标题
   var showTitles = !(groupList.length === 1 && groupList[0].isUnnamed);
   var html = '';
   groupList.forEach(function(g){
+    var groupKey = g.isUnnamed ? UNNAMED : g.name;
+    var collapsed = !!runtime.collapsedGroups[groupKey];
+    html += '<div class="session-group' + (collapsed ? ' collapsed' : '') + '" data-group="' + esc(groupKey) + '">';
     if (showTitles){
-      html += '<div class="session-group-title">' +
-        (g.isUnnamed ? '💬 未命名' : '👤 ' + esc(g.name)) +
+      html += '<div class="session-group-title" data-grouptoggle="' + esc(groupKey) + '">' +
+        (g.isUnnamed ? '未命名' : esc(g.name)) +
         '<span class="sg-count">' + g.sessions.length + '</span>' +
         (g.hasPinned ? '<span class="sg-pin">📌</span>' : '') +
+        '<span class="sg-arrow">▼</span>' +
         '</div>';
     }
     g.sessions.forEach(function(s){
       html += renderSessionItemHtml(s, isMulti);
     });
+    html += '</div>';
   });
 
   dom.sessionList.innerHTML = html;
 
-  // 5) 绑定事件
   dom.sessionList.querySelectorAll('.session-item').forEach(function(item){
     item.addEventListener('click', function(e){
       if (e.target.closest('.session-more')) return;
@@ -2531,9 +2591,18 @@ function renderSessionList(){
       openSessionMenu(btn.dataset.more, btn);
     });
   });
+  dom.sessionList.querySelectorAll('[data-grouptoggle]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var key = el.dataset.grouptoggle;
+      runtime.collapsedGroups[key] = !runtime.collapsedGroups[key];
+      saveCollapsedGroups();
+      var groupEl = el.closest('.session-group');
+      if (groupEl) groupEl.classList.toggle('collapsed', runtime.collapsedGroups[key]);
+    });
+  });
 }
 
-// 抽出单条会话的 HTML 生成
 function renderSessionItemHtml(s, isMulti){
   var isActive = s.id === state.currentSessionId;
   var isSelected = !!runtime.multiSelect.selected[s.id];
@@ -2794,8 +2863,6 @@ function closeProfileDialog(){
   dom.profileDialogMask.classList.remove('show');
   dom.profileDialog.classList.remove('show');
 }
-
-// 保存对话信息（加入同名提示）
 function saveProfileDialog(){
   var session = getCurrentSession();
   if (!session) return;
@@ -2849,7 +2916,6 @@ function closeActionSheet(){
   runtime.pendingDeleteIdx = -1;
 }
 
-// 删除消息时同步清理学习样本
 function deletePendingMessage(){
   var idx = runtime.pendingDeleteIdx;
   var session = getCurrentSession();
@@ -2859,11 +2925,9 @@ function deletePendingMessage(){
   var removedText = removedMsg.text || '';
   var taName = session.taName || '';
 
-  // 1) 先从消息列表里删掉这条
   session.messages.splice(idx, 1);
   session.updatedAt = Date.now();
 
-  // 2) 同步清理学习样本
   var removedSamples = 0;
   if (removedText){
     var before = state.styleSamples.length;
@@ -3224,7 +3288,7 @@ async function rawChatRequest(apiEntry, body, timeoutMs){
   var key = sanitizeKey(apiEntry.apiKey);
   if (!key) throw new Error('API Key 无效');
 
-  // ⭐ 最后防线：清理整个请求体里的所有文本（包括 systemPrompt、messages、画像样本）
+  // ⭐ 最后防线：清理整个请求体里的所有文本
   if (body && Array.isArray(body.messages)){
     body.messages = body.messages.map(function(m){
       if (!m || typeof m !== 'object') return m;
@@ -3635,7 +3699,6 @@ async function handleSend(){
   var requestSessionId = session.id;
   var originalInput = text;
 
-  // ============ 教练模式 ============
   if (inputMode === 'coach'){
     if (!text){ toast('教练模式需要先输入你想说的话', 1500, 'error'); return; }
     dom.input.value = '';
@@ -3672,7 +3735,6 @@ async function handleSend(){
     return;
   }
 
-  // ============ chat 模式 ============
   var finalText = text || '请描述这张图片';
   var pushedMsg = { role: 'ta', text: finalText };
   session.messages.push(pushedMsg);
@@ -3827,9 +3889,7 @@ async function regenerateSuggestions(){
   }
 }
 
-// ============ 清空样本（二次点击确认）============
 function clearStyleSamples(){
-  // 第一次点击：进入待确认状态
   if (!runtime.clearArmed){
     runtime.clearArmed = true;
     var btn = dom.profilePanel.querySelector('[data-action="clear"]');
@@ -3847,7 +3907,6 @@ function clearStyleSamples(){
     }, 4000);
     return;
   }
-  // 第二次点击：真正清空
   runtime.clearArmed = false;
   clearTimeout(runtime.clearArmedTimer);
   state.styleSamples = [];
@@ -3864,7 +3923,6 @@ function clearStyleSamples(){
   toast('✅ 已清空所有学习样本', 1800, 'success');
 }
 
-// ============ 样本列表（支持单条删除）============
 function openSamplesModal(){
   var samples = state.styleSamples || [];
   if (samples.length === 0){
@@ -3903,7 +3961,6 @@ function openSamplesModal(){
         '</div>' +
         '</div>';
     }).join('');
-    // 绑定单条删除
     dom.samplesBody.querySelectorAll('.si-del').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
@@ -3914,7 +3971,6 @@ function openSamplesModal(){
   dom.samplesModal.classList.add('show');
 }
 
-// 删除单条样本
 function deleteSampleAt(idx){
   if (idx < 0 || idx >= state.styleSamples.length) return;
   state.styleSamples.splice(idx, 1);
@@ -3928,6 +3984,176 @@ function deleteSampleAt(idx){
 
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
 
+// ==================== 对方性格分析 ====================
+async function analyzePersonality(){
+  if (runtime.personalityRunning) return;
+  var session = getCurrentSession();
+  var taName = cleanUnicode(session.taName || '');
+
+  var allTaTexts = [];
+  var seen = {};
+  function collectFrom(s){
+    (s.messages || []).forEach(function(m){
+      if (m.role !== 'ta' || !m.text) return;
+      var t = cleanUnicode(m.text).trim();
+      if (!t) return;
+      if (seen[t]) return;
+      seen[t] = true;
+      allTaTexts.push(t);
+    });
+  }
+  collectFrom(session);
+  if (taName){
+    state.sessions.forEach(function(s){
+      if (s.id === session.id) return;
+      if ((s.taName || '') !== taName) return;
+      collectFrom(s);
+    });
+  }
+
+  if (allTaTexts.length < 3){
+    toast('对方说的话太少（至少 3 条），无法分析', 2200, 'error');
+    return;
+  }
+  if (allTaTexts.length > 200) allTaTexts = allTaTexts.slice(-200);
+
+  var api = getDefaultApi();
+  if (!api){
+    toast('需要先在设置里配置 API', 2200, 'error');
+    openSettings();
+    return;
+  }
+
+  runtime.personalityRunning = true;
+  renderPersonalityPanel({ loading: true });
+  openPersonalityPanel();
+
+  try {
+    var result = await callPersonalityAPI(api, taName, allTaTexts);
+    session.personality = result;
+    session.personalityUpdatedAt = Date.now();
+    save();
+    runtime.personalityRunning = false;
+    renderPersonalityPanel(result);
+  } catch(err){
+    runtime.personalityRunning = false;
+    renderPersonalityPanel({ error: err.message });
+  }
+}
+
+async function callPersonalityAPI(apiEntry, taName, texts){
+  var pConf = PROVIDERS[apiEntry.provider];
+  if (!pConf) throw new Error('未知服务商');
+  var key = sanitizeKey(apiEntry.apiKey);
+  if (!key) throw new Error('API Key 无效');
+  var model = state.apiModels[apiEntry.provider] || pConf.model;
+  if (apiEntry.provider === 'doubao' && !model) throw new Error('豆包需要填接入点 ID');
+
+  var label = taName || '对方';
+  var systemPrompt =
+    '你是行为心理分析师。下面是「' + label + '」对我说过的话（共 ' + texts.length + ' 条）。\n' +
+    '请仔细阅读后，从这几个维度分析这个人的性格特点：\n\n' +
+    '1. 情绪基调：他/她和我聊天时的整体情绪倾向（例如：热情、克制、幽默、易焦虑、情绪化、偏理性）\n' +
+    '2. 说话风格：常用词、句式、长度、标点、表情习惯\n' +
+    '3. 思维模式：逻辑性强/跳跃、感性/理性、主动/被动、外向/内向\n' +
+    '4. 对我们的关系：亲密程度、投入度、有没有疏离感\n' +
+    '5. 隐藏的需求：从言语里透露出来但没直接说出口的东西\n' +
+    '6. 三个关键词：概括这个人最突出的三个特质（短词）\n' +
+    '7. 沟通建议：我应该怎么跟这个人说话更顺畅\n\n' +
+    '⚠️ 只基于真实文本分析，不要凭空猜测。语气要客观中立，不要过于恭维或贬低。\n' +
+    '⚠️ 每个维度 30-80 字，不要太长。\n' +
+    '⚠️ 所有内容用中文。\n' +
+    '⚠️ 严格按 JSON 输出，第一个字符是 {：\n' +
+    '{"tone":"...","style":"...","thinking":"...","relationship":"...","needs":"...","keywords":["k1","k2","k3"],"advice":"..."}';
+
+  var userContent = texts.map(function(t, i){ return (i+1) + '. ' + t; }).join('\n');
+
+  var body = {
+    model: model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: label + '说过的话：\n\n' + userContent }
+    ],
+    temperature: 0.7,
+    max_tokens: 1500
+  };
+  if (pConf.jsonMode) body.response_format = { type: 'json_object' };
+
+  var content = await rawChatRequest(apiEntry, body, 60000);
+  var parsed = extractJSON(content);
+  if (!parsed || typeof parsed !== 'object') throw new Error('AI 返回无法解析');
+
+  return {
+    tone: String(parsed.tone || '').trim(),
+    style: String(parsed.style || '').trim(),
+    thinking: String(parsed.thinking || '').trim(),
+    relationship: String(parsed.relationship || '').trim(),
+    needs: String(parsed.needs || '').trim(),
+    keywords: Array.isArray(parsed.keywords) ? parsed.keywords.slice(0, 5).filter(function(k){ return typeof k === 'string' && k.trim(); }) : [],
+    advice: String(parsed.advice || '').trim()
+  };
+}
+
+function openPersonalityPanel(){
+  var session = getCurrentSession();
+  if (!runtime.personalityRunning){
+    if (session.personality){
+      renderPersonalityPanel(session.personality);
+    } else {
+      renderPersonalityPanel(null);
+    }
+  }
+  dom.personalityPanel.classList.add('show');
+}
+
+function closePersonalityPanel(){
+  dom.personalityPanel.classList.remove('show');
+}
+
+function renderPersonalityPanel(data){
+  if (data && data.loading){
+    dom.personalityBody.innerHTML = '<div class="pp-loading"><span class="spinner"></span><br><br>AI 正在阅读对方说过的话...</div>';
+    return;
+  }
+  if (data && data.error){
+    dom.personalityBody.innerHTML = '<div class="pp-empty2">❌ 分析失败<br><span style="color:#dc2626;font-size:13px;display:inline-block;margin-top:8px;">' + esc(data.error) + '</span></div>';
+    return;
+  }
+  if (!data){
+    dom.personalityBody.innerHTML = '<div class="pp-empty2">还没有分析结果<br>点下方「重新分析」开始<br><span style="font-size:12px;color:#bbb;margin-top:12px;display:inline-block;">AI 会读取对方说过的话，分析性格特点</span></div>';
+    return;
+  }
+
+  var sections = [
+    { key: 'tone', icon: '🎭', title: '情绪基调' },
+    { key: 'style', icon: '💬', title: '说话风格' },
+    { key: 'thinking', icon: '🧩', title: '思维模式' },
+    { key: 'relationship', icon: '🤝', title: '对我们的关系' },
+    { key: 'needs', icon: '🎯', title: '隐藏的需求' },
+    { key: 'advice', icon: '💡', title: '沟通建议' }
+  ];
+  var html = '';
+  sections.forEach(function(sec){
+    if (!data[sec.key]) return;
+    html += '<div class="pp-section2">' +
+      '<div class="s-title2">' + sec.icon + ' ' + sec.title + '</div>' +
+      '<div class="s-text2">' + esc(data[sec.key]) + '</div>' +
+      '</div>';
+  });
+  if (data.keywords && data.keywords.length){
+    html += '<div class="pp-section2">' +
+      '<div class="s-title2">🔑 关键词</div>' +
+      '<div class="pp-tag-list">' +
+      data.keywords.map(function(k, i){ return '<span class="pp-tag2' + (i === 0 ? ' highlight' : '') + '">' + esc(k) + '</span>'; }).join('') +
+      '</div></div>';
+  }
+  var session = getCurrentSession();
+  if (session && session.personalityUpdatedAt){
+    html += '<div style="text-align:center;font-size:11px;color:#bbb;margin-top:14px;">分析于 ' + formatTime(session.personalityUpdatedAt) + '</div>';
+  }
+  dom.personalityBody.innerHTML = html;
+}
+
 function bindEvents(){
   dom.settingsBtn.addEventListener('click', openSettings);
   dom.closeSettings.addEventListener('click', closeSettings);
@@ -3936,7 +4162,14 @@ function bindEvents(){
   dom.newChatBtn.addEventListener('click', function(){ handleNewChat('chat'); });
   dom.newChatOnlineBtn.addEventListener('click', function(){ handleNewChat('chat'); });
   dom.newChatRealBtn.addEventListener('click', function(){ handleNewChat('real'); });
-  dom.statusBar.addEventListener('click', openProfileDialog);
+  dom.statusBar.addEventListener('click', function(e){
+    if (e.target.closest('.status-brain')){
+      e.stopPropagation();
+      analyzePersonality();
+      return;
+    }
+    openProfileDialog();
+  });
   dom.sendBtn.addEventListener('click', handleSend);
   dom.input.addEventListener('keydown', function(e){
     if (isRealEnter(e)){ e.preventDefault(); handleSend(); }
@@ -4024,6 +4257,12 @@ function bindEvents(){
     else if (e.key === 'Escape'){ e.preventDefault(); closeMeInput(); }
   });
   dom.closeSamples.addEventListener('click', closeSamplesModal);
+  dom.closePersonality.addEventListener('click', closePersonalityPanel);
+  dom.personalityCloseBtn.addEventListener('click', closePersonalityPanel);
+  dom.personalityReanalyze.addEventListener('click', function(){
+    if (runtime.personalityRunning) return;
+    analyzePersonality();
+  });
   dom.sheetMask.addEventListener('click', closeActionSheet);
   dom.sheetCancel.addEventListener('click', closeActionSheet);
   dom.sheetDelete.addEventListener('click', deletePendingMessage);
@@ -4097,6 +4336,7 @@ function bindEvents(){
       else if (dom.profileDialog.classList.contains('show')) closeProfileDialog();
       else if (dom.speakPanel.classList.contains('show')) closeSpeakPanel();
       else if (dom.samplesModal.classList.contains('show')) closeSamplesModal();
+      else if (dom.personalityPanel.classList.contains('show')) closePersonalityPanel();
       else if (dom.meInputPanel.classList.contains('show')) closeMeInput();
       else if (dom.sheet.classList.contains('show')) closeActionSheet();
       else if (dom.exportDialog.classList.contains('show')) closeExportDialog();
@@ -4117,6 +4357,7 @@ function bindEvents(){
 
 function init(){
   bindDomRefs();
+  loadCollapsedGroups();
   var loaded = load();
   if (!loaded) createSession(true, 'chat');
   if (state.sessions.length === 0) createSession(true, 'chat');
