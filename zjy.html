@@ -217,6 +217,13 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-item.multi .s-check{display:inline-flex;}
 .session-item.selected .s-check{background:#7c5cff;border-color:#7c5cff;}
 .session-empty{color:#999;font-size:13px;text-align:center;padding:30px 0;}
+
+/* ============ 会话分组标题 ============ */
+.session-group-title{padding:8px 12px 4px;font-size:11px;color:#888;font-weight:700;display:flex;align-items:center;gap:6px;letter-spacing:0.3px;}
+.session-group-title .sg-count{background:#ebebf0;color:#666;padding:0 6px;border-radius:8px;font-size:10px;font-weight:700;line-height:16px;}
+.session-group-title .sg-pin{color:#d97706;font-size:11px;}
+.session-group + .session-group{margin-top:4px;}
+
 .new-chat-row{display:flex;gap:6px;padding:0 8px 8px;flex-shrink:0;}
 .new-chat-row.hide{display:none;}
 .new-chat-row .ncr-btn{flex:1;padding:10px 8px;border:1.5px dashed #d8d8e3;background:#fff;border-radius:12px;font-size:12px;font-family:inherit;color:#666;cursor:pointer;font-weight:500;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
@@ -368,7 +375,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .samples-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #ebebf0;flex-shrink:0;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
 .samples-header h2{font-size:16px;font-weight:600;}
 .samples-body{flex:1;overflow-y:auto;padding:16px 18px 40px;-webkit-overflow-scrolling:touch;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box;}
-.sample-item{background:#fafafc;border-radius:12px;padding:12px 14px;margin-bottom:10px;border-left:3px solid #10b981;}
+.sample-item{background:#fafafc;border-radius:12px;padding:12px 14px;margin-bottom:10px;border-left:3px solid #10b981;position:relative;}
 .sample-item .si-pair{font-size:13px;line-height:1.6;}
 .sample-item .si-ta{color:#666;margin-bottom:6px;}
 .sample-item .si-ta .lbl{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px;}
@@ -383,6 +390,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .sample-item .si-weight.w-low{background:#f1f5f9;color:#64748b;}
 .sample-item.no-ctx{border-left-color:#cbd5e1;}
 .sample-item.no-ctx .si-me{color:#1a1a1a;}
+.sample-item .si-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border:none;background:transparent;color:#c0c0c8;font-size:14px;cursor:pointer;border-radius:6px;line-height:1;padding:0;transition:all .15s;}
+.sample-item .si-del:hover{background:#fee2e2;color:#dc2626;}
 .backup-info{font-size:12px;color:#166534;background:#dcfce7;padding:8px 12px;border-radius:10px;margin-bottom:12px;line-height:1.6;}
 .backup-info b{color:#065f46;font-weight:700;}
 .backup-actions{display:flex;gap:8px;margin-bottom:12px;}
@@ -708,12 +717,27 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 var SCHEMA_VERSION = 6;
 var TAGS_VERSION = 1;
 var APP_ID = 'chat-assistant';
-var MAX_HISTORY_MESSAGES = 20; // 从100降到20，防止Token超限和坏字符累积
+var MAX_HISTORY_MESSAGES = 20;
 
-// 清理孤立的代理字符（损坏的emoji），防止JSON解析失败
+// 彻底清理孤立代理字符的终极兼容版（解决手机浏览器正则兼容问题）
 function cleanUnicode(str) {
   if (typeof str !== 'string') return '';
-  return str.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '');
+  var result = '';
+  for (var i = 0; i < str.length; i++) {
+    var code = str.charCodeAt(i);
+    if (code >= 0xD800 && code <= 0xDBFF) {
+      var nextCode = str.charCodeAt(i + 1);
+      if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+        result += str[i] + str[i + 1];
+        i++;
+      }
+    } else if (code >= 0xDC00 && code <= 0xDFFF) {
+      // 孤立低代理项，丢弃
+    } else {
+      result += str[i];
+    }
+  }
+  return result;
 }
 
 var PROVIDERS = {
@@ -822,6 +846,8 @@ var runtime = {
   toastTimer: null,
   quotaWarnedAt: 0,
   cachedVoices: null,
+  clearArmed: false,
+  clearArmedTimer: null,
   sessionMenu: { targetId: '' },
   renameTargetId: '',
   multiSelect: { active: false, selected: {} },
@@ -1121,8 +1147,13 @@ function generateSessionTitle(session){
   return text.length > 18 ? text.slice(0, 18) + '…' : text;
 }
 
+// 会话排序（保留作为备用；分组渲染时不直接调用）
 function sortSessions(list){
   return list.slice().sort(function(a, b){
+    var an = a.taName || '';
+    var bn = b.taName || '';
+    if (!!an !== !!bn) return an ? -1 : 1;
+    if (an && bn && an !== bn) return an.localeCompare(bn, 'zh');
     var ap = !!a.pinned, bp = !!b.pinned;
     if (ap !== bp) return ap ? -1 : 1;
     return (b.updatedAt || 0) - (a.updatedAt || 0);
@@ -1938,7 +1969,6 @@ function renderSuggestions(){
 
 function renderCoachCard(coach){
   var html = '<div class="coach-card">';
-  // AI 未按格式返回时的黄条提醒
   if (coach._rawFallback){
     html += '<div class="coach-raw-hint">⚠️ AI 这次没按标准格式返回，直接把它说的展示给你，你自己判断</div>';
   }
@@ -2426,6 +2456,7 @@ function closeDrawer(){
   closeSessionMenu();
 }
 
+// ============ 会话列表：按对方昵称分组 ============
 function renderSessionList(){
   var isMulti = runtime.multiSelect.active;
   dom.multiToolbar.classList.toggle('show', isMulti);
@@ -2436,37 +2467,56 @@ function renderSessionList(){
     dom.sessionList.innerHTML = '<div class="session-empty">还没有对话</div>';
     return;
   }
-  var sorted = sortSessions(state.sessions);
-  var html = '';
-  sorted.forEach(function(s){
-    var isActive = s.id === state.currentSessionId;
-    var isSelected = !!runtime.multiSelect.selected[s.id];
-    var title = generateSessionTitle(s);
-    var count = (s.messages || []).length;
-    var hasStatus = !!s.status;
-    var taName = s.taName || '';
-    var mode = s.mode || 'chat';
-    var modeTag = mode === 'real' ? '<span class="m-tag real">现实</span>' : '';
-    var pinIcon = s.pinned ? '<span class="pin-icon">📌</span>' : '';
-    var metaParts = [];
-    if (taName && title !== taName) metaParts.push('👤 ' + taName);
-    if (hasStatus) metaParts.push('📌 有情境');
-    metaParts.push(count > 0 ? count + ' 条 · ' + formatTime(s.updatedAt) : '空对话');
-    var meta = metaParts.join(' · ');
-    var itemCls = 'session-item'
-      + (isActive ? ' active' : '')
-      + (isMulti ? ' multi' : '')
-      + (isSelected ? ' selected' : '');
-    html += '<div class="' + itemCls + '" data-id="' + s.id + '">' +
-      '<div class="s-check">' + (isSelected ? '✓' : '') + '</div>' +
-      '<div class="s-body">' +
-        '<div class="session-title">' + pinIcon + modeTag + esc(title) + '</div>' +
-        '<div class="session-meta">' + esc(meta) + '</div>' +
-      '</div>' +
-      (isMulti ? '' : '<button class="session-more" data-more="' + s.id + '" aria-label="更多">⋯</button>') +
-      '</div>';
+
+  // 1) 按对方昵称分组，没名字的归一组
+  var UNNAMED = '__unnamed__';
+  var groups = {};
+  state.sessions.forEach(function(s){
+    var key = (s.taName || '').trim() || UNNAMED;
+    if (!groups[key]) groups[key] = { name: key, sessions: [] };
+    groups[key].sessions.push(s);
   });
+
+  // 2) 组内排序，并算出组的排序键
+  var groupList = Object.keys(groups).map(function(key){
+    var g = groups[key];
+    g.sessions.sort(function(a, b){
+      var ap = !!a.pinned, bp = !!b.pinned;
+      if (ap !== bp) return ap ? -1 : 1;
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    });
+    g.hasPinned = g.sessions.some(function(s){ return s.pinned; });
+    g.latestAt = Math.max.apply(null, g.sessions.map(function(s){ return s.updatedAt || 0; }));
+    g.isUnnamed = (key === UNNAMED);
+    return g;
+  });
+
+  // 3) 组排序：有置顶的在最前 → 其余按最近活跃 → 未命名组垫底
+  groupList.sort(function(a, b){
+    if (a.isUnnamed !== b.isUnnamed) return a.isUnnamed ? 1 : -1;
+    if (a.hasPinned !== b.hasPinned) return a.hasPinned ? -1 : 1;
+    return b.latestAt - a.latestAt;
+  });
+
+  // 4) 渲染：只有 1 个未命名组时，不显示组标题
+  var showTitles = !(groupList.length === 1 && groupList[0].isUnnamed);
+  var html = '';
+  groupList.forEach(function(g){
+    if (showTitles){
+      html += '<div class="session-group-title">' +
+        (g.isUnnamed ? '💬 未命名' : '👤 ' + esc(g.name)) +
+        '<span class="sg-count">' + g.sessions.length + '</span>' +
+        (g.hasPinned ? '<span class="sg-pin">📌</span>' : '') +
+        '</div>';
+    }
+    g.sessions.forEach(function(s){
+      html += renderSessionItemHtml(s, isMulti);
+    });
+  });
+
   dom.sessionList.innerHTML = html;
+
+  // 5) 绑定事件
   dom.sessionList.querySelectorAll('.session-item').forEach(function(item){
     item.addEventListener('click', function(e){
       if (e.target.closest('.session-more')) return;
@@ -2481,6 +2531,34 @@ function renderSessionList(){
       openSessionMenu(btn.dataset.more, btn);
     });
   });
+}
+
+// 抽出单条会话的 HTML 生成
+function renderSessionItemHtml(s, isMulti){
+  var isActive = s.id === state.currentSessionId;
+  var isSelected = !!runtime.multiSelect.selected[s.id];
+  var title = generateSessionTitle(s);
+  var count = (s.messages || []).length;
+  var hasStatus = !!s.status;
+  var mode = s.mode || 'chat';
+  var modeTag = mode === 'real' ? '<span class="m-tag real">现实</span>' : '';
+  var pinIcon = s.pinned ? '<span class="pin-icon">📌</span>' : '';
+  var metaParts = [];
+  if (hasStatus) metaParts.push('📌 有情境');
+  metaParts.push(count > 0 ? count + ' 条 · ' + formatTime(s.updatedAt) : '空对话');
+  var meta = metaParts.join(' · ');
+  var itemCls = 'session-item'
+    + (isActive ? ' active' : '')
+    + (isMulti ? ' multi' : '')
+    + (isSelected ? ' selected' : '');
+  return '<div class="' + itemCls + '" data-id="' + s.id + '">' +
+    '<div class="s-check">' + (isSelected ? '✓' : '') + '</div>' +
+    '<div class="s-body">' +
+      '<div class="session-title">' + pinIcon + modeTag + esc(title) + '</div>' +
+      '<div class="session-meta">' + esc(meta) + '</div>' +
+    '</div>' +
+    (isMulti ? '' : '<button class="session-more" data-more="' + s.id + '" aria-label="更多">⋯</button>') +
+    '</div>';
 }
 
 function updateMultiToolbar(){
@@ -2716,6 +2794,8 @@ function closeProfileDialog(){
   dom.profileDialogMask.classList.remove('show');
   dom.profileDialog.classList.remove('show');
 }
+
+// 保存对话信息（加入同名提示）
 function saveProfileDialog(){
   var session = getCurrentSession();
   if (!session) return;
@@ -2731,7 +2811,26 @@ function saveProfileDialog(){
   closeProfileDialog();
   renderStatusBar();
   renderHeader();
-  if (changed) toast('已保存', 1000, 'success');
+  renderSessionList();
+
+  if (!changed) return;
+
+  if (newTaName){
+    var sameNameSessions = state.sessions.filter(function(s){
+      return s.id !== session.id && (s.taName || '') === newTaName;
+    });
+    var taSampleCount = state.styleSamples.filter(function(s){
+      return (s.taName || '') === newTaName;
+    }).length;
+
+    if (sameNameSessions.length > 0){
+      toast('✅ 已保存 · 与「' + newTaName + '」相关的会话共 ' + (sameNameSessions.length + 1) + ' 个，学习样本自动共享（' + taSampleCount + ' 条）', 3200, 'success');
+    } else {
+      toast('已保存', 1000, 'success');
+    }
+  } else {
+    toast('已保存', 1000, 'success');
+  }
 }
 
 function openActionSheet(idx){
@@ -2749,21 +2848,54 @@ function closeActionSheet(){
   dom.sheet.classList.remove('show');
   runtime.pendingDeleteIdx = -1;
 }
+
+// 删除消息时同步清理学习样本
 function deletePendingMessage(){
   var idx = runtime.pendingDeleteIdx;
   var session = getCurrentSession();
   if (idx < 0 || !session.messages[idx]){ closeActionSheet(); return; }
+
+  var removedMsg = session.messages[idx];
+  var removedText = removedMsg.text || '';
+  var taName = session.taName || '';
+
+  // 1) 先从消息列表里删掉这条
   session.messages.splice(idx, 1);
   session.updatedAt = Date.now();
+
+  // 2) 同步清理学习样本
+  var removedSamples = 0;
+  if (removedText){
+    var before = state.styleSamples.length;
+    if (removedMsg.role === 'me'){
+      state.styleSamples = state.styleSamples.filter(function(s){
+        return !(s.myText === removedText && (s.taName || '') === taName);
+      });
+    } else {
+      state.styleSamples = state.styleSamples.filter(function(s){
+        return !(s.taText === removedText && (s.taName || '') === taName);
+      });
+    }
+    removedSamples = before - state.styleSamples.length;
+  }
+
   clearReplyFor(session.id);
   runtime.loading = false;
   closeSpeakPanel();
+
+  if (removedSamples > 0) updateProfileCache();
   save();
   closeActionSheet();
   renderMessages();
   renderSuggestions();
   renderHeader();
-  toast('已删除', 1000, 'success');
+  renderBackupPanel();
+
+  if (removedSamples > 0){
+    toast('已删除消息 + ' + removedSamples + ' 条学习样本', 1800, 'success');
+  } else {
+    toast('已删除', 1000, 'success');
+  }
 }
 
 function getLastTaText(session){
@@ -3054,7 +3186,6 @@ function ensureThreeSuggestions(list){
   return out;
 }
 
-// ⚠️ 教练模式：不再硬凑 3 条敷衍词，宁少勿滥
 function ensureCoachVersions(list){
   return (list || []).filter(function(v){
     return v && v.text && String(v.text).trim().length > 0;
@@ -3063,7 +3194,6 @@ function ensureCoachVersions(list){
   });
 }
 
-// ⚠️ 教练模式：AI 返回纯文本时的兜底 —— 直接把它的内容当版本展示
 function coachTextFallback(content, draft){
   if (!content || typeof content !== 'string') return null;
   var lines = content.split(/\n+/).map(function(l){
@@ -3146,14 +3276,14 @@ async function callAI(apiEntry, session, opts){
     }
   }
   var isReal = (session.mode || 'chat') === 'real';
-  var sessionTaName = session.taName || '';
+  var sessionTaName = cleanUnicode(session.taName || '');
   var allMessages = session.messages || [];
   var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
     ? allMessages.slice(-MAX_HISTORY_MESSAGES) : allMessages;
   var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
   var historyLines = historyMessages.map(function(m){
     var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
-    return who + '：' + cleanUnicode(m.text); // 清理历史消息中的坏字符
+    return who + '：' + cleanUnicode(m.text);
   }).join('\n');
 
   var historyBlock = '';
@@ -3187,8 +3317,8 @@ async function callAI(apiEntry, session, opts){
   var recentText = recentSamples.length > 0
     ? '\n【我最近真实说过的话】\n' + recentSamples.map(function(s){ return '  · ' + s.myText; }).join('\n') : '';
 
-  var statusLine = session.status ? '\n【当前情境】' + session.status : '';
-  var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + state.myStyle : '';
+  var statusLine = session.status ? '\n【当前情境】' + cleanUnicode(session.status) : '';
+  var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + cleanUnicode(state.myStyle) : '';
   var ta = sessionTaName ? '对方（' + sessionTaName + '）' : '对方';
 
   var sampleCount;
@@ -3281,7 +3411,7 @@ async function callAI(apiEntry, session, opts){
         ]
       });
     } else {
-      messages.push({ role: role, content: cleanUnicode(m.text) }); // 清理后发送
+      messages.push({ role: role, content: cleanUnicode(m.text) });
     }
   });
   var body = { model: model, messages: messages, temperature: 1.05, max_tokens: 800 };
@@ -3327,7 +3457,7 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
       throw new Error(pConf.name + ' 不支持图片');
     }
   }
-  var sessionTaName = session.taName || '';
+  var sessionTaName = cleanUnicode(session.taName || '');
   var ta = sessionTaName ? ('对方（' + sessionTaName + '）') : '对方';
   var allMessages = session.messages || [];
   var historyMessages = allMessages.length > MAX_HISTORY_MESSAGES
@@ -3335,15 +3465,15 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
   var historyTruncated = allMessages.length > MAX_HISTORY_MESSAGES;
   var historyLines = historyMessages.map(function(m){
     var who = m.role === 'ta' ? (sessionTaName || '对方') : '我';
-    return who + '：' + cleanUnicode(m.text); // 清理历史消息中的坏字符
+    return who + '：' + cleanUnicode(m.text);
   }).join('\n');
   var historyBlock = historyLines
     ? '【最近的完整对话历史】' + (historyTruncated ? '（仅展示最近 ' + MAX_HISTORY_MESSAGES + ' 条）' : '') + '\n' +
       '───────────────────────────────\n' + historyLines + '\n───────────────────────────────'
     : '（这是对话的开始，还没有历史消息）';
 
-  var statusLine = session.status ? '\n【当前情境】' + session.status : '';
-  var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + state.myStyle : '';
+  var statusLine = session.status ? '\n【当前情境】' + cleanUnicode(session.status) : '';
+  var extraStyle = state.myStyle ? '\n【我自己的补充说明】\n' + cleanUnicode(state.myStyle) : '';
   var langProfile = runtime.taLangProfile || runtime.langProfile;
   var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
   var profileText = profileToPrompt(langProfile, sceneProfile);
@@ -3422,7 +3552,7 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
         ]
       });
     } else {
-      messages.push({ role: role, content: cleanUnicode(m.text) }); // 清理后发送
+      messages.push({ role: role, content: cleanUnicode(m.text) });
     }
   });
   if (messages.length === 1){
@@ -3432,17 +3562,13 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
   if (pConf.jsonMode && !imageData) body.response_format = { type: 'json_object' };
   var content = await rawChatRequest(apiEntry, body, 60000);
 
-  // ==== 解析 ====
   var parsed = extractJSON(content);
 
-  // 走标准结构
   if (parsed && (parsed.versions || parsed.heard || parsed.need || parsed.tip)){
     var versions = ensureCoachVersions(parsed.versions);
-    // versions 为空但其他字段有？把 content 里可能漏掉的内容兜底
     if (versions.length === 0){
       var textFB0 = coachTextFallback(content, myDraft);
       if (textFB0) return textFB0;
-      // 实在没有，抛出
       throw new Error('AI 没给出有效建议，请点「换一批」再试');
     }
     return {
@@ -3454,14 +3580,12 @@ async function callCoachAPI(apiEntry, session, myDraft, opts){
     };
   }
 
-  // 非 JSON：把 AI 说的文本直接当版本
   var textFB = coachTextFallback(content, myDraft);
   if (textFB){
     console.warn('教练模式 AI 未按格式返回，已用文本兜底：', content);
     return textFB;
   }
 
-  // 完全失败
   console.warn('教练模式 AI 返回完全无法解析：', content);
   throw new Error('AI 这次没答好，请点「换一批」再试');
 }
@@ -3589,7 +3713,6 @@ async function regenerateSuggestions(){
   var session = getCurrentSession();
   var requestSessionId = session.id;
 
-  // ===== 教练模式 =====
   if (inputMode === 'coach'){
     var cachedC = suggestionCache[requestSessionId];
     var draft = cachedC && cachedC.coach && cachedC.coach.draft;
@@ -3638,7 +3761,6 @@ async function regenerateSuggestions(){
     return;
   }
 
-  // ===== chat 模式 =====
   var lastTa = null;
   for (var i = session.messages.length - 1; i >= 0; i--){
     if (session.messages[i].role === 'ta'){ lastTa = session.messages[i]; break; }
@@ -3686,11 +3808,29 @@ async function regenerateSuggestions(){
   }
 }
 
+// ============ 清空样本（二次点击确认）============
 function clearStyleSamples(){
-  var ok = true;
-  try { ok = confirm('清空所有学习样本？AI 会忘记你的说话方式。'); }
-  catch(e){ ok = true; }
-  if (!ok) return;
+  // 第一次点击：进入待确认状态
+  if (!runtime.clearArmed){
+    runtime.clearArmed = true;
+    var btn = dom.profilePanel.querySelector('[data-action="clear"]');
+    if (btn){
+      btn.textContent = '⚠️ 再点一次确认清空';
+      btn.style.background = '#fee2e2';
+      btn.style.color = '#b91c1c';
+      btn.style.borderColor = '#fca5a5';
+    }
+    toast('⚠️ 再点一次才真的清空', 2500);
+    clearTimeout(runtime.clearArmedTimer);
+    runtime.clearArmedTimer = setTimeout(function(){
+      runtime.clearArmed = false;
+      renderProfilePanel();
+    }, 4000);
+    return;
+  }
+  // 第二次点击：真正清空
+  runtime.clearArmed = false;
+  clearTimeout(runtime.clearArmedTimer);
   state.styleSamples = [];
   runtime.langProfile = null;
   runtime.sceneProfile = [];
@@ -3698,21 +3838,26 @@ function clearStyleSamples(){
   runtime.taSceneProfile = null;
   runtime.classifyState.pending = 0;
   runtime.classifyState.lastError = null;
+  runtime.classifyState.running = false;
   save();
   renderProfilePanel();
   renderBackupPanel();
-  toast('已清空学习样本', 1200, 'success');
+  toast('✅ 已清空所有学习样本', 1800, 'success');
 }
 
+// ============ 样本列表（支持单条删除）============
 function openSamplesModal(){
   var samples = state.styleSamples || [];
   if (samples.length === 0){
     dom.samplesBody.innerHTML = '<div style="color:#999;text-align:center;padding:40px 0;">暂无样本</div>';
   } else {
-    var sorted = samples.slice().sort(function(a, b){ return (b.timestamp || 0) - (a.timestamp || 0); });
+    var indexed = samples.map(function(s, i){ return { s: s, i: i }; });
+    indexed.sort(function(a, b){ return (b.s.timestamp || 0) - (a.s.timestamp || 0); });
     var now = Date.now();
     var halfLife = getHalfLife();
-    dom.samplesBody.innerHTML = sorted.map(function(s){
+    dom.samplesBody.innerHTML = indexed.map(function(item){
+      var s = item.s;
+      var originalIdx = item.i;
       var hasCtx = !!s.taText;
       var hasTa = !!s.taName;
       var sceneTags = (Array.isArray(s.tags) && s.tags.length > 0) ? s.tags : [];
@@ -3725,7 +3870,8 @@ function openSamplesModal(){
         weightHtml = '<span class="si-weight ' + wCls + '" title="时间权重">⚖️ ' + pct + '%</span>';
       }
       return '<div class="sample-item' + (hasCtx ? '' : ' no-ctx') + '">' +
-        '<div class="si-pair">' +
+        '<button class="si-del" data-idx="' + originalIdx + '" aria-label="删除">✕</button>' +
+        '<div class="si-pair" style="padding-right:24px;">' +
         (hasCtx ? '<div class="si-ta"><span class="lbl">' +
           (hasTa ? esc(s.taName) : '对方') +
           '</span>' + esc(s.taText) + '</div>' : '') +
@@ -3738,9 +3884,29 @@ function openSamplesModal(){
         '</div>' +
         '</div>';
     }).join('');
+    // 绑定单条删除
+    dom.samplesBody.querySelectorAll('.si-del').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        deleteSampleAt(parseInt(btn.dataset.idx));
+      });
+    });
   }
   dom.samplesModal.classList.add('show');
 }
+
+// 删除单条样本
+function deleteSampleAt(idx){
+  if (idx < 0 || idx >= state.styleSamples.length) return;
+  state.styleSamples.splice(idx, 1);
+  updateProfileCache();
+  save();
+  renderProfilePanel();
+  renderBackupPanel();
+  openSamplesModal();
+  toast('已删除该样本', 1200, 'success');
+}
+
 function closeSamplesModal(){ dom.samplesModal.classList.remove('show'); }
 
 function bindEvents(){
