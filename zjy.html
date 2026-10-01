@@ -844,7 +844,6 @@ function migrateState(d){
   return d;
 }
 
-// 规范化外部数据（load 与导入共用）
 function normalizeRawState(d){
   if (!d || typeof d !== 'object') return null;
   try {
@@ -1134,7 +1133,7 @@ function refreshSceneProfiles(){
   runtime.sceneProfile = analyzeScenes(state.styleSamples, '');
   runtime.taSceneProfile = curTaName ? analyzeScenes(state.styleSamples, curTaName) : null;
 }
-// ✅ 修复 #3：移除内部 save()，由调用方决定何时保存
+// 修复 #3：移除内部 save()，由调用方决定何时保存
 function updateProfileCache(){
   var session = getCurrentSession();
   var curTaName = session ? (session.taName || '') : '';
@@ -1415,7 +1414,6 @@ function handleImportFile(file){
     if (parsed && parsed.app === APP_ID && parsed.data){
       payload = parsed;
     } else if (parsed && Array.isArray(parsed.sessions)){
-      // 兼容裸 state
       payload = {
         app: APP_ID,
         schemaVersion: parsed.schemaVersion || SCHEMA_VERSION,
@@ -1484,14 +1482,12 @@ function doImport(){
     return;
   }
 
-  // 保存本地凭证（永远保留，不被导入覆盖）
   var localKeys = JSON.parse(JSON.stringify(state.apiKeys));
   var localModels = JSON.parse(JSON.stringify(state.apiModels));
   var localEnabled = JSON.parse(JSON.stringify(state.apiEnabled));
   var localDefaultProvider = state.defaultProvider;
 
   if (mode === 'replace'){
-    // 全量替换
     var newState = normalized;
     PROVIDER_ORDER.forEach(function(p){
       if (localKeys[p]){
@@ -1509,7 +1505,6 @@ function doImport(){
       else state.currentSessionId = state.sessions[0].id;
     }
   } else {
-    // 合并
     mergeImportedData(normalized, localKeys, localModels, localEnabled, localDefaultProvider);
   }
 
@@ -1526,7 +1521,6 @@ function doImport(){
 }
 
 function mergeImportedData(incoming, localKeys, localModels, localEnabled, localDefaultProvider){
-  // 会话：按 id 去重，updatedAt 新的胜出
   var existingMap = {};
   state.sessions.forEach(function(s){ existingMap[s.id] = s; });
   incoming.sessions.forEach(function(s){
@@ -1541,7 +1535,6 @@ function mergeImportedData(incoming, localKeys, localModels, localEnabled, local
     }
   });
 
-  // 样本：按 (myText + taText + timestamp) 去重
   var seen = {};
   state.styleSamples.forEach(function(s){
     seen[(s.myText || '') + '\u0001' + (s.taText || '') + '\u0001' + (s.timestamp || 0)] = true;
@@ -1555,14 +1548,12 @@ function mergeImportedData(incoming, localKeys, localModels, localEnabled, local
   });
   if (state.styleSamples.length > 200) state.styleSamples = state.styleSamples.slice(-200);
 
-  // 空字段补全（本地为空时用文件里的）
   if (!state.myName && incoming.myName) state.myName = incoming.myName;
   if (!state.myStyle && incoming.myStyle) state.myStyle = incoming.myStyle;
   if (state.styleWeight.halfLifeDays === 30 && incoming.styleWeight && typeof incoming.styleWeight.halfLifeDays === 'number'){
     state.styleWeight.halfLifeDays = incoming.styleWeight.halfLifeDays;
   }
 
-  // 凭证：本地保留，缺失的从文件补（仅当文件含凭证时）
   PROVIDER_ORDER.forEach(function(pid){
     if (localKeys[pid]){
       state.apiKeys[pid]    = localKeys[pid];
@@ -1661,7 +1652,7 @@ function renderMessages(){
   dom.messages.scrollTop = dom.messages.scrollHeight;
 }
 
-// ✅ 修复 #5：加 lastTouchTime 时间戳，避免触屏笔电 mousedown/touchstart 双触发
+// 修复 #5（小问题）：加 lastTouchTime 避免触屏笔电双触发
 function attachBubbleLongPress(bubble){
   var idx = parseInt(bubble.dataset.idx);
   var timer = null, pressing = false, lastTouchTime = 0;
@@ -1806,10 +1797,10 @@ function renderApiForm(){
         if (newInput){ try { newInput.focus(); newInput.setSelectionRange(selStart, selEnd); } catch(err){} }
       }
     });
+    // 修复 #4：填完 Key 后若已有待分类样本，立即安排分类
     input.addEventListener('blur', function(e){
       state.apiKeys[e.target.dataset.pid] = e.target.value.trim();
       save();
-      // ✅ 修复 #4：填完 Key 后若已有待分类样本，立即安排分类
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
@@ -1861,7 +1852,6 @@ function renderApiForm(){
         state.defaultProvider = next || '';
       }
       save(); renderApiForm();
-      // ✅ 修复 #4：开启某个 API 后若有待分类样本，立即安排分类
       if (getDefaultApi() && countPendingSamples() > 0){
         scheduleClassification();
       }
@@ -2209,7 +2199,7 @@ function togglePin(id){
   toast(s.pinned ? '已置顶' : '已取消置顶', 1000, 'success');
 }
 
-// ✅ 修复 #2：优先用 navigator.canShare 判断，UA 只作兜底
+// 修复 #2（小问题）：优先用 navigator.canShare 判断
 function shareSession(id){
   var s = state.sessions.find(function(x){ return x.id === id; });
   if (!s) return;
@@ -2497,7 +2487,7 @@ function enterEditMode(idx){
     var lastTa = getLastTaText(session);
     var taName = session.taName || '';
     var afterAction = function(){
-      // ✅ 修复 #4（小问题）：统一带 manual:true，与「我说了」行为一致
+      // 修复 #4（小问题）：统一带 manual:true
       session.messages.push({ role: 'me', text: val, manual: true });
       session.updatedAt = Date.now();
       if (val !== origText) addStyleSample(val, lastTa, taName);
@@ -2869,7 +2859,6 @@ async function handleSend(){
   }
   var session = getCurrentSession();
   var finalText = text || '请描述这张图片';
-  // ✅ 修复 #5：保留引用，便于精确回滚
   var pushedMsg = { role: 'ta', text: finalText };
   session.messages.push(pushedMsg);
   session.updatedAt = Date.now();
@@ -2893,7 +2882,6 @@ async function handleSend(){
     }
   } catch(err){
     runtime.loading = false;
-    // ✅ 修复 #5：用 indexOf 精确定位，避免误删别人的消息
     var idx = session.messages.indexOf(pushedMsg);
     if (idx >= 0){
       session.messages.splice(idx, 1);
@@ -3203,3 +3191,5 @@ function init(){
 init();
 })();
 </script>
+</body>
+</html>
