@@ -57,6 +57,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 
 /* ============ 教练卡片 ============ */
 .coach-card{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;overflow:hidden;}
+.coach-raw-hint{padding:9px 14px;background:#fffbeb;border-bottom:1px solid #fef3c7;font-size:11.5px;color:#92400e;line-height:1.4;display:flex;align-items:center;gap:6px;}
 .coach-insight{padding:14px 16px;background:linear-gradient(135deg,#f5f2ff,#faf8ff);border-bottom:1px solid #ece5ff;}
 .ci-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;line-height:1.5;}
 .ci-row:last-child{margin-bottom:0;}
@@ -68,6 +69,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .cv-item:last-child{margin-bottom:0;}
 .cv-item:hover{border-color:#10b981;background:#f0fdf4;}
 .cv-item:active{transform:scale(0.99);}
+.cv-item.editing{cursor:default;background:#f0fdf4;border-color:#10b981;}
+.cv-item.editing:hover{background:#f0fdf4;}
 .cv-num{width:20px;height:20px;border-radius:50%;background:#dcfce7;color:#059669;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;line-height:1;}
 .cv-body{flex:1;min-width:0;}
 .cv-text{font-size:14.5px;color:#1a1a1a;line-height:1.45;margin-bottom:4px;word-break:break-word;white-space:pre-line;}
@@ -75,6 +78,16 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .cv-note::before{content:'↳ ';}
 .cv-copy{background:transparent;border:none;color:#c0c0c8;font-size:14px;cursor:pointer;padding:2px 4px;border-radius:6px;flex-shrink:0;transition:all .15s;line-height:1;align-self:flex-start;}
 .cv-copy:hover{background:#ecfdf5;color:#059669;}
+.cv-edit{background:transparent;border:none;color:#c0c0c8;font-size:13px;cursor:pointer;padding:2px 4px;border-radius:6px;flex-shrink:0;transition:all .15s;line-height:1;align-self:flex-start;}
+.cv-edit:hover{background:#ecfdf5;color:#10b981;}
+.cv-edit-input{width:100%;border:1.5px solid #10b981;background:#fff;border-radius:8px;font-size:14px;font-family:inherit;color:#1a1a1a;outline:none;padding:8px 10px;line-height:1.45;box-sizing:border-box;transition:border-color .15s;}
+.cv-edit-input:focus{border-color:#059669;}
+.cv-edit-actions{display:flex;gap:6px;margin-top:8px;}
+.cv-edit-actions button{border:none;font-size:12px;font-family:inherit;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;line-height:1.2;}
+.cv-btn-ok{background:#10b981;color:#fff;flex:2;}
+.cv-btn-ok:hover{background:#059669;}
+.cv-btn-cancel{background:#f5f5f7;color:#666;flex:1;}
+.cv-btn-cancel:hover{background:#ebebf0;}
 .coach-tip{padding:12px 16px;background:#fffbeb;border-top:1px solid #fef3c7;display:flex;gap:10px;align-items:flex-start;}
 .ct-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:2px;}
 .ct-body{flex:1;min-width:0;}
@@ -93,7 +106,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .status-bar .status-edit{border:none;background:transparent;color:#b45309;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;line-height:1;}
 .status-bar .status-edit:hover{background:#fde68a;}
 
-/* ============ 输入模式 Tab ============ */
 .input-tabs{display:flex;gap:4px;padding:8px 16px 4px;background:#fff;border-top:1px solid #ebebf0;flex-shrink:0;}
 .itab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:none;background:transparent;border-radius:10px;font-size:12.5px;font-family:inherit;color:#888;cursor:pointer;font-weight:500;transition:all .15s;line-height:1.3;}
 .itab:hover{background:#f5f5f7;}
@@ -718,13 +730,6 @@ var FALLBACK_SUGGESTIONS = [
 ];
 var FALLBACK_STYLES = ['短', '情绪', '展开'];
 
-// 教练模式补全用
-var COACH_FALLBACK = {
-  heard: '对方可能会觉得你有点情绪',
-  need: '你其实是想让对方感受到你的在意',
-  tip: '把"你怎么不…"换成"我有点…"'
-};
-
 var SCENE_TAGS = [
   '情绪支持','夸奖回应','提问回答','邀约协商','玩笑互怼','撒娇亲密',
   '关心对方','日常闲聊','分享日常','敷衍回避','严肃讨论','冲突道歉'
@@ -801,10 +806,8 @@ var runtime = {
   pendingDeleteIdx: -1,
   currentSpeakIdx: -1,
   currentSpeakText: '',
-  // chat 模式建议
   suggestions: [],
   avoidSuggestions: [],
-  // coach 模式结果
   coachResult: null,
   langProfile: null,
   sceneProfile: null,
@@ -825,8 +828,6 @@ var runtime = {
   pendingImport: { payload: null, fileName: '' }
 };
 
-// ═══════════ 建议内存缓存 ═══════════
-// { sessionId: { type:'chat'|'coach', suggestions:[], coach:null, avoid:[] } }
 var suggestionCache = {};
 
 function syncRuntimeFromCache(sid){
@@ -971,7 +972,6 @@ function migrateState(d){
     }
     d.schemaVersion = 5; v = 5;
   }
-  // v6: session 增加 inputMode 字段（在 normalizeRawState 里做兼容处理）
   if (v < 6){ d.schemaVersion = 6; v = 6; }
   return d;
 }
@@ -1148,6 +1148,7 @@ function setInputMode(mode){
   updateInputTabs();
   updateComposerPlaceholder();
   syncRuntimeFromCache(session.id);
+  renderMessages();
   renderSuggestions();
 }
 function updateInputTabs(){
@@ -1876,7 +1877,6 @@ function renderSuggestions(){
   dom.sRefresh.disabled = false;
   dom.sRefresh.innerHTML = '<span>🔄</span><span>换一批</span>';
 
-  // 教练模式
   if (inputMode === 'coach'){
     var coach = runtime.coachResult;
     if (!coach || !coach.versions || !coach.versions.length){
@@ -1887,7 +1887,7 @@ function renderSuggestions(){
     }
     dom.suggestions.classList.add('show');
     dom.sTitleText.textContent = '🧠 表达教练';
-    dom.sTitleTip.textContent = '点一句直接用，📋 复制';
+    dom.sTitleTip.textContent = '点文字直接用，✎ 改一下也行';
     dom.sTitleTip.style.display = 'inline';
     dom.sList.innerHTML = renderCoachCard(coach);
     bindCoachCardEvents();
@@ -1895,7 +1895,6 @@ function renderSuggestions(){
     return;
   }
 
-  // chat 模式
   if (!runtime.suggestions || runtime.suggestions.length === 0){
     dom.suggestions.classList.remove('show');
     dom.sList.innerHTML = '';
@@ -1933,6 +1932,10 @@ function renderSuggestions(){
 
 function renderCoachCard(coach){
   var html = '<div class="coach-card">';
+  // AI 未按格式返回时的黄条提醒
+  if (coach._rawFallback){
+    html += '<div class="coach-raw-hint">⚠️ AI 这次没按标准格式返回，直接把它说的展示给你，你自己判断</div>';
+  }
   if (coach.heard || coach.need){
     html += '<div class="coach-insight">';
     if (coach.heard){
@@ -1952,6 +1955,7 @@ function renderCoachCard(coach){
           '<div class="cv-text">' + esc(v.text) + '</div>' +
           (v.note ? '<div class="cv-note">' + esc(v.note) + '</div>' : '') +
         '</div>' +
+        '<button class="cv-edit" data-cvidx="' + i + '" aria-label="编辑">✎</button>' +
         '<button class="cv-copy" data-cvidx="' + i + '" aria-label="复制">📋</button>' +
         '</div>';
     });
@@ -1974,6 +1978,8 @@ function bindCoachCardEvents(){
   dom.sList.querySelectorAll('.cv-item').forEach(function(item){
     item.addEventListener('click', function(e){
       if (e.target.closest('.cv-copy')) return;
+      if (e.target.closest('.cv-edit')) return;
+      if (item.classList.contains('editing')) return;
       useCoachVersion(parseInt(item.dataset.cvidx));
     });
   });
@@ -1983,21 +1989,61 @@ function bindCoachCardEvents(){
       useCoachVersion(parseInt(btn.dataset.cvidx));
     });
   });
+  dom.sList.querySelectorAll('.cv-edit').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      enterCoachEdit(parseInt(btn.dataset.cvidx));
+    });
+  });
 }
 
-function useCoachVersion(idx){
+function enterCoachEdit(idx){
+  var coach = runtime.coachResult;
+  if (!coach || !coach.versions || !coach.versions[idx]) return;
+  var item = dom.sList.querySelector('.cv-item[data-cvidx="' + idx + '"]');
+  if (!item || item.classList.contains('editing')) return;
+  var origText = coach.versions[idx].text;
+  item.classList.add('editing');
+  var bodyEl = item.querySelector('.cv-body');
+  bodyEl.innerHTML =
+    '<input type="text" class="cv-edit-input" value="' + esc(origText) + '" maxlength="300">' +
+    '<div class="cv-edit-actions">' +
+      '<button class="cv-btn-ok" type="button">✓ 复制</button>' +
+      '<button class="cv-btn-cancel" type="button">✕</button>' +
+    '</div>';
+  var input = bodyEl.querySelector('.cv-edit-input');
+  input.focus();
+  try { input.setSelectionRange(input.value.length, input.value.length); } catch(e){}
+  var ok = function(){
+    var val = input.value.trim();
+    if (!val){ toast('不能为空', 1200, 'error'); return; }
+    useCoachVersion(idx, val);
+  };
+  var cancel = function(){ renderSuggestions(); };
+  bodyEl.querySelector('.cv-btn-ok').addEventListener('click', function(e){ e.stopPropagation(); ok(); });
+  bodyEl.querySelector('.cv-btn-cancel').addEventListener('click', function(e){ e.stopPropagation(); cancel(); });
+  input.addEventListener('click', function(e){ e.stopPropagation(); });
+  input.addEventListener('keydown', function(e){
+    if (isRealEnter(e)){ e.preventDefault(); e.stopPropagation(); ok(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); cancel(); }
+  });
+}
+
+function useCoachVersion(idx, customText){
   var coach = runtime.coachResult;
   if (!coach || !coach.versions || !coach.versions[idx]) return;
   var v = coach.versions[idx];
+  var text = (customText !== undefined && customText !== null)
+    ? String(customText).trim() : v.text;
+  if (!text) return;
   var session = getCurrentSession();
   var sid = session.id;
   var lastTa = getLastTaText(session);
   var taName = session.taName || '';
-
   var afterAction = function(){
-    session.messages.push({ role: 'me', text: v.text, manual: true });
+    session.messages.push({ role: 'me', text: text, manual: true });
     session.updatedAt = Date.now();
-    addStyleSample(v.text, lastTa, taName);
+    addStyleSample(text, lastTa, taName);
     clearReplyFor(sid);
     save();
     renderMessages();
@@ -2005,7 +2051,7 @@ function useCoachVersion(idx){
     renderHeader();
     toast('✅ 已记录到对话（已学习）', 1600, 'success');
   };
-  copyText(v.text, afterAction);
+  copyText(text, afterAction);
 }
 
 // ============ API 表单 ============
@@ -2594,7 +2640,6 @@ function deleteSelectedSessions(){
 
 function switchSession(id){
   if (state.currentSessionId === id){ closeDrawer(); return; }
-  // 保存当前会话的回复到缓存
   var prevSid = state.currentSessionId;
   if (runtime.suggestions && runtime.suggestions.length > 0){
     setReplyFor(prevSid, { type: 'chat', suggestions: runtime.suggestions.slice(), avoid: (runtime.avoidSuggestions || []).slice() });
@@ -2606,7 +2651,6 @@ function switchSession(id){
     delete suggestionCache[prevSid];
   }
   state.currentSessionId = id;
-  // 从缓存恢复目标会话
   syncRuntimeFromCache(id);
   runtime.loading = false;
   if (runtime.imageBase64) clearImage();
@@ -3004,26 +3048,40 @@ function ensureThreeSuggestions(list){
   return out;
 }
 
-function ensureThreeCoachVersions(list){
-  var out = (list || []).filter(function(v){
+// ⚠️ 教练模式：不再硬凑 3 条敷衍词，宁少勿滥
+function ensureCoachVersions(list){
+  return (list || []).filter(function(v){
     return v && v.text && String(v.text).trim().length > 0;
   }).slice(0, 3).map(function(v){
     return { text: String(v.text).trim(), note: String(v.note || '').trim() };
   });
-  var k = 0;
-  while (out.length < 3 && k < FALLBACK_SUGGESTIONS.length * 2){
-    var candidate = FALLBACK_SUGGESTIONS[(out.length * 5 + k) % FALLBACK_SUGGESTIONS.length];
-    var dup = out.some(function(x){ return x.text === candidate; });
-    if (!dup) out.push({ text: candidate, note: '' });
-    else k++;
-  }
-  while (out.length < 3){
-    out.push({ text: '嗯…再说吧', note: '' });
-  }
-  return out;
 }
 
-// ==================== 通用 AI 请求 ====================
+// ⚠️ 教练模式：AI 返回纯文本时的兜底 —— 直接把它的内容当版本展示
+function coachTextFallback(content, draft){
+  if (!content || typeof content !== 'string') return null;
+  var lines = content.split(/\n+/).map(function(l){
+    return l.trim()
+      .replace(/^[\s\-\*#>`]+/, '')
+      .replace(/^\d+[\.\)、:：]\s*/, '')
+      .replace(/^["「『]+|["」』]+$/g, '')
+      .trim();
+  }).filter(function(l){
+    if (l.length < 1 || l.length > 300) return false;
+    if (/^(以下是|下面是|建议如下|回复建议|响应)[:：]?$/.test(l)) return false;
+    return true;
+  });
+  if (lines.length === 0) return null;
+  return {
+    draft: draft,
+    heard: '',
+    need: '',
+    versions: lines.slice(0, 3).map(function(text){ return { text: text, note: '' }; }),
+    tip: '',
+    _rawFallback: true
+  };
+}
+
 async function rawChatRequest(apiEntry, body, timeoutMs){
   var pConf = PROVIDERS[apiEntry.provider];
   if (!pConf) throw new Error('未知服务商');
@@ -3243,7 +3301,8 @@ async function callAI(apiEntry, session, opts){
 }
 
 // ==================== coach 模式：AI 调用 ====================
-async function callCoachAPI(apiEntry, session, myDraft){
+async function callCoachAPI(apiEntry, session, myDraft, opts){
+  opts = opts || {};
   var pConf = PROVIDERS[apiEntry.provider];
   if (!pConf) throw new Error('未知服务商');
   var key = sanitizeKey(apiEntry.apiKey);
@@ -3282,6 +3341,20 @@ async function callCoachAPI(apiEntry, session, myDraft){
   var langProfile = runtime.taLangProfile || runtime.langProfile;
   var sceneProfile = runtime.taSceneProfile || runtime.sceneProfile;
   var profileText = profileToPrompt(langProfile, sceneProfile);
+
+  var avoidBlock = '';
+  if (opts.avoid && opts.avoid.length > 0){
+    avoidBlock =
+      '\n═══════════════════════════════\n' +
+      '【重要：避免重复】\n' +
+      '═══════════════════════════════\n' +
+      '上一批的版本是：\n' +
+      opts.avoid.map(function(t, i){ return '  ' + (i+1) + '. "' + String(t).replace(/"/g, '”') + '"'; }).join('\n') + '\n' +
+      '⚠️ 这一批必须完全换掉：\n' +
+      '· 都不能和上面任何一条意思相近\n' +
+      '· 不能只换语气词，要换切入角度、换侧重点\n' +
+      '· 如果上一批都是"直接说"，这一批要有一两条更柔软或更具体\n';
+  }
 
   var systemPrompt =
     '你是【我本人】的表达教练。\n' +
@@ -3322,12 +3395,15 @@ async function callCoachAPI(apiEntry, session, myDraft){
     '- 3 个版本必须是"读完就能直接发出去"的完整句子\n' +
     '- 不要说教、不要端架子、不要"首先其次"、不要心理学术语\n' +
     '- "对方听到的感受"里不要有评价性词汇（如"不对""不好"）\n' +
-    '- 口诀要口语化，不能是抽象名词堆砌\n\n' +
-    '输出纯 JSON，第一个字符是 {：\n' +
+    '- 口诀要口语化，不能是抽象名词堆砌\n' +
+    avoidBlock + '\n' +
+    '⚠️ 输出必须是纯 JSON，第一个字符是 {，最后一个字符是 }。\n' +
+    '⚠️ 不要在 JSON 前后加任何解释文字。\n' +
+    '⚠️ versions 数组里必须有 3 个元素。\n\n' +
+    '输出格式：\n' +
     '{"heard":"...","need":"...","versions":[{"text":"...","note":"..."},{"text":"...","note":"..."},{"text":"...","note":"..."}],"tip":"..."}';
 
   var messages = [{ role: 'system', content: systemPrompt }];
-  // 把最近几条对话作为上下文（如果有），最后一条如果是 ta 且带图，附图
   historyMessages.forEach(function(m, i, arr){
     var isLast = i === arr.length - 1;
     var role = m.role === 'ta' ? 'user' : 'assistant';
@@ -3343,27 +3419,45 @@ async function callCoachAPI(apiEntry, session, myDraft){
       messages.push({ role: role, content: m.text });
     }
   });
-  // 如果历史为空，加一条占位 user，避免某些 API 因无 user 报错
   if (messages.length === 1){
     messages.push({ role: 'user', content: '（无历史对话，仅分析我想说的话）' });
   }
   var body = { model: model, messages: messages, temperature: 0.9, max_tokens: 900 };
   if (pConf.jsonMode && !imageData) body.response_format = { type: 'json_object' };
   var content = await rawChatRequest(apiEntry, body, 60000);
+
+  // ==== 解析 ====
   var parsed = extractJSON(content);
-  if (!parsed || (!parsed.versions && !parsed.heard && !parsed.need && !parsed.tip)){
-    console.warn('教练模式 AI 原始返回：', content);
-    var rawPreview = content ? String(content).replace(/\s+/g, ' ').slice(0, 80) : '(空)';
-    toast('⚠️ AI 没按格式返回，已给兜底｜原始：' + rawPreview, 5000, 'error');
-    parsed = { heard: COACH_FALLBACK.heard, need: COACH_FALLBACK.need, versions: [], tip: COACH_FALLBACK.tip };
+
+  // 走标准结构
+  if (parsed && (parsed.versions || parsed.heard || parsed.need || parsed.tip)){
+    var versions = ensureCoachVersions(parsed.versions);
+    // versions 为空但其他字段有？把 content 里可能漏掉的内容兜底
+    if (versions.length === 0){
+      var textFB0 = coachTextFallback(content, myDraft);
+      if (textFB0) return textFB0;
+      // 实在没有，抛出
+      throw new Error('AI 没给出有效建议，请点「换一批」再试');
+    }
+    return {
+      draft: myDraft,
+      heard: String(parsed.heard || '').trim(),
+      need: String(parsed.need || '').trim(),
+      versions: versions,
+      tip: String(parsed.tip || '').trim()
+    };
   }
-  var result = {
-    heard: String(parsed.heard || COACH_FALLBACK.heard).trim(),
-    need: String(parsed.need || COACH_FALLBACK.need).trim(),
-    versions: ensureThreeCoachVersions(parsed.versions),
-    tip: String(parsed.tip || COACH_FALLBACK.tip).trim()
-  };
-  return result;
+
+  // 非 JSON：把 AI 说的文本直接当版本
+  var textFB = coachTextFallback(content, myDraft);
+  if (textFB){
+    console.warn('教练模式 AI 未按格式返回，已用文本兜底：', content);
+    return textFB;
+  }
+
+  // 完全失败
+  console.warn('教练模式 AI 返回完全无法解析：', content);
+  throw new Error('AI 这次没答好，请点「换一批」再试');
 }
 
 // ==================== 发送 ====================
@@ -3395,7 +3489,6 @@ async function handleSend(){
   // ============ 教练模式 ============
   if (inputMode === 'coach'){
     if (!text){ toast('教练模式需要先输入你想说的话', 1500, 'error'); return; }
-    // 教练模式不落库到 messages，只作为分析输入
     dom.input.value = '';
     clearReplyFor(requestSessionId);
     runtime.loading = true;
@@ -3420,7 +3513,6 @@ async function handleSend(){
       }
     } catch(err){
       runtime.loading = false;
-      // 恢复输入框内容
       dom.input.value = originalInput;
       renderSuggestions();
       var hint = runtime.imageBase64 ? '（图片仍保留，可重试）' : '';
@@ -3490,17 +3582,62 @@ async function regenerateSuggestions(){
   var inputMode = getInputMode();
   var session = getCurrentSession();
   var requestSessionId = session.id;
+
+  // ===== 教练模式 =====
+  if (inputMode === 'coach'){
+    var cachedC = suggestionCache[requestSessionId];
+    var draft = cachedC && cachedC.coach && cachedC.coach.draft;
+    if (!draft){
+      toast('教练模式请重新输入你想说的话', 2200, 'info');
+      return;
+    }
+    var usedApiC = runtime.imageBase64 ? getImageApi() : getDefaultApi();
+    if (runtime.imageBase64 && !usedApiC){ toast('没有已启用的图片 API', 2500, 'error'); return; }
+    if (!usedApiC){ toast('没有已启用的 API，请去设置里检查', 2200, 'error'); openSettings(); return; }
+
+    var avoidC = [];
+    if (cachedC.coach.versions){
+      cachedC.coach.versions.forEach(function(v){
+        if (v && v.text && avoidC.indexOf(v.text) < 0) avoidC.push(v.text);
+      });
+    }
+    if (cachedC.coach.avoidList){
+      cachedC.coach.avoidList.forEach(function(t){
+        if (avoidC.indexOf(t) < 0) avoidC.push(t);
+      });
+    }
+    var newAvoidC = avoidC.slice(-20);
+
+    runtime.loading = true;
+    renderSuggestions();
+    try {
+      var coachResult = await callCoachAPI(usedApiC, session, draft, { avoid: avoidC });
+      coachResult.avoidList = newAvoidC;
+      if (getCurrentSession().id !== requestSessionId){
+        setReplyFor(requestSessionId, { type: 'coach', coach: coachResult, suggestions: [] });
+        runtime.loading = false;
+        save();
+        return;
+      }
+      runtime.loading = false;
+      setReplyFor(requestSessionId, { type: 'coach', coach: coachResult, suggestions: [] });
+      save();
+      renderSuggestions();
+      toast('✅ 已换一批', 1200, 'success');
+    } catch(err){
+      runtime.loading = false;
+      renderSuggestions();
+      toast('❌ ' + err.message, 3500, 'error');
+    }
+    return;
+  }
+
+  // ===== chat 模式 =====
   var lastTa = null;
   for (var i = session.messages.length - 1; i >= 0; i--){
     if (session.messages[i].role === 'ta'){ lastTa = session.messages[i]; break; }
   }
   if (!lastTa){ toast('没有对方的消息可重生成', 1500, 'error'); return; }
-
-  if (inputMode === 'coach'){
-    // 教练模式：用上一句"我本来想说的"重新生成。但没存原文，只能提示用户重新输入
-    toast('教练模式请重新输入你想说的话', 2200, 'info');
-    return;
-  }
 
   var usedApi = runtime.imageBase64 ? getImageApi() : getDefaultApi();
   if (runtime.imageBase64 && !usedApi){ toast('没有已启用的图片 API', 2500, 'error'); return; }
@@ -3615,7 +3752,6 @@ function bindEvents(){
   });
   dom.sRefresh.addEventListener('click', regenerateSuggestions);
 
-  // 输入模式 tab
   dom.itabChat.addEventListener('click', function(){ setInputMode('chat'); });
   dom.itabCoach.addEventListener('click', function(){ setInputMode('coach'); });
 
