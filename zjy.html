@@ -1378,28 +1378,35 @@ html+='</div>';
 return html;
 }
 function bindCoachCardEvents(){
-dom.sList.querySelectorAll('.cv-item').forEach(function(item){item.addEventListener('click',function(e){if(e.target.closest('.cv-copy'))return;if(e.target.closest('.cv-edit'))return;if(item.classList.contains('editing'))return;useCoachVersion(parseInt(item.dataset.cvidx))})});
-dom.sList.querySelectorAll('.cv-copy').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();useCoachVersion(parseInt(btn.dataset.cvidx))})});
-dom.sList.querySelectorAll('.cv-edit').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();enterCoachEdit(parseInt(btn.dataset.cvidx))})});
+var items=dom.sList.querySelectorAll('.cv-item');
+for(var i=0;i<items.length;i++){
+(function(item){
+item.onclick=function(e){
+if(e.target.closest('.cv-copy'))return;
+if(e.target.closest('.cv-edit'))return;
+if(item.classList.contains('editing'))return;
+useCoachVersion(parseInt(item.dataset.cvidx));
+};
+})(items[i]);
 }
-function enterCoachEdit(idx){
-var coach=runtime.coachResult;
-if(!coach||!coach.versions||!coach.versions[idx])return;
-var item=dom.sList.querySelector('.cv-item[data-cvidx="'+idx+'"]');
-if(!item||item.classList.contains('editing'))return;
-var origText=coach.versions[idx].text;
-item.classList.add('editing');
-var bodyEl=item.querySelector('.cv-body');
-bodyEl.innerHTML='<input type="text" class="cv-edit-input" value="'+esc(origText)+'" maxlength="300"><div class="cv-edit-actions"><button class="cv-btn-ok" type="button">✓ 复制</button><button class="cv-btn-cancel" type="button">✕</button></div>';
-var input=bodyEl.querySelector('.cv-edit-input');
-input.focus();
-try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
-var ok=function(){var val=input.value.trim();if(!val){toast('不能为空',1200,'error');return}useCoachVersion(idx,val)};
-var cancel=function(){renderSuggestions()};
-bodyEl.querySelector('.cv-btn-ok').addEventListener('click',function(e){e.stopPropagation();ok()});
-bodyEl.querySelector('.cv-btn-cancel').addEventListener('click',function(e){e.stopPropagation();cancel()});
-input.addEventListener('click',function(e){e.stopPropagation()});
-input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();e.stopPropagation();ok()}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel()}});
+var copys=dom.sList.querySelectorAll('.cv-copy');
+for(var j=0;j<copys.length;j++){
+(function(btn){
+btn.onclick=function(e){
+e.stopPropagation();
+useCoachVersion(parseInt(btn.dataset.cvidx));
+};
+})(copys[j]);
+}
+var edits=dom.sList.querySelectorAll('.cv-edit');
+for(var k=0;k<edits.length;k++){
+(function(btn){
+btn.onclick=function(e){
+e.stopPropagation();
+enterCoachEdit(parseInt(btn.dataset.cvidx));
+};
+})(edits[k]);
+}
 }
 function useCoachVersion(idx,customText){
 var coach=runtime.coachResult;
