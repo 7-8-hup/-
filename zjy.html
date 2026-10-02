@@ -470,6 +470,40 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .pp-btn-reanalyze:disabled{opacity:.5;cursor:not-allowed}
 .pp-btn-close2{border:1.5px solid #ebebf0;background:#fff;color:#666}
 .pp-btn-close2:hover{background:#f5f5f7}
+
+/* ===== 教练独立页面 ===== */
+.itab-expand{flex:0 0 auto;padding:8px 12px;border:none;background:transparent;border-radius:10px;font-size:16px;color:#888;cursor:pointer;line-height:1;font-family:inherit;transition:all .15s}
+.itab-expand:hover{background:#ecfdf5;color:#10b981}
+.coach-panel{position:fixed;inset:0;background:#fff;z-index:800;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.coach-panel.show{transform:translateY(0)}
+.cp-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ebebf0;flex-shrink:0;gap:8px}
+.cp-header h2{font-size:15px;font-weight:600;flex:1;text-align:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-body{flex:1;overflow-y:auto;padding:16px 18px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:14px;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box}
+.cp-empty{margin:auto;text-align:center;color:#999;font-size:14px;line-height:1.8}
+.cp-item{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;padding:14px;animation:pop .2s ease}
+.cp-draft{font-size:14px;color:#3a2f7a;background:#f0ecff;padding:9px 12px;border-radius:10px;margin-bottom:12px;line-height:1.5;word-break:break-word;white-space:pre-line}
+.cp-draft::before{content:'我本来想说';display:block;font-size:11px;color:#7c5cff;font-weight:700;margin-bottom:4px;letter-spacing:.3px}
+.cp-insight{font-size:13px;color:#3a3a4a;line-height:1.55;margin-bottom:8px;padding:9px 12px;background:#fff;border-radius:10px;border:1px solid #ece5ff}
+.cp-insight .ci-label{font-size:11px;font-weight:700;color:#7c5cff;margin-right:6px;white-space:nowrap}
+.cp-version{background:#fff;border:1.5px solid #e0f2ee;border-radius:11px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:all .15s;position:relative}
+.cp-version:hover{border-color:#10b981;background:#f0fdf4}
+.cp-version:active{transform:scale(.99)}
+.cp-version .cv-num{width:20px;height:20px;border-radius:50%;background:#dcfce7;color:#059669;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;margin-top:1px}
+.cp-version .cv-body{flex:1;min-width:0}
+.cp-version .cv-text{font-size:14.5px;color:#1a1a1a;line-height:1.45;margin-bottom:4px;word-break:break-word;white-space:pre-line}
+.cp-version .cv-note{font-size:11px;color:#059669;line-height:1.4;opacity:.85}
+.cp-version .cv-note::before{content:'↳ '}
+.cp-tip{font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fef3c7;border-radius:10px;padding:9px 12px;line-height:1.5;margin-top:6px}
+.cp-tip::before{content:'💡 '}
+.cp-composer{flex-shrink:0;padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #ebebf0;display:flex;gap:8px;align-items:flex-end;background:#fff;max-width:520px;width:100%;margin:0 auto;box-sizing:border-box}
+.cp-input{flex:1;min-width:0;min-height:40px;max-height:140px;padding:10px 14px;border:none;background:#f5f5f7;border-radius:20px;font-size:15px;outline:none;color:#1a1a1a;font-family:inherit;line-height:1.4;resize:none;box-sizing:border-box;overflow-y:auto}
+.cp-input:focus{background:#efeff4}
+.cp-input::placeholder{color:#999}
+.cp-send{width:40px;height:40px;border-radius:50%;border:none;background:#10b981;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,opacity .15s}
+.cp-send:hover{background:#059669}
+.cp-send:disabled{opacity:.4;cursor:not-allowed}
+.cp-loading{text-align:center;padding:30px 0;color:#999;font-size:13px;flex-shrink:0}
+.cp-loading .spinner{margin-bottom:10px;display:inline-block}
 </style>
 </head>
 <body>
@@ -489,6 +523,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="input-tabs" id="inputTabs">
 <button class="itab active" data-imode="chat" id="itabChat"><span class="itab-icon">💬</span><span class="itab-text">对方说了什么</span></button>
 <button class="itab" data-imode="coach" id="itabCoach"><span class="itab-icon">✍️</span><span class="itab-text">帮我改得更好</span></button>
+<button class="itab-expand" id="openCoachPageBtn" title="打开教练页面" aria-label="打开教练页面">⛶</button>
 </div>
 <div class="img-preview" id="imgPreview">
 <img id="previewImg" alt="">
@@ -658,6 +693,21 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <button class="pp-btn-reanalyze" id="personalityReanalyze">🔄 重新分析</button>
 </div>
 </div>
+
+<!-- ===== 教练独立页面 ===== -->
+<div class="coach-panel" id="coachPanel">
+  <div class="cp-header">
+    <button class="icon-btn" id="coachBackBtn" aria-label="返回">←</button>
+    <h2>✍️ 表达教练</h2>
+    <button class="icon-btn" id="coachClearBtn" aria-label="清空">🗑️</button>
+  </div>
+  <div class="cp-body" id="coachBody"></div>
+  <div class="cp-composer">
+    <textarea id="coachInput" class="cp-input" placeholder="你本来想说什么..." rows="1"></textarea>
+    <button class="cp-send" id="coachSendBtn" aria-label="发送">↑</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 (function(){
@@ -732,7 +782,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze'];
+var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','coachPanel','coachBody','coachInput','coachSendBtn','coachBackBtn','coachClearBtn','openCoachPageBtn'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type){
@@ -744,7 +794,7 @@ dom.toast.classList.add('show');
 runtime.toastTimer=setTimeout(function(){dom.toast.classList.remove('show')},dur);
 }
 var saveDebounceTimer=null;
-function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}
+function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}}
 function save(){if(saveDebounceTimer){clearTimeout(saveDebounceTimer);saveDebounceTimer=null}saveNow()}
 function saveDebounced(){if(saveDebounceTimer)clearTimeout(saveDebounceTimer);saveDebounceTimer=setTimeout(function(){saveDebounceTimer=null;saveNow()},300)}
 function migrateState(d){
@@ -2073,7 +2123,7 @@ if(/^(以下是|下面是|建议如下|回复建议|响应)[:：]?$/.test(l))ret
 return true;
 });
 if(lines.length===0)return null;
-return{suggestions:lines.slice(0,3).map(function(text,i){return{text:text,style:styles[i]||'建议'}})};
+return{suggestions:lines.slice(0,3).map(function(text,i){return{text:text,style:styles[i]||'建议'}})}
 }
 function ensureThreeSuggestions(list){
 var out=(list||[]).filter(function(s){return s&&s.text&&String(s.text).trim().length>0}).slice(0,3).map(function(s,i){return{text:String(s.text).trim(),style:s.style||FALLBACK_STYLES[i]||'建议'}});
@@ -2602,6 +2652,94 @@ if(!isMood&&data.keywords&&data.keywords.length){html+='<div class="pp-section2"
 if(data._updatedAt){html+='<div style="text-align:center;font-size:11px;color:#bbb;margin-top:14px;">分析于 '+formatTime(data._updatedAt)+'</div>'}
 dom.personalityBody.innerHTML=html;
 }
+
+/* ===== 教练独立页面 ===== */
+var COACH_HISTORY_KEY='chat_coach_history_v1';
+function loadCoachHistory(){
+try{var raw=safeGetStorage(COACH_HISTORY_KEY);if(!raw)return[];var d=JSON.parse(raw);return Array.isArray(d)?d:[]}catch(e){return[]}
+}
+function saveCoachHistory(list){
+try{safeSetStorage(COACH_HISTORY_KEY,JSON.stringify((list||[]).slice(-100)))}catch(e){}
+}
+var coachHistory=loadCoachHistory();
+function openCoachPanel(){
+if(!dom.coachPanel)return;
+dom.coachPanel.classList.add('show');
+renderCoachHistory();
+setTimeout(function(){try{dom.coachInput.focus()}catch(e){}},220);
+}
+function closeCoachPanel(){
+if(!dom.coachPanel)return;
+dom.coachPanel.classList.remove('show');
+}
+function renderCoachHistory(){
+if(!dom.coachBody)return;
+if(!coachHistory.length){
+dom.coachBody.innerHTML='<div class="cp-empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span><br><span style="font-size:12px;color:#bbb;margin-top:6px;display:inline-block;">（历史会自动保存）</span></div>';
+return;
+}
+var html='';
+coachHistory.forEach(function(item,idx){
+html+='<div class="cp-item" data-idx="'+idx+'">';
+html+='<div class="cp-draft">'+esc(item.draft||'')+'</div>';
+if(item.heard)html+='<div class="cp-insight"><span class="ci-label">👂 对方听到</span>'+esc(item.heard)+'</div>';
+if(item.need)html+='<div class="cp-insight"><span class="ci-label">🎯 你想说</span>'+esc(item.need)+'</div>';
+(item.versions||[]).forEach(function(v,i){
+html+='<div class="cp-version" data-ci="'+idx+'" data-vi="'+i+'"><div class="cv-num">'+(i+1)+'</div><div class="cv-body"><div class="cv-text">'+esc(v.text||'')+'</div>'+(v.note?'<div class="cv-note">'+esc(v.note)+'</div>':'')+'</div></div>';
+});
+if(item.tip)html+='<div class="cp-tip">'+esc(item.tip)+'</div>';
+html+='</div>';
+});
+dom.coachBody.innerHTML=html;
+dom.coachBody.querySelectorAll('.cp-version').forEach(function(el){
+el.addEventListener('click',function(){
+var ci=parseInt(el.dataset.ci,10),vi=parseInt(el.dataset.vi,10);
+var item=coachHistory[ci];
+if(!item||!item.versions||!item.versions[vi])return;
+copyText(item.versions[vi].text,function(){toast('✅ 已复制',1000,'success')});
+});
+});
+setTimeout(function(){dom.coachBody.scrollTop=dom.coachBody.scrollHeight},30);
+}
+async function sendCoachInput(){
+var text=dom.coachInput.value.trim();
+if(!text){toast('请输入你想说的话',1200,'error');return}
+var api=getDefaultApi();
+if(!api){toast('请先去设置里配置 API',2200,'error');openSettings();return}
+dom.coachInput.value='';
+dom.coachInput.style.height='';
+dom.coachSendBtn.disabled=true;
+var loadingEl=document.createElement('div');
+loadingEl.className='cp-loading';
+loadingEl.innerHTML='<span class="spinner"></span><br><br>AI 正在帮你想...';
+dom.coachBody.appendChild(loadingEl);
+dom.coachBody.scrollTop=dom.coachBody.scrollHeight;
+try{
+var session=getCurrentSession();
+var result=await callCoachAPI(api,session,text);
+var item={draft:text,heard:result.heard||'',need:result.need||'',versions:result.versions||[],tip:result.tip||'',timestamp:Date.now()};
+coachHistory.push(item);
+if(coachHistory.length>100)coachHistory=coachHistory.slice(-100);
+saveCoachHistory(coachHistory);
+renderCoachHistory();
+}catch(err){
+loadingEl.remove();
+toast('❌ '+err.message,3500,'error');
+}finally{
+dom.coachSendBtn.disabled=false;
+}
+}
+function clearCoachHistory(){
+if(!coachHistory.length){toast('暂无历史',1200);return}
+var ok=true;
+try{ok=confirm('清空所有教练历史？此操作不可恢复。')}catch(e){ok=true}
+if(!ok)return;
+coachHistory=[];
+saveCoachHistory(coachHistory);
+renderCoachHistory();
+toast('已清空',1200,'success');
+}
+
 function bindEvents(){
 bindGenderSeg(dom.myGenderSeg);
 dom.settingsBtn.addEventListener('click',openSettings);
@@ -2688,6 +2826,22 @@ dom.renameMask.addEventListener('click',closeRenameDialog);
 dom.renameCancel.addEventListener('click',closeRenameDialog);
 dom.renameSave.addEventListener('click',saveRenameDialog);
 dom.renameInput.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();saveRenameDialog()}else if(e.key==='Escape'){e.preventDefault();closeRenameDialog()}});
+
+/* ===== 教练独立页面绑定 ===== */
+if(dom.openCoachPageBtn)dom.openCoachPageBtn.addEventListener('click',openCoachPanel);
+if(dom.coachBackBtn)dom.coachBackBtn.addEventListener('click',closeCoachPanel);
+if(dom.coachClearBtn)dom.coachClearBtn.addEventListener('click',clearCoachHistory);
+if(dom.coachSendBtn)dom.coachSendBtn.addEventListener('click',sendCoachInput);
+if(dom.coachInput){
+dom.coachInput.addEventListener('input',function(){
+dom.coachInput.style.height='auto';
+dom.coachInput.style.height=Math.min(dom.coachInput.scrollHeight,140)+'px';
+});
+dom.coachInput.addEventListener('keydown',function(e){
+if(isRealEnter(e)&&!e.shiftKey){e.preventDefault();sendCoachInput()}
+});
+}
+
 document.addEventListener('keydown',function(e){
 if(e.key==='Escape'){
 if(dom.sessionMenu.classList.contains('show'))closeSessionMenu();
@@ -2702,6 +2856,7 @@ else if(dom.exportDialog.classList.contains('show'))closeExportDialog();
 else if(dom.importDialog.classList.contains('show'))closeImportDialog();
 else if(dom.drawer.classList.contains('show'))closeDrawer();
 else if(dom.settings.classList.contains('show'))closeSettings();
+else if(dom.coachPanel&&dom.coachPanel.classList.contains('show'))closeCoachPanel();
 }
 });
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});
