@@ -27,8 +27,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .bubble.real.me{border-color:#10b981;color:#065f46;background:#ecfdf5}
 .bubble.real.me.manual{border-color:#059669;color:#065f46;background:#d1fae5}
 .bubble.real::before{content:'🗣️';position:absolute;top:-8px;left:-4px;font-size:12px;opacity:.5}
-.suggestions{flex-shrink:0;padding:0 18px 12px;display:none;flex-direction:column;gap:8px}
-.suggestions.show{display:flex}
+.suggestions{flex-shrink:0;padding:0 18px 12px;display:none;flex-direction:column;gap:8px;max-height:56vh;min-height:0}
+.suggestions.show{display:flex}#sList{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d8d8e3 transparent;padding-right:2px}
+#sList::-webkit-scrollbar{width:5px}
+#sList::-webkit-scrollbar-track{background:transparent}
+#sList::-webkit-scrollbar-thumb{background:#d8d8e3;border-radius:3px}
+#sList::-webkit-scrollbar-thumb:hover{background:#b8b8c8}
 .s-title{font-size:12px;color:#999;font-weight:500;padding:4px 0;display:flex;align-items:center;justify-content:space-between}
 .s-title .tip{font-size:11px;color:#c4a000;font-weight:400}
 .spinner{width:12px;height:12px;border:2px solid #ebebf0;border-top-color:#7c5cff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
@@ -1328,6 +1332,7 @@ dom.sTitleTip.textContent='点文字直接用，✎ 改一下也行';
 dom.sTitleTip.style.display='inline';
 dom.sList.innerHTML=renderCoachCard(coach);
 bindCoachCardEvents();
+dom.sList.scrollTop=0;
 dom.sRefresh.style.display='flex';
 return;
 }
@@ -1341,8 +1346,9 @@ runtime.suggestions.forEach(function(s,i){
 html+='<div class="s-card" data-idx="'+i+'"><div class="s-text" data-idx="'+i+'"'+(mode==='real'?' style="cursor:pointer;"':'')+'>'+esc(s.text)+'</div>'+(s.style?'<div class="s-badge">'+esc(s.style)+'</div>':'')+'<button class="s-edit" data-idx="'+i+'" aria-label="编辑">✎</button></div>';
 });
 dom.sList.innerHTML=html;
+dom.sList.scrollTop=0;
 dom.sRefresh.style.display='flex';
-dom.sList.querySelectorAll('.s-text').forEach(function(el){el.addEventListener('click',function(){var idx=parseInt(el.dataset.idx);if(mode==='real')openSpeakPanel(idx);else enterEditMode(idx)})});
+dom.sList.querySelectorAll('.s-text').forEach(function(el){...
 dom.sList.querySelectorAll('.s-edit').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();enterEditMode(parseInt(btn.dataset.idx))})});
 }
 function renderCoachCard(coach){
