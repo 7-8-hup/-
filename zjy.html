@@ -1270,7 +1270,7 @@ var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
 if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 语言优化<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
@@ -1327,7 +1327,7 @@ if(inputMode==='coach'){
 var coach=runtime.coachResult;
 if(!coach||!coach.versions||!coach.versions.length){dom.suggestions.classList.remove('show');dom.sList.innerHTML='';dom.sRefresh.style.display='none';return}
 dom.suggestions.classList.add('show');
-dom.sTitleText.textContent='🧠 表达教练';
+dom.sTitleText.textContent='🧠 语言优化';
 dom.sTitleTip.textContent='点文字直接用，✎ 改一下也行';
 dom.sTitleTip.style.display='inline';
 dom.sList.innerHTML=renderCoachCard(coach);
@@ -2251,7 +2251,7 @@ var profileText=profileToPrompt(langProfile,sceneProfile);
 var avoidBlock='';
 if(opts.avoid&&opts.avoid.length>0){avoidBlock='\n═══════════════════════════════\n【重要：避免重复】\n═══════════════════════════════\n上一批的版本是：\n'+opts.avoid.map(function(t,i){return '  '+(i+1)+'. "'+String(t).replace(/"/g,'”')+'"'}).join('\n')+'\n⚠️ 这一批必须完全换掉：\n· 都不能和上面任何一条意思相近\n· 不能只换语气词，要换切入角度、换侧重点\n· 如果上一批都是"直接说"，这一批要有一两条更柔软或更具体\n'}
 var systemPrompt=
-'你是【我本人】的表达教练。\n对方（'+ta+'）刚才跟我说了话，我已经想好一句要回的话，但不确定这么说好不好。\n请站在"让对方听着更舒服"的角度，帮我分析，并给我几个更好的版本。\n\n'+
+'你是【我本人】的语言优化。\n对方（'+ta+'）刚才跟我说了话，我已经想好一句要回的话，但不确定这么说好不好。\n请站在"让对方听着更舒服"的角度，帮我分析，并给我几个更好的版本。\n\n'+
 historyBlock+'\n'+
 '【我本来想说的】\n"'+myDraft+'"\n'+
 statusLine+'\n'+extraStyle+genderBlock+'\n\n'+
