@@ -1266,7 +1266,7 @@ var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
 if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达优化<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
