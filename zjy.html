@@ -716,7 +716,7 @@ function createEmptyState(){
 return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personGenderCache:{},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
-var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''},samplesListSnapshot:[]};
+var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''},samplesListSnapshot:[],pendingStorageSync:null};
 var suggestionCache={};
 function syncRuntimeFromCache(sid){
 var c=suggestionCache[sid];
@@ -746,7 +746,7 @@ dom.toast.classList.add('show');
 runtime.toastTimer=setTimeout(function(){dom.toast.classList.remove('show')},dur);
 }
 var saveDebounceTimer=null;
-function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}}
+function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}
 function save(){if(saveDebounceTimer){clearTimeout(saveDebounceTimer);saveDebounceTimer=null}saveNow()}
 function saveDebounced(){if(saveDebounceTimer)clearTimeout(saveDebounceTimer);saveDebounceTimer=setTimeout(function(){saveDebounceTimer=null;saveNow()},300)}
 function migrateState(d){
@@ -1248,7 +1248,14 @@ state.sessions.forEach(function(s){existingMap[s.id]=s});
 incoming.sessions.forEach(function(s){
 var cur=existingMap[s.id];
 if(!cur){state.sessions.push(s);existingMap[s.id]=s}
-else if((s.updatedAt||0)>(cur.updatedAt||0)){var idx=state.sessions.indexOf(cur);if(idx>=0)state.sessions[idx]=s;existingMap[s.id]=s}
+else if((s.updatedAt||0)>(cur.updatedAt||0)){
+// ✅ [修复 #22] 保留本地置顶和手动重命名，避免被导入覆盖
+s.pinned=!!cur.pinned||!!s.pinned;
+if(cur.title)s.title=cur.title;
+var idx=state.sessions.indexOf(cur);
+if(idx>=0)state.sessions[idx]=s;
+existingMap[s.id]=s;
+}
 });
 // ✅ [说明 #17] 样本去重 key 含 timestamp —— 是有意的：同一句话不同时刻说是两条独立样本
 // （因为它们对时间衰减的贡献不同）。若改成不含 timestamp，就会丢掉"最近常说"的权重信息。
@@ -2310,13 +2317,15 @@ var modeBlock=isReal?'\n【这是现实对话】\n你和'+ta+'正在面对面聊
 var avoidBlock='';
 if(opts.avoid&&opts.avoid.length>0){avoidBlock='\n═══════════════════════════════\n【重要：避免重复】\n═══════════════════════════════\n上一批给的建议是：\n'+opts.avoid.map(function(t,i){return '  '+(i+1)+'. "'+String(t).replace(/"/g,'”')+'"'}).join('\n')+'\n⚠️ 这一批必须完全换掉：\n· 每一条都不能和上面任何一条意思相近\n· 不能只是换个说法、换个语气词\n· 必须换角度、换态度、换话题切入点\n· 如果上一批都是"短句"，这次至少有 1-2 条要更长、更具体\n· 如果上一批都是"敷衍/中性"，这次要更主动、更具体\n'}
 var systemPrompt='你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。\n现在你和'+ta+'正在聊天，你要以【我】的身份回复 3 条候选。\n'+historyBlock+'\n═══════════════════════════════\n【我说话的整体画像】'+sampleCount+'\n═══════════════════════════════\n'+(profileText||'（样本较少，按普通年轻人聊天风格）')+'\n'+recentText+'\n'+extraStyle+genderBlock+statusLine+'\n'+modeBlock+'\n═══════════════════════════════\n【核心原则】\n═══════════════════════════════\n① 先读【最近的完整对话历史】，理解上下文，再动笔。\n② 你不是"参考"上面的画像，你"就是"写出那些句子的人。\n复制这个人的整个语言 DNA —— 包括 TA 的怪癖、不完美。\n③ 长度照搬 —— 画像里平均几字就几字\n④ 标点照搬 —— 不打句号就别打；用空格断句就用空格\n⑤ 开头/结尾照搬 —— 常用什么开头结尾，就用什么\n⑥ 语气词照搬 —— 只用画像里出现过的\n⑦ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回\n⑧ 允许不完美 —— 半句、答非所问、跳话题、一个字回复\n═══════════════════════════════\n【绝对禁止 —— 出现一处就露馅】\n═══════════════════════════════\n❌ 忽略对话历史，只看【当前情境】就瞎回\n❌ 3 条建议互相重复或换汤不换药\n❌ "听起来你…" "我感觉你…" "我理解…"（心理咨询师腔）\n❌ "首先""其次""总的来说""总之""不过话说回来""其实吧"\n❌ "既…又…" "不是…而是…" 这种排比\n❌ 完整的书面长句\n❌ 空泛安慰："会好的""加油""一切都会过去""你值得更好"\n❌ 完美的共情、得体、面面俱到\n❌ 总结、升华、讲道理、给建议\n❌ 每句都以句号结尾\n═══════════════════════════════\n【3 条建议的方向】\n═══════════════════════════════\n1. 【短】超短，像画像里最短的那几条\n2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个\n3. 【展开】问个问题，或说件具体的事\n⚠️ 硬性要求：\n· 必须输出 3 条，即使对方只发一个字也要给满 3 条。\n· 3 条必须明显不同：开头不同、语气不同、长度不同。\n· 3 条都要"读完就能直接发出去"，不能是"嗯""？"这种半成品。\n'+(statusLine?'⚠️ 结合【当前情境】，但不要提"情境"两个字。\n':'')+avoidBlock+'输出纯 JSON，无其他内容，第一个字符是 {：\n{"suggestions":[{"text":"...","style":"短"},{"text":"...","style":"情绪"},{"text":"...","style":"展开"}]}';
+// ✅ [修复 #23] 历史已在 system prompt 里完整给出，messages 只发最后一条，避免重复占 token
 var messages=[{role:'system',content:systemPrompt}];
-historyMessages.forEach(function(m,i,arr){
-var isLast=i===arr.length-1;
-var role=m.role==='ta'?'user':'assistant';
-if(isLast&&m.role==='ta'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(m.text)||'请描述图片'},{type:'image_url',image_url:{url:imageData}}]})}
-else{messages.push({role:role,content:cleanUnicode(m.text)})}
-});
+var lastMsg=historyMessages[historyMessages.length-1];
+if(lastMsg){
+var lastRole=lastMsg.role==='ta'?'user':'assistant';
+if(lastRole==='user'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(lastMsg.text)||'请描述图片'},{type:'image_url',image_url:{url:imageData}}]})}
+else{messages.push({role:lastRole,content:cleanUnicode(lastMsg.text)})}
+}
+if(messages.length===1){messages.push({role:'user',content:'（请基于上文给出 3 条回复建议）'})}
 var body={model:model,messages:messages,temperature:1.05,max_tokens:800};
 if(pConf.jsonMode&&!imageData)body.response_format={type:'json_object'};
 var content=await rawChatRequest(apiEntry,body,60000);
@@ -2389,13 +2398,14 @@ avoidBlock+'\n'+
 '⚠️ 不要在 JSON 前后加任何解释文字。\n'+
 '⚠️ versions 数组里必须有 3 个元素。\n\n'+
 '输出格式：\n{"heard":"...","need":"...","versions":[{"text":"...","note":"..."},{"text":"...","note":"..."},{"text":"...","note":"..."}],"tip":"..."}';
+// ✅ [修复 #23] 历史已在 system prompt 里完整给出，messages 只发最后一条，避免重复占 token
 var messages=[{role:'system',content:systemPrompt}];
-historyMessages.forEach(function(m,i,arr){
-var isLast=i===arr.length-1;
-var role=m.role==='ta'?'user':'assistant';
-if(isLast&&m.role==='ta'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(m.text)||'（图片）'},{type:'image_url',image_url:{url:imageData}}]})}
-else{messages.push({role:role,content:cleanUnicode(m.text)})}
-});
+var lastMsg=historyMessages[historyMessages.length-1];
+if(lastMsg){
+var lastRole=lastMsg.role==='ta'?'user':'assistant';
+if(lastRole==='user'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(lastMsg.text)||'（图片）'},{type:'image_url',image_url:{url:imageData}}]})}
+else{messages.push({role:lastRole,content:cleanUnicode(lastMsg.text)})}
+}
 if(messages.length===1){messages.push({role:'user',content:'（无历史对话，仅分析我想说的话）'})}
 var body={model:model,messages:messages,temperature:.9,max_tokens:900};
 if(pConf.jsonMode&&!imageData)body.response_format={type:'json_object'};
@@ -2445,7 +2455,7 @@ if(!dom.input.value.trim())dom.input.value=originalInput;
 renderSuggestions();
 var hint=runtime.imageBase64?'（图片仍保留，可重试）':'';
 toast('❌ '+err.message+hint,3500,'error');
-}finally{dom.sendBtn.disabled=false}
+}finally{dom.sendBtn.disabled=false;flushPendingStorageSync()}
 return;
 }
 var finalText=text||'请描述这张图片';
@@ -2478,7 +2488,7 @@ save();
 if(getCurrentSession().id===requestSessionId){renderMessages();renderSuggestions()}
 var hint2=runtime.imageBase64?'（图片仍保留，可重试）':'';
 toast('❌ '+err.message+hint2,3500,'error');
-}finally{dom.sendBtn.disabled=false}
+}finally{dom.sendBtn.disabled=false;flushPendingStorageSync()}
 }
 async function regenerateSuggestions(){
 if(runtime.loading)return;
@@ -2757,14 +2767,31 @@ if(!isMood&&data.keywords&&data.keywords.length){html+='<div class="pp-section2"
 if(data._updatedAt){html+='<div style="text-align:center;font-size:11px;color:#bbb;margin-top:14px;">分析于 '+formatTime(data._updatedAt)+'</div>'}
 dom.personalityBody.innerHTML=html;
 }
-// ✅ [修复 #20] 多标签页 storage 同步：避免后写的覆盖先写的
-function handleStorageSync(e){
-if(e.key!==STORAGE_KEY)return;
-if(!e.newValue)return;
+// ✅ [修复 #21] 多标签页 storage 同步：延迟 + per-session LWW，避免覆盖正在请求中的会话
+function applyStorageSync(raw){
 try{
-var d=JSON.parse(e.newValue);
+var d=JSON.parse(raw);
 var normalized=normalizeRawState(d);
 if(!normalized)return;
+// per-session 合并：updatedAt 更新的胜出，避免覆盖本地正在进行的请求结果
+var incomingMap={};
+normalized.sessions.forEach(function(s){incomingMap[s.id]=s});
+state.sessions.forEach(function(local){
+var inc=incomingMap[local.id];
+if(!inc){normalized.sessions.push(local);return}
+if((local.updatedAt||0)>(inc.updatedAt||0)){
+inc.messages=local.messages;
+inc.status=local.status;
+inc.taName=local.taName;
+inc.title=local.title;
+inc.pinned=local.pinned;
+inc.mode=local.mode;
+inc.inputMode=local.inputMode;
+inc.mood=local.mood;
+inc.moodUpdatedAt=local.moodUpdatedAt;
+inc.updatedAt=local.updatedAt;
+}
+});
 state=normalized;
 if(!state.currentSessionId||!state.sessions.find(function(s){return s.id===state.currentSessionId})){
 if(state.sessions.length===0)createSession(true,'chat');
@@ -2788,6 +2815,19 @@ var typing=ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA');
 if(!typing){renderApiForm();renderProfilePanel();renderStyleWeightUI()}
 }
 }catch(err){console.warn('storage 同步失败',err)}
+}
+function handleStorageSync(e){
+if(e.key!==STORAGE_KEY)return;
+if(!e.newValue)return;
+// 正在请求中：先暂存，等请求结束再合并，避免覆盖刚 push 的消息
+if(runtime.loading){runtime.pendingStorageSync=e.newValue;return}
+applyStorageSync(e.newValue);
+}
+function flushPendingStorageSync(){
+if(!runtime.pendingStorageSync)return;
+var raw=runtime.pendingStorageSync;
+runtime.pendingStorageSync=null;
+applyStorageSync(raw);
 }
 function bindEvents(){
 bindGenderSeg(dom.myGenderSeg);
