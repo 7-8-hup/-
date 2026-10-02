@@ -10,8 +10,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC
 #app{max-width:520px;margin:0 auto;height:100vh;height:100dvh;background:#fff;display:flex;flex-direction:column}
 header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #ebebf0;flex-shrink:0;gap:8px}
 header h1{font-size:15px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:0 4px;display:flex;align-items:center;justify-content:center;gap:6px}
-header h1 .mode-tag{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600;flex-shrink:0}
+header h1 .mode-tag{font-size:11px;padding:3px 8px;border-radius:8px;font-weight:600;flex-shrink:0;border:none;font-family:inherit;cursor:pointer;transition:filter .15s,background .15s;line-height:1.3}
+header h1 .mode-tag:hover{filter:brightness(.94)}
 header h1 .mode-tag.real{background:#dcfce7;color:#166534}
+header h1 .mode-tag.chat{background:#ede9fe;color:#5b21b6}
 .icon-btn{width:36px;height:36px;border:none;background:transparent;border-radius:50%;font-size:18px;cursor:pointer;color:#666;display:inline-flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
 .icon-btn:hover{background:#f5f5f7}
 main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
@@ -35,7 +37,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 #sList::-webkit-scrollbar-thumb:hover{background:#b8b8c8}
 .s-title{font-size:12px;color:#999;font-weight:500;padding:4px 0;display:flex;align-items:center;justify-content:space-between}
 .s-title .tip{font-size:11px;color:#c4a000;font-weight:400}
-.tone-row{display:flex;gap:6px;overflow-x:auto;padding:2px 0 2px;flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.s-foot{display:flex;align-items:center;gap:8px;flex-shrink:0;padding:2px 0}
+.tone-row{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0;padding:1px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .tone-row::-webkit-scrollbar{display:none}
 .tone-row.hide{display:none}
 .tone-chip{border:1px solid #e5e5ea;background:#fff;color:#666;font-size:12px;font-family:inherit;padding:5px 10px;border-radius:14px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;line-height:1.2}
@@ -43,6 +46,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .tone-chip.active{background:#7c5cff;border-color:#7c5cff;color:#fff;font-weight:600}
 .tone-chip.tone-clear{color:#999;border-style:dashed}
 .tone-chip.tone-clear:hover{color:#dc2626;border-color:#fca5a5;background:#fef2f2}
+.s-foot .s-refresh{width:auto;flex-shrink:0;padding:8px 14px;font-size:13px;border-radius:10px;gap:5px}
+.drop-hint{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;background:rgba(124,92,255,.08);box-shadow:inset 0 0 0 3px #7c5cff;color:#5b3dd6;font-size:15px;font-weight:600;pointer-events:none;text-align:center;padding:0 24px}
+.drop-hint.show{display:flex}
 .toast-act{border:none;background:rgba(255,255,255,.22);color:#fff;font-family:inherit;font-size:12px;font-weight:600;padding:4px 10px;border-radius:12px;margin-left:8px;cursor:pointer;display:inline-block;vertical-align:middle}
 .toast-act:hover{background:rgba(255,255,255,.35)}
 .spinner{width:12px;height:12px;border:2px solid #ebebf0;border-top-color:#7c5cff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
@@ -234,12 +240,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-group-title .sg-arrow{transition:transform .2s;display:inline-block;font-size:10px;color:#999;margin-left:auto}
 .session-group-title .sg-brain{border:none;background:transparent;color:#7c5cff;font-size:13px;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0;margin-left:2px;font-family:inherit}
 .session-group-title .sg-brain:hover{background:#ede9fe}
-.session-group-title .sg-gender{border:none;background:transparent;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;margin-left:2px;font-family:inherit;color:#bbb}
-.session-group-title .sg-gender.male{color:#3b82f6;background:#eff6ff}
-.session-group-title .sg-gender.female{color:#ec4899;background:#fdf2f8}
-.session-group-title .sg-gender:hover{background:#f5f5f7}
-.session-group-title .sg-gender.male:hover{background:#dbeafe}
-.session-group-title .sg-gender.female:hover{background:#fce7f3}
 .session-group.collapsed .sg-arrow{transform:rotate(-90deg)}
 .session-group.collapsed .session-item{display:none}
 .session-group + .session-group{margin-top:4px}
@@ -519,9 +519,8 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <main id="messages"><div class="empty">输入对方的话<br>获取 3 条回复建议</div></main>
 <section class="suggestions" id="suggestions">
 <div class="s-title"><span id="sTitleText">回复建议</span><span class="tip" id="sTitleTip">点文字改一下再复制，别照抄</span><span id="sTitleSpinner" style="display:none" class="spinner"></span></div>
-<div class="tone-row hide" id="toneRow"></div>
+<div class="s-foot"><div class="tone-row hide" id="toneRow"></div><button class="s-refresh" id="sRefresh"><span>🔄</span><span>换一批</span></button></div>
 <div id="sList"></div>
-<button class="s-refresh" id="sRefresh"><span>🔄</span><span>换一批</span></button>
 </section>
 <div class="status-bar empty" id="statusBar"></div>
 <div class="input-tabs" id="inputTabs">
@@ -534,10 +533,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <button id="removeImg" aria-label="移除">✕</button>
 </div>
 <div class="composer">
-<button class="icon-btn" id="modeBtn" title="切换模式" aria-label="切换">💬</button>
-<button class="icon-btn" id="imageBtn" aria-label="图片">📷</button>
+<button class="icon-btn" id="imageBtn" aria-label="图片" title="图片（也可以直接 Ctrl+V 粘贴或拖进来）">📷</button>
+<button class="me-btn" id="meBtn" title="记录我实际发出去的内容" aria-label="我发了">✍️</button>
 <input type="text" id="input" placeholder="对方说了什么..." autocomplete="off">
-<button class="me-btn" id="meBtn" title="记录我发的内容" aria-label="我发了">✍️</button>
 <button class="send-btn" id="sendBtn" aria-label="发送">↑</button>
 </div>
 <input type="file" id="fileInput" accept="image/*" style="display:none">
@@ -546,7 +544,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="profile-dialog" id="profileDialog">
 <div class="profile-dialog-inner">
 <div class="profile-dialog-title">✏️ 对话信息 <span class="hint">仅对当前对话生效</span></div>
-<div class="profile-field"><label>对方昵称</label><input type="text" id="pdTaName" placeholder="例如：小明、老婆、张总" maxlength="30" autocomplete="off"><div class="sub-hint">设置昵称后，可在左侧对话列表点击分组标题上的小图标设置性别</div></div>
+<div class="profile-field"><label>对方昵称</label><input type="text" id="pdTaName" placeholder="例如：小明、老婆、张总" maxlength="30" autocomplete="off"><div class="sub-hint">设置昵称后，可用对话列表人名后的 📇 编辑对方档案（性别也在里面）</div></div>
 <div class="profile-field"><label>对方状态 / 情境（可选）</label><input type="text" id="pdStatus" placeholder="例如：刚加班完很累，心情不好" maxlength="200" autocomplete="off"><div class="sub-hint">告诉 AI 对方现在什么状态，能让回复更贴合</div></div>
 <button class="pd-profile-link" id="pdProfileBtn" type="button">📇 编辑对方档案（关系、称呼、雷区…按人名共享）</button>
 <div class="profile-dialog-actions">
@@ -699,6 +697,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <button class="pp-btn-reanalyze" id="personalityReanalyze">🔄 重新分析</button>
 </div>
 </div>
+<div class="drop-hint" id="dropHint">📥 松手：图片进预览，聊天记录变成消息</div>
 <div class="toast" id="toast"></div>
 <div class="import-dialog-mask" id="extractDialogMask"></div>
 <div class="import-dialog" id="extractDialog">
@@ -849,7 +848,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personClearBtn','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
+var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','dropHint','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personClearBtn','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type,action){
@@ -952,7 +951,7 @@ if(Array.isArray(d.sessions)){
 out.sessions=d.sessions.filter(function(s){return s&&typeof s==='object'}).map(function(s){
 return{id:safeSessionId(s.id),messages:Array.isArray(s.messages)?s.messages.filter(function(m){return m&&typeof m==='object'}).map(function(m){
 return{role:m.role==='ta'?'ta':'me',text:typeof m.text==='string'?m.text:(m.text==null?'':String(m.text)),manual:!!m.manual};
-}):[],tone:Array.isArray(s.tone)?s.tone.filter(function(t){return TONE_KEYS.indexOf(t)>=0}).slice(0,4):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0};
+}):[],tone:Array.isArray(s.tone)?s.tone.filter(function(t){return TONE_KEYS.indexOf(t)>=0}).slice(0,4):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0,moodHash:typeof s.moodHash==='string'?s.moodHash:''};
 });
 }
 out.currentSessionId=typeof d.currentSessionId==='string'?d.currentSessionId:'';
@@ -1443,15 +1442,31 @@ else{state.defaultProvider=PROVIDER_ORDER.find(function(p){return state.apiKeys[
 }
 }
 function renderAll(){
-renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();renderApiForm();renderProfilePanel();renderStyleWeightUI();renderBackupPanel();applyCollapse();
+renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateInputTabs();updateComposerPlaceholder();renderApiForm();renderProfilePanel();renderStyleWeightUI();renderBackupPanel();applyCollapse();
 }
 function renderHeader(){
 var session=getCurrentSession();
 var title=generateSessionTitle(session);
 var mode=session.mode||'chat';
-var modeTag=mode==='real'?'<span class="mode-tag real">🗣️ 现实</span>':'';
+// 会话模式（线上 / 现实）就放在标题旁边，点一下切换，不再占用输入栏
+var modeTag=mode==='real'
+?'<button class="mode-tag real" type="button" data-act="mode" title="当前：现实对话（点击切回线上）">🗣️ 现实</button>'
+:'<button class="mode-tag chat" type="button" data-act="mode" title="当前：线上聊天（点击切到现实对话）">💬 线上</button>';
 dom.headerTitle.innerHTML=esc((title==='新对话'||!title)?'聊天助手':title)+modeTag;
 dom.headerTitle.title=title;
+}
+function toggleSessionMode(){
+var session=getCurrentSession();
+session.mode=(session.mode||'chat')==='real'?'chat':'real';
+session.updatedAt=Date.now();
+runtime.suggestions=[];
+runtime.coachResult=null;
+runtime.avoidSuggestions=[];
+runtime.loading=false;
+closeSpeakPanel();
+save();
+renderHeader();renderMessages();renderSuggestions();updateComposerPlaceholder();
+toast(session.mode==='real'?'🗣️ 已切换到现实对话':'💬 已切换到线上聊天',1200,'success');
 }
 function renderStatusBar(){
 var session=getCurrentSession();
@@ -1471,14 +1486,6 @@ dom.statusBar.classList.add('empty');
 dom.statusBar.innerHTML='<span class="status-icon">📌</span><div class="status-content"><span class="status-text placeholder">点这里设置对方昵称和情境</span></div>'+moodBtn+'<button class="status-edit" aria-label="编辑">✎</button>';
 }
 }
-function updateModeBtn(){
-var session=getCurrentSession();
-var mode=session.mode||'chat';
-dom.modeBtn.textContent=mode==='real'?'🗣️':'💬';
-dom.modeBtn.title=mode==='real'?'当前：现实对话（点击切换）':'当前：线上聊天（点击切换）';
-dom.modeBtn.style.background=mode==='real'?'#dcfce7':'#ede9fe';
-dom.modeBtn.style.color=mode==='real'?'#166534':'#5b21b6';
-}
 function renderMessages(){
 var session=getCurrentSession();
 var msgs=session.messages||[];
@@ -1488,7 +1495,7 @@ if(msgs.length===0){
 var coach=inputMode==='coach';
 if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
+else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改<br>📋 也可以把聊天记录粘进来，或 Ctrl+V 直接粘截图</span></div>'}
 return;
 }
 var html='';
@@ -1847,14 +1854,9 @@ var groupKey=g.isUnnamed?UNNAMED:g.name;
 var collapsed=!!runtime.collapsedGroups[groupKey];
 html+='<div class="session-group'+(collapsed?' collapsed':'')+'" data-group="'+esc(groupKey)+'">';
 if(showTitles){
-var gender=getTaGender(g.name);
-var genderIcon=gender==='male'?'♂':(gender==='female'?'♀':'⚪');
-var genderCls='sg-gender'+(gender==='male'?' male':(gender==='female'?' female':''));
-var genderTitle=gender==='male'?'对方是男生（点击切换）':(gender==='female'?'对方是女生（点击切换）':'未设置性别（点击切换）');
-var genderBtn=g.isUnnamed?'':'<button class="'+genderCls+'" data-gender="'+esc(g.name)+'" title="'+genderTitle+'">'+genderIcon+'</button>';
-var personBtn=g.isUnnamed?'':'<button class="sg-person" data-person="'+esc(g.name)+'" title="编辑「'+esc(g.name)+'」的档案">📇</button>';
+var personBtn=g.isUnnamed?'':'<button class="sg-person" data-person="'+esc(g.name)+'" title="编辑「'+esc(g.name)+'」的档案（关系 / 性别 / 雷区）">📇</button>';
 var brainBtn=g.isUnnamed?'':'<button class="sg-brain" data-brain="'+esc(g.name)+'" title="分析「'+esc(g.name)+'」的性格">🧠</button>';
-html+='<div class="session-group-title" data-grouptoggle="'+esc(groupKey)+'">'+(g.isUnnamed?'未命名':esc(g.name))+'<span class="sg-count">'+g.sessions.length+'</span>'+(g.hasPinned?'<span class="sg-pin">📌</span>':'')+genderBtn+personBtn+brainBtn+'<span class="sg-arrow">▼</span></div>';
+html+='<div class="session-group-title" data-grouptoggle="'+esc(groupKey)+'">'+(g.isUnnamed?'未命名':esc(g.name))+'<span class="sg-count">'+g.sessions.length+'</span>'+(g.hasPinned?'<span class="sg-pin">📌</span>':'')+personBtn+brainBtn+'<span class="sg-arrow">▼</span></div>';
 }
 g.sessions.forEach(function(s){html+=renderSessionItemHtml(s,isMulti)});
 html+='</div>';
@@ -1867,7 +1869,6 @@ dom.sessionList.querySelectorAll('.session-more').forEach(function(btn){btn.addE
 dom.sessionList.querySelectorAll('[data-grouptoggle]').forEach(function(el){
 el.addEventListener('click',function(e){
 if(e.target.closest('.sg-brain'))return;
-if(e.target.closest('.sg-gender'))return;
 if(e.target.closest('.sg-person'))return;
 e.stopPropagation();
 var key=el.dataset.grouptoggle;
@@ -1887,19 +1888,6 @@ dom.sessionList.querySelectorAll('.sg-person').forEach(function(btn){
 btn.addEventListener('click',function(e){
 e.stopPropagation();
 openPersonPanel(btn.dataset.person);
-});
-});
-dom.sessionList.querySelectorAll('.sg-gender').forEach(function(btn){
-btn.addEventListener('click',function(e){
-e.stopPropagation();
-var name=btn.dataset.gender;
-var cur=getTaGender(name);
-var next=cur===''?'male':(cur==='male'?'female':'');
-setTaGender(name,next);
-save();
-renderSessionList();
-var msg=next==='male'?'「'+name+'」设为男':(next==='female'?'「'+name+'」设为女':'「'+name+'」性别已清除');
-toast(msg,1200,'success');
 });
 });
 }
@@ -2023,7 +2011,7 @@ runtime.loading=false;
 closeSpeakPanel();
 }
 updateProfileCache();save();exitMultiSelect();
-renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();renderBackupPanel();
+renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateInputTabs();updateComposerPlaceholder();renderBackupPanel();
 var placeholders=state.sessions.map(function(s){return s.id});
 pushUndo(function(){
 state.sessions=state.sessions.filter(function(s){
@@ -2054,7 +2042,7 @@ runtime.loading=false;
 if(runtime.imageBase64)clearImage();
 closeSpeakPanel();
 updateProfileCache();save();
-renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();
+renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateInputTabs();updateComposerPlaceholder();
 closeDrawer();
 setTimeout(function(){dom.messages.scrollTop=dom.messages.scrollHeight},50);
 }
@@ -2069,7 +2057,7 @@ runtime.loading=false;
 if(runtime.imageBase64)clearImage();
 closeSpeakPanel();
 updateProfileCache();save();closeDrawer();
-renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();renderBackupPanel();
+renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateInputTabs();updateComposerPlaceholder();renderBackupPanel();
 dom.input.focus();
 toast(mode==='real'?'已新建：现实对话':'已新建：线上聊天',1200,'success');
 }
@@ -2087,9 +2075,20 @@ function renamePersonData(from,to){
 if(!from||!to||from===to)return 0;
 var moved=0;
 var p=state.personProfiles[from];
-if(p&&!state.personProfiles[to]){state.personProfiles[to]=p;delete state.personProfiles[from]}
+if(p){
+if(!state.personProfiles[to]){state.personProfiles[to]=p}
+else{
+var tgt=state.personProfiles[to];
+['gender','relation','call','likes','taboos','note'].forEach(function(f){if(!tgt[f]&&p[f])tgt[f]=p[f]});
+tgt.updatedAt=Date.now();
+}
+delete state.personProfiles[from];
+}
 (state.styleSamples||[]).forEach(function(s){if((s.taName||'')===from){s.taName=to;moved++}});
-if(state.personalityCache[from]&&!state.personalityCache[to]){state.personalityCache[to]=state.personalityCache[from];delete state.personalityCache[from]}
+if(state.personalityCache[from]){
+if(!state.personalityCache[to])state.personalityCache[to]=state.personalityCache[from];
+delete state.personalityCache[from];
+}
 return moved;
 }
 function saveProfileDialog(){
@@ -2324,6 +2323,97 @@ m.className='img-modal';
 m.innerHTML='<img src="'+src+'">';
 m.addEventListener('click',function(){m.remove()});
 document.body.appendChild(m);
+}
+/* ================= 粘贴 / 拖拽 / 解析聊天记录 ================= */
+function isTextField(el){if(!el)return false;var tag=(el.tagName||'').toUpperCase();return tag==='INPUT'||tag==='TEXTAREA'||!!el.isContentEditable}
+function parseChatLog(text){
+if(!text||text.length>20000)return [];
+var session=getCurrentSession();
+var taName=cleanUnicode((session&&session.taName)||'').trim();
+var myName=cleanUnicode(state.myName||'').trim();
+var meLabels=['我','自己','本人','me','ME','Me','我的'];
+var taLabels=['对方','他','她','TA','ta','Ta','对面'];
+if(myName)meLabels.push(myName);
+if(taName)taLabels.push(taName);
+var out=[];
+text.split(/\r?\n/).forEach(function(raw){
+var line=raw.replace(/\s+$/,'').trim();
+if(!line)return;
+var m=line.match(/^([^：:]{1,12})[：:]\s*(.+)$/);
+if(!m)return;
+var who=m[1].trim();
+var body=m[2].trim();
+if(!body)return;
+if(/^\d/.test(who))return;
+if(meLabels.indexOf(who)>=0)out.push({role:'me',text:body.slice(0,500)});
+else out.push({role:'ta',text:body.slice(0,500)});
+});
+return out.length>=2?out.slice(-20):[];
+}
+function offerSplitChatLog(parsed){
+if(!parsed||parsed.length<2)return;
+var sessionId=getCurrentSession().id;
+toast('📋 识别到 '+parsed.length+' 条聊天记录',8000,'',{label:'拆成消息',fn:function(){
+runtime.pendingExtract={sessionId:sessionId,messages:parsed};
+showExtractDialog(parsed);
+}});
+}
+function handlePasteEvent(e){
+if(!e.clipboardData)return;
+var items=e.clipboardData.items;
+if(items&&items.length){
+for(var i=0;i<items.length;i++){
+var it=items[i];
+if(it.kind==='file'&&it.type&&it.type.indexOf('image')===0){
+var f=it.getAsFile();
+if(f){e.preventDefault();handleImageSelect(f);return}
+}
+}
+}
+var text='';
+try{text=e.clipboardData.getData('text/plain')||''}catch(err){}
+if(!text)return;
+var parsed=parseChatLog(text);
+if(parsed.length<2)return;
+if(!isTextField(e.target)){
+e.preventDefault();
+dom.input.value=text.replace(/\s+$/,'').slice(0,2000);
+}
+offerSplitChatLog(parsed);
+}
+var dragDepth=0;
+function hasFiles(e){
+var types=e.dataTransfer&&e.dataTransfer.types;
+if(!types)return false;
+for(var i=0;i<types.length;i++){if(types[i]==='Files')return true}
+return false;
+}
+function handleDropEvent(e){
+var dt=e.dataTransfer;
+if(!dt)return;
+dragDepth=0;
+if(dom.dropHint)dom.dropHint.classList.remove('show');
+var files=dt.files;
+if(files&&files.length){
+for(var i=0;i<files.length;i++){
+if(files[i].type&&files[i].type.indexOf('image')===0){e.preventDefault();handleImageSelect(files[i]);return}
+}
+}
+var text='';
+try{text=dt.getData('text/plain')||''}catch(err){}
+if(!text)return;
+var parsed=parseChatLog(text);
+if(parsed.length<2)return;
+e.preventDefault();
+if(!isTextField(e.target))dom.input.value=text.replace(/\s+$/,'').slice(0,2000);
+offerSplitChatLog(parsed);
+}
+function bindDragAndDrop(){
+document.addEventListener('paste',handlePasteEvent);
+document.addEventListener('dragover',function(e){if(hasFiles(e)){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
+document.addEventListener('dragenter',function(e){if(hasFiles(e)){dragDepth++;if(dom.dropHint)dom.dropHint.classList.add('show')}});
+document.addEventListener('dragleave',function(){dragDepth=Math.max(0,dragDepth-1);if(dragDepth===0&&dom.dropHint)dom.dropHint.classList.remove('show')});
+document.addEventListener('drop',handleDropEvent);
 }
 function extractJSON(content){
 if(!content||typeof content!=='string')return null;
@@ -2732,6 +2822,11 @@ toast('已删除该样本',1200,'success');
 }
 function closeSamplesModal(){dom.samplesModal.classList.remove('show')}
 function clip(s,n){s=String(s==null?'':s);return s.length>n?s.slice(0,n)+'…':s}
+function profileFingerprint(taName){
+var p=getPersonProfile(cleanUnicode(taName||''));
+if(!p)return getTaGender(taName)||'';
+return [getTaGender(taName),p.relation,p.call,p.likes,p.taboos,p.note].join('\u0002');
+}
 function textsHash(list,orderSensitive){
 var arr=(list||[]).slice();
 if(!orderSensitive)arr.sort();
@@ -2759,7 +2854,7 @@ collected++;
 }
 texts.reverse();
 if(texts.length<2){toast('当前对话里对方的话太少（至少 2 条）',2200,'error');return}
-var moodHash=textsHash(texts,true);
+var moodHash=textsHash(texts,true)+'|'+profileFingerprint(taName);
 // 内容没变就不重复花钱：直接展示上次的结果，想刷新点「重新分析」
 if(!force&&session.mood&&session.moodHash===moodHash){
 openPersonalityPanel('mood',taName);
@@ -2808,7 +2903,7 @@ if(sampled[sampled.length-1]!==texts[texts.length-1]){sampled[sampled.length-1]=
 texts=sampled;
 }
 var api=getDefaultApi();
-var personaHash=textsHash(texts,false);
+var personaHash=textsHash(texts,false)+'|'+profileFingerprint(taName);
 var cachedP=state.personalityCache&&state.personalityCache[taName];
 if(!force&&cachedP&&cachedP.data&&cachedP.hash===personaHash){
 openPersonalityPanel('personality',taName);
@@ -3120,7 +3215,7 @@ clearImage();
 if(state.currentSessionId===session.id){renderMessages();renderHeader();renderBackupPanel()}
 toast('✅ 已写入 '+job.messages.length+' 条消息',1800,'success');
 var last=job.messages[job.messages.length-1];
-if(state.currentSessionId===session.id&&last&&last.role==='ta')regenerateSuggestions();
+if(state.currentSessionId===session.id&&getInputMode()==='chat'&&last&&last.role==='ta')regenerateSuggestions();
 }
 /* ================= 撤销 / 导入前快照 ================= */
 function pushUndo(restoreFn){runtime.undo={restore:restoreFn,at:Date.now()}}
@@ -3196,6 +3291,7 @@ function bindEvents(){
 bindGenderSeg(dom.myGenderSeg);
 dom.settingsBtn.addEventListener('click',openSettings);
 dom.closeSettings.addEventListener('click',closeSettings);
+dom.headerTitle.addEventListener('click',function(e){if(e.target.closest('[data-act="mode"]')){e.stopPropagation();toggleSessionMode()}});
 dom.drawerBtn.addEventListener('click',openDrawer);
 dom.drawerMask.addEventListener('click',closeDrawer);
 dom.newChatBtn.addEventListener('click',function(){handleNewChat('chat')});
@@ -3226,21 +3322,9 @@ dom.closePerson.addEventListener('click',closePersonPanel);
 dom.personCloseBtn.addEventListener('click',closePersonPanel);
 dom.personSaveBtn.addEventListener('click',savePersonPanel);
 dom.personClearBtn.addEventListener('click',clearPersonPanel);
+bindDragAndDrop();
 bindGenderSeg(dom.personGenderSeg2);
 if(dom.weightSeg){dom.weightSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);state.styleWeight.halfLifeDays=val;save();renderStyleWeightUI();updateProfileCache();renderProfilePanel();var msg;if(val===0)msg='已关闭时间衰减';else msg='时间衰减：半衰期 '+val+' 天';toast(msg,1400,'success')})})}
-dom.modeBtn.addEventListener('click',function(){
-var session=getCurrentSession();
-session.mode=(session.mode||'chat')==='real'?'chat':'real';
-session.updatedAt=Date.now();
-runtime.suggestions=[];
-runtime.coachResult=null;
-runtime.avoidSuggestions=[];
-runtime.loading=false;
-closeSpeakPanel();
-save();
-updateModeBtn();renderHeader();renderMessages();renderSuggestions();updateComposerPlaceholder();
-toast(session.mode==='real'?'🗣️ 已切换到现实对话':'💬 已切换到线上聊天',1200,'success');
-});
 dom.imageBtn.addEventListener('click',function(){dom.fileInput.click()});
 dom.fileInput.addEventListener('change',function(e){if(e.target.files.length)handleImageSelect(e.target.files[0])});
 dom.removeImg.addEventListener('click',clearImage);
@@ -3317,7 +3401,7 @@ else if(dom.settings.classList.contains('show'))closeSettings();
 });
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});
 window.addEventListener('beforeunload',save);
-if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+
 }
 function init(){
 bindDomRefs();
