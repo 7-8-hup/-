@@ -1348,17 +1348,25 @@ html+='<div class="s-card" data-idx="'+i+'"><div class="s-text" data-idx="'+i+'"
 dom.sList.innerHTML=html;
 dom.sList.scrollTop=0;
 dom.sRefresh.style.display='flex';
-dom.sList.querySelectorAll('.s-text').forEach(function(el){el.addEventListener('click',function(){var idx=parseInt(el.dataset.idx);if(mode==='real')openSpeakPanel(idx);else enterEditMode(idx)})});
-dom.sList.querySelectorAll('.s-edit').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();enterEditMode(parseInt(btn.dataset.idx))})});
+var texts=dom.sList.querySelectorAll('.s-text');
+for(var k=0;k<texts.length;k++){
+(function(el){
+el.onclick=function(){
+var idx=parseInt(el.dataset.idx);
+if(mode==='real')openSpeakPanel(idx);
+else enterEditMode(idx);
+};
+})(texts[k]);
 }
-function renderCoachCard(coach){
-var html='<div class="coach-card">';
-if(coach._rawFallback){html+='<div class="coach-raw-hint">⚠️ AI 这次没按标准格式返回，直接把它说的展示给你，你自己判断</div>'}
-if(coach.heard||coach.need){
-html+='<div class="coach-insight">';
-if(coach.heard){html+='<div class="ci-row"><span class="ci-label">👂 对方听到</span><div class="ci-text">'+esc(coach.heard)+'</div></div>'}
-if(coach.need){html+='<div class="ci-row"><span class="ci-label">🎯 你想说</span><div class="ci-text">'+esc(coach.need)+'</div></div>'}
-html+='</div>';
+var edits=dom.sList.querySelectorAll('.s-edit');
+for(var m=0;m<edits.length;m++){
+(function(btn){
+btn.onclick=function(e){
+e.stopPropagation();
+enterEditMode(parseInt(btn.dataset.idx));
+};
+})(edits[m]);
+}
 }
 if(coach.versions&&coach.versions.length){
 html+='<div class="coach-versions"><div class="cv-title">🌱 试试这样说</div>';
