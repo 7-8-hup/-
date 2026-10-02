@@ -35,14 +35,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 @keyframes spin{to{transform:rotate(360deg)}}
 .s-card{background:#f5f5f7;border-radius:12px;padding:10px 14px;font-size:15px;line-height:1.45;transition:background .15s;display:flex;align-items:flex-start;gap:10px;position:relative}
 .s-card:hover{background:#efeff4}
-.s-card .s-text{flex:1;min-width:0;cursor:pointer;padding:2px 0;outline:none;white-space:pre-line}
+.s-card .s-text{flex:1;min-width:0;cursor:pointer;padding:2px 0;outline:none}
 .s-card .s-text:hover{color:#5b3dd6}
 .s-card .s-badge{font-size:11px;color:#999;background:#fff;padding:2px 8px;border-radius:8px;flex-shrink:0;font-weight:500}
 .s-card .s-edit{background:transparent;border:none;color:#c0c0c8;font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;transition:all .15s;line-height:1;opacity:.6}
 .s-card .s-edit:hover{background:#fff;color:#7c5cff;opacity:1}
 .s-card.editing{background:#fff;box-shadow:0 0 0 1.5px #7c5cff}
 .s-card.editing .s-badge{display:none}
-.s-card .edit-input{flex:1;min-width:0;border:none;background:transparent;font-size:15px;font-family:inherit;color:#1a1a1a;outline:none;padding:2px 0;line-height:1.45;resize:none;min-height:22px;box-sizing:border-box;width:100%}
+.s-card .edit-input{flex:1;min-width:0;border:none;background:transparent;font-size:15px;font-family:inherit;color:#1a1a1a;outline:none;padding:2px 0;line-height:1.45;resize:none;min-height:22px}
 .s-card .edit-actions{display:flex;gap:4px;flex-shrink:0}
 .s-card .edit-actions button{border:none;background:transparent;font-size:16px;cursor:pointer;padding:3px 6px;border-radius:6px;color:#999;transition:all .15s;line-height:1}
 .s-card .edit-actions .btn-ok{color:#059669}
@@ -77,7 +77,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .cv-copy:hover{background:#ecfdf5;color:#059669}
 .cv-edit{background:transparent;border:none;color:#c0c0c8;font-size:13px;cursor:pointer;padding:2px 4px;border-radius:6px;flex-shrink:0;transition:all .15s;line-height:1;align-self:flex-start}
 .cv-edit:hover{background:#ecfdf5;color:#10b981}
-.cv-edit-input{width:100%;border:1.5px solid #10b981;background:#fff;border-radius:8px;font-size:14px;font-family:inherit;color:#1a1a1a;outline:none;padding:8px 10px;line-height:1.45;box-sizing:border-box;transition:border-color .15s;resize:none;min-height:40px}
+.cv-edit-input{width:100%;border:1.5px solid #10b981;background:#fff;border-radius:8px;font-size:14px;font-family:inherit;color:#1a1a1a;outline:none;padding:8px 10px;line-height:1.45;box-sizing:border-box;transition:border-color .15s}
 .cv-edit-input:focus{border-color:#059669}
 .cv-edit-actions{display:flex;gap:6px;margin-top:8px}
 .cv-edit-actions button{border:none;font-size:12px;font-family:inherit;padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;line-height:1.2}
@@ -178,7 +178,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .speak-panel .sp-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border:none;background:transparent;border-radius:50%;font-size:22px;color:#999;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .speak-panel .sp-close:hover{background:#f5f5f7;color:#1a1a1a}
 .speak-panel .sp-hint{font-size:12px;color:#999;margin-bottom:20px;letter-spacing:.3px}
-.speak-panel .sp-text{font-size:28px;line-height:1.6;color:#1a1a1a;font-weight:600;max-width:520px;word-break:break-word;margin-bottom:32px;padding:0 8px;white-space:pre-line}
+.speak-panel .sp-text{font-size:28px;line-height:1.6;color:#1a1a1a;font-weight:600;max-width:520px;word-break:break-word;margin-bottom:32px;padding:0 8px}
 .speak-panel .sp-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .speak-panel .sp-actions button{height:48px;padding:0 24px;border-radius:24px;font-size:15px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s}
 .sp-btn-speak{border:1.5px solid #7c5cff;background:#fff;color:#7c5cff}
@@ -714,7 +714,7 @@ function createEmptyState(){
 return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personGenderCache:{},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
-var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',analysisSessionId:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
+var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
 var suggestionCache={};
 function syncRuntimeFromCache(sid){
 var c=suggestionCache[sid];
@@ -744,7 +744,7 @@ dom.toast.classList.add('show');
 runtime.toastTimer=setTimeout(function(){dom.toast.classList.remove('show')},dur);
 }
 var saveDebounceTimer=null;
-function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}}
+function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}
 function save(){if(saveDebounceTimer){clearTimeout(saveDebounceTimer);saveDebounceTimer=null}saveNow()}
 function saveDebounced(){if(saveDebounceTimer)clearTimeout(saveDebounceTimer);saveDebounceTimer=setTimeout(function(){saveDebounceTimer=null;saveNow()},300)}
 function migrateState(d){
@@ -791,6 +791,7 @@ if(v==='male'||v==='female')out.personGenderCache[k]=v;
 });
 }
 if(d.uiOpen&&typeof d.uiOpen==='object'){out.uiOpen={api:!!d.uiOpen.api,style:!!d.uiOpen.style,backup:!!d.uiOpen.backup}}
+// 兼容老数据：把 session.taGender 迁移到 personGenderCache
 if(Array.isArray(d.sessions)){
 d.sessions.forEach(function(s){
 if(s&&s.taName&&(s.taGender==='male'||s.taGender==='female')&&!out.personGenderCache[s.taName]){
@@ -1265,7 +1266,7 @@ var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
 if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 语言优化<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
@@ -1304,15 +1305,6 @@ function renderSuggestions(){
 var session=getCurrentSession();
 var mode=session.mode||'chat';
 var inputMode=getInputMode();
-// 保护：正在编辑时只更新标题/spinner，不重建列表，避免打断
-var editingCard=dom.sList&&dom.sList.querySelector('.s-card.editing');
-if(editingCard){
-if(runtime.loading){
-dom.sTitleSpinner.style.display='inline-block';
-dom.sTitleText.textContent=inputMode==='coach'?'教练正在分析...':(mode==='real'?'正在想你可以怎么说...':'生成中...');
-}
-return;
-}
 if(runtime.loading){
 dom.suggestions.classList.add('show');
 dom.sList.innerHTML='';
@@ -1384,7 +1376,7 @@ if(!item||item.classList.contains('editing'))return;
 var origText=coach.versions[idx].text;
 item.classList.add('editing');
 var bodyEl=item.querySelector('.cv-body');
-bodyEl.innerHTML='<textarea class="cv-edit-input" rows="2" maxlength="300">'+esc(origText)+'</textarea><div class="cv-edit-actions"><button class="cv-btn-ok" type="button">✓ 复制</button><button class="cv-btn-cancel" type="button">✕</button></div>';
+bodyEl.innerHTML='<input type="text" class="cv-edit-input" value="'+esc(origText)+'" maxlength="300"><div class="cv-edit-actions"><button class="cv-btn-ok" type="button">✓ 复制</button><button class="cv-btn-cancel" type="button">✕</button></div>';
 var input=bodyEl.querySelector('.cv-edit-input');
 input.focus();
 try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
@@ -1393,11 +1385,7 @@ var cancel=function(){renderSuggestions()};
 bodyEl.querySelector('.cv-btn-ok').addEventListener('click',function(e){e.stopPropagation();ok()});
 bodyEl.querySelector('.cv-btn-cancel').addEventListener('click',function(e){e.stopPropagation();cancel()});
 input.addEventListener('click',function(e){e.stopPropagation()});
-input.addEventListener('keydown',function(e){
-if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel();return}
-if((e.key==='Enter')&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();ok();return}
-if(isRealEnter(e)&&!e.shiftKey){e.preventDefault();e.stopPropagation();ok()}
-});
+input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();e.stopPropagation();ok()}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel()}});
 }
 function useCoachVersion(idx,customText){
 var coach=runtime.coachResult;
@@ -1596,8 +1584,6 @@ state.myGender=getGenderSeg(dom.myGenderSeg);
 state.myStyle=dom.myStyle.value.trim();
 save();
 dom.settings.classList.remove('show');
-updateInputTabs();
-updateComposerPlaceholder();
 }
 function openDrawer(){renderSessionList();dom.drawerMask.classList.add('show');dom.drawer.classList.add('show')}
 function closeDrawer(){dom.drawerMask.classList.remove('show');dom.drawer.classList.remove('show');if(runtime.multiSelect.active)exitMultiSelect();closeSessionMenu()}
@@ -1945,13 +1931,10 @@ var card=dom.sList.querySelector('.s-card[data-idx="'+idx+'"]');
 if(!card||card.classList.contains('editing'))return;
 var origText=runtime.suggestions[idx].text;
 card.classList.add('editing');
-card.innerHTML='<textarea class="edit-input" rows="1" maxlength="200">'+esc(origText)+'</textarea><div class="edit-actions"><button class="btn-ok" title="复制">✓</button><button class="btn-cancel" title="取消">✕</button></div>';
+card.innerHTML='<input type="text" class="edit-input" value="'+esc(origText)+'" maxlength="200"><div class="edit-actions"><button class="btn-ok" title="复制">✓</button><button class="btn-cancel" title="取消">✕</button></div>';
 var input=card.querySelector('.edit-input');
 input.focus();
 try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
-var autoGrow=function(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,120)+'px'};
-autoGrow();
-input.addEventListener('input',autoGrow);
 var confirmEdit=function(){
 var val=input.value.trim();
 if(!val){toast('不能为空',1200,'error');return}
@@ -1974,11 +1957,7 @@ if(isReal){afterAction()}else{copyText(val,afterAction)}
 var cancelEdit=function(){renderSuggestions()};
 card.querySelector('.btn-ok').addEventListener('click',confirmEdit);
 card.querySelector('.btn-cancel').addEventListener('click',cancelEdit);
-input.addEventListener('keydown',function(e){
-if(e.key==='Escape'){e.preventDefault();cancelEdit();return}
-if((e.key==='Enter')&&(e.ctrlKey||e.metaKey)){e.preventDefault();confirmEdit();return}
-if(isRealEnter(e)&&!e.shiftKey){e.preventDefault();confirmEdit()}
-});
+input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();confirmEdit()}else if(e.key==='Escape'){e.preventDefault();cancelEdit()}});
 }
 function copyText(text,cb){
 if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(cb).catch(function(){fallbackCopy(text,cb)})}else fallbackCopy(text,cb);
@@ -2314,8 +2293,6 @@ var requestSessionId=session.id;
 var originalInput=text;
 if(inputMode==='coach'){
 if(!text){toast('教练模式需要先输入你想说的话',1500,'error');return}
-// 记住旧结果，失败时恢复，避免用户白输入
-var prevCoach=runtime.coachResult;
 dom.input.value='';
 clearReplyFor(requestSessionId);
 runtime.loading=true;
@@ -2329,18 +2306,7 @@ setReplyFor(requestSessionId,{type:'coach',coach:coachResult,suggestions:[]});
 save();renderSuggestions();
 if(runtime.imageBase64)clearImage();
 if(switchedForImage){toast('📷 已用 '+PROVIDERS[usedApi.provider].name+' 识别图片',1500,'success')}
-}catch(err){
-runtime.loading=false;
-dom.input.value=originalInput;
-// 恢复上一次的教练结果，不要让用户空手
-if(prevCoach&&getCurrentSession().id===requestSessionId){
-runtime.coachResult=prevCoach;
-setReplyFor(requestSessionId,{type:'coach',coach:prevCoach,suggestions:[]});
-}
-renderSuggestions();
-var hint=runtime.imageBase64?'（图片和文字已保留，可重试）':'（已恢复输入，可重试）';
-toast('❌ '+err.message+hint,3500,'error');
-}finally{dom.sendBtn.disabled=false}
+}catch(err){runtime.loading=false;dom.input.value=originalInput;renderSuggestions();var hint=runtime.imageBase64?'（图片仍保留，可重试）':'';toast('❌ '+err.message+hint,3500,'error')}finally{dom.sendBtn.disabled=false}
 return;
 }
 var finalText=text||'请描述这张图片';
@@ -2367,12 +2333,8 @@ var origin=state.sessions.find(function(s){return s.id===requestSessionId});
 if(origin){var idx=origin.messages.indexOf(pushedMsg);if(idx>=0){origin.messages.splice(idx,1);origin.updatedAt=Date.now()}}
 clearReplyFor(requestSessionId);
 save();
-if(getCurrentSession().id===requestSessionId){
-// 恢复用户输入，避免重打
-if(text){dom.input.value=text}
-renderMessages();renderSuggestions();
-}
-var hint2=runtime.imageBase64?'（图片和文字已保留，可直接重试）':'（已恢复输入，可直接重试）';
+if(getCurrentSession().id===requestSessionId){renderMessages();renderSuggestions()}
+var hint2=runtime.imageBase64?'（图片仍保留，可重试）':'';
 toast('❌ '+err.message+hint2,3500,'error');
 }finally{dom.sendBtn.disabled=false}
 }
@@ -2487,7 +2449,6 @@ function closeSamplesModal(){dom.samplesModal.classList.remove('show')}
 async function analyzeMood(){
 if(runtime.analysisRunning)return;
 var session=getCurrentSession();
-var analysisSid=session.id;
 var taName=cleanUnicode(session.taName||'');
 var texts=[];
 var seen={};
@@ -2509,23 +2470,16 @@ if(!api){toast('需要先在设置里配置 API',2200,'error');openSettings();re
 runtime.analysisRunning=true;
 runtime.analysisMode='mood';
 runtime.analysisTaName=taName;
-runtime.analysisSessionId=analysisSid;
 renderPersonalityPanel({loading:true});
 openPersonalityPanel('mood',taName);
 try{
 var result=await callAnalysisAPI(api,'mood',taName,texts);
-var targetSession=state.sessions.find(function(s){return s.id===analysisSid});
-if(targetSession){targetSession.mood=result;targetSession.moodUpdatedAt=Date.now()}
+session.mood=result;
+session.moodUpdatedAt=Date.now();
 save();
 runtime.analysisRunning=false;
-// 只有当前会话仍为该次分析的会话时才渲染
-if(state.currentSessionId===analysisSid){
-renderPersonalityPanel(Object.assign({},result,{_updatedAt:targetSession?targetSession.moodUpdatedAt:Date.now()}));
-}
-}catch(err){
-runtime.analysisRunning=false;
-if(state.currentSessionId===analysisSid)renderPersonalityPanel({error:err.message});
-}
+renderPersonalityPanel(Object.assign({},result,{_updatedAt:session.moodUpdatedAt}));
+}catch(err){runtime.analysisRunning=false;renderPersonalityPanel({error:err.message})}
 }
 async function analyzePersonalityByName(taName){
 if(runtime.analysisRunning)return;
@@ -2564,14 +2518,8 @@ if(!state.personalityCache)state.personalityCache={};
 state.personalityCache[taName]={data:result,updatedAt:Date.now()};
 save();
 runtime.analysisRunning=false;
-// 只有面板仍指向同一个 taName 时才渲染
-if(runtime.analysisMode==='personality'&&runtime.analysisTaName===taName){
 renderPersonalityPanel(Object.assign({},result,{_updatedAt:state.personalityCache[taName].updatedAt}));
-}
-}catch(err){
-runtime.analysisRunning=false;
-if(runtime.analysisMode==='personality'&&runtime.analysisTaName===taName)renderPersonalityPanel({error:err.message});
-}
+}catch(err){runtime.analysisRunning=false;renderPersonalityPanel({error:err.message})}
 }
 async function callAnalysisAPI(apiEntry,mode,taName,texts){
 var pConf=PROVIDERS[apiEntry.provider];
