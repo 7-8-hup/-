@@ -53,24 +53,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-refresh:active{transform:scale(.98)}
 .s-refresh:disabled{opacity:.55;cursor:not-allowed}
 .s-refresh:disabled:hover{border-color:#d8d8e3;background:#fff}
-.co-me-section{margin-top:4px;border:1.5px dashed #c7b8ff;background:#fafaff;border-radius:12px;overflow:hidden}
-.co-me-head{display:flex;align-items:center;gap:6px;padding:10px 14px;cursor:pointer;user-select:none;transition:background .15s;font-size:13px;color:#5b21b6;font-weight:600}
-.co-me-head:hover{background:#f5f2ff}
-.co-me-head .co-me-icon{font-size:14px;line-height:1}
-.co-me-head .co-me-title{flex:1;min-width:0}
-.co-me-head .co-me-hint{font-size:11px;color:#999;font-weight:400}
-.co-me-head .co-me-arrow{font-size:10px;color:#999;transition:transform .2s;display:inline-block}
-.co-me-section.collapsed .co-me-arrow{transform:rotate(-90deg)}
-.co-me-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px;transition:max-height .25s ease,padding .25s ease,opacity .2s ease;max-height:500px;opacity:1}
-.co-me-section.collapsed .co-me-body{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden;pointer-events:none}
-.co-me-ctx{font-size:12px;color:#666;background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;max-height:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;border:1px solid #ebebf0}
-.co-me-ctx .pv-who{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px}
-.co-me-area{width:100%;min-height:80px;max-height:200px;padding:10px 12px;border:1.5px solid #ebebf0;border-radius:10px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fff;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;transition:border-color .15s}
-.co-me-area:focus{border-color:#7c5cff}
-.co-me-area::placeholder{color:#bbb}
-.co-me-save{height:40px;border:none;background:#7c5cff;color:#fff;font-size:14px;font-family:inherit;border-radius:10px;cursor:pointer;font-weight:600;transition:background .15s}
-.co-me-save:hover{background:#6a4ae6}
-.co-me-save:active{transform:scale(.99)}
 .coach-card{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;overflow:hidden}
 .coach-raw-hint{padding:9px 14px;background:#fffbeb;border-bottom:1px solid #fef3c7;font-size:11.5px;color:#92400e;line-height:1.4;display:flex;align-items:center;gap:6px}
 .coach-insight{padding:14px 16px;background:linear-gradient(135deg,#f5f2ff,#faf8ff);border-bottom:1px solid #ece5ff}
@@ -137,6 +119,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .send-btn:active:not(:disabled){transform:scale(.95)}
 .send-btn.coach-mode{background:#10b981}
 .send-btn.coach-mode:hover{background:#059669}
+.me-btn{width:36px;height:36px;border-radius:50%;border:none;background:#d1fae5;color:#059669;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-weight:600;line-height:1}
+.me-btn:hover{background:#a7f3d0}
+.me-btn:active{transform:scale(.95)}
 .img-preview{padding:0 16px 8px;display:none;align-items:center;gap:8px;flex-shrink:0}
 .img-preview.show{display:flex}
 .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px}
@@ -153,6 +138,23 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .action-sheet .btn-item:hover{background:#f5f5f7}
 .action-sheet .btn-item.danger{color:#dc2626}
 .action-sheet .btn-item.cancel{color:#666;font-weight:400}
+.me-input-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
+.me-input-mask.show{opacity:1;pointer-events:auto}
+.me-input-panel{position:fixed;left:0;right:0;bottom:0;z-index:501;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box}
+.me-input-panel.show{transform:translateY(0)}
+.me-input-inner{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,.1);padding:16px}
+.me-input-title{font-size:13px;font-weight:600;color:#059669;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.me-input-title .hint{font-size:11px;color:#999;font-weight:400}
+.me-input-ctx{font-size:12px;color:#666;background:#f5f5f7;border-radius:8px;padding:8px 10px;margin-bottom:10px;line-height:1.5;max-height:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.me-input-ctx .pv-who{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px}
+.me-input-area{width:100%;min-height:88px;max-height:200px;padding:12px 14px;border:1.5px solid #ebebf0;border-radius:12px;font-size:15px;font-family:inherit;color:#1a1a1a;background:#fff;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;transition:border-color .15s}
+.me-input-area:focus{border-color:#10b981}
+.me-input-area::placeholder{color:#bbb}
+.me-input-actions{display:flex;gap:8px;margin-top:12px}
+.me-btn-cancel{flex:1;height:44px;border:1.5px solid #ebebf0;background:#fff;color:#666;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:500}
+.me-btn-cancel:hover{background:#f5f5f7}
+.me-btn-save{flex:2;height:44px;border:none;background:#10b981;color:#fff;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600}
+.me-btn-save:hover{background:#059669}
 .profile-dialog-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:502;opacity:0;pointer-events:none;transition:opacity .2s}
 .profile-dialog-mask.show{opacity:1;pointer-events:auto}
 .profile-dialog{position:fixed;left:0;right:0;bottom:0;z-index:503;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box}
@@ -482,24 +484,11 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="s-title"><span id="sTitleText">回复建议</span><span class="tip" id="sTitleTip">点文字改一下再复制，别照抄</span><span id="sTitleSpinner" style="display:none" class="spinner"></span></div>
 <div id="sList"></div>
 <button class="s-refresh" id="sRefresh"><span>🔄</span><span>换一批</span></button>
-<div class="co-me-section collapsed" id="coMeSection" style="display:none">
-<div class="co-me-head" id="coMeHead">
-<span class="co-me-icon">📝</span>
-<span class="co-me-title">记录我实际发出去的话</span>
-<span class="co-me-hint">让 AI 学你</span>
-<span class="co-me-arrow">▼</span>
-</div>
-<div class="co-me-body">
-<div class="co-me-ctx" id="coMeCtx" style="display:none"></div>
-<textarea id="coMeArea" class="co-me-area" placeholder="粘贴或输入你实际发出去的内容..." maxlength="500"></textarea>
-<button class="co-me-save" id="coMeSave">✍️ 记录并学习</button>
-</div>
-</div>
 </section>
 <div class="status-bar empty" id="statusBar"></div>
 <div class="input-tabs" id="inputTabs">
 <button class="itab active" data-imode="chat" id="itabChat"><span class="itab-icon">💬</span><span class="itab-text">对方说了什么</span></button>
-<button class="itab" data-imode="coach" id="itabCoach"><span class="itab-icon">✍️</span><span class="itab-text">优化语言</span></button>
+<button class="itab" data-imode="coach" id="itabCoach"><span class="itab-icon">✍️</span><span class="itab-text">帮我改得更好</span></button>
 </div>
 <div class="img-preview" id="imgPreview">
 <img id="previewImg" alt="">
@@ -509,6 +498,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <button class="icon-btn" id="modeBtn" title="切换模式" aria-label="切换">💬</button>
 <button class="icon-btn" id="imageBtn" aria-label="图片">📷</button>
 <input type="text" id="input" placeholder="对方说了什么..." autocomplete="off">
+<button class="me-btn" id="meBtn" title="记录我发的内容" aria-label="我发了">✍️</button>
 <button class="send-btn" id="sendBtn" aria-label="发送">↑</button>
 </div>
 <input type="file" id="fileInput" accept="image/*" style="display:none">
@@ -541,6 +531,18 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="preview" id="sheetPreview"></div>
 <button class="btn-item danger" id="sheetDelete">🗑️ 删除这条消息</button>
 <button class="btn-item cancel" id="sheetCancel">取消</button>
+</div>
+</div>
+<div class="me-input-mask" id="meInputMask"></div>
+<div class="me-input-panel" id="meInputPanel">
+<div class="me-input-inner">
+<div class="me-input-title">✍️ 记录我发的内容 <span class="hint">（让 AI 学会你的表达）</span></div>
+<div class="me-input-ctx" id="meInputCtx" style="display:none"></div>
+<textarea id="meInputArea" class="me-input-area" placeholder="粘贴或输入你实际发出去的内容..." maxlength="500"></textarea>
+<div class="me-input-actions">
+<button class="me-btn-cancel" id="meInputCancel">取消</button>
+<button class="me-btn-save" id="meInputSave">记录</button>
+</div>
 </div>
 </div>
 <div class="drawer-mask" id="drawerMask"></div>
@@ -660,7 +662,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <script>
 (function(){
 'use strict';
-var SCHEMA_VERSION=11,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=20,MAX_ANALYZE_TEXTS=500,COLLAPSE_KEY='chat_collapse_v1',CO_ME_KEY='chat_co_me_v1';
+var SCHEMA_VERSION=10,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=20,MAX_ANALYZE_TEXTS=500,COLLAPSE_KEY='chat_collapse_v1';
 function cleanUnicode(str){
 if(typeof str!=='string')return '';
 var result='';
@@ -712,7 +714,7 @@ function createEmptyState(){
 return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personGenderCache:{},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
-var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},coMeCollapsed:true,analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
+var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
 var suggestionCache={};
 function syncRuntimeFromCache(sid){
 var c=suggestionCache[sid];
@@ -730,7 +732,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','coMeSection','coMeHead','coMeCtx','coMeArea','coMeSave','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze'];
+var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type){
@@ -755,7 +757,6 @@ if(v<7){d.schemaVersion=7;v=7}
 if(v<8){d.schemaVersion=8;v=8}
 if(v<9){d.schemaVersion=9;v=9}
 if(v<10){d.schemaVersion=10;v=10}
-if(v<11){d.schemaVersion=11;v=11}
 return d;
 }
 function normalizeRawState(d){
@@ -790,6 +791,7 @@ if(v==='male'||v==='female')out.personGenderCache[k]=v;
 });
 }
 if(d.uiOpen&&typeof d.uiOpen==='object'){out.uiOpen={api:!!d.uiOpen.api,style:!!d.uiOpen.style,backup:!!d.uiOpen.backup}}
+// 兼容老数据：把 session.taGender 迁移到 personGenderCache
 if(Array.isArray(d.sessions)){
 d.sessions.forEach(function(s){
 if(s&&s.taName&&(s.taGender==='male'||s.taGender==='female')&&!out.personGenderCache[s.taName]){
@@ -858,8 +860,6 @@ return(d.getMonth()+1)+'月'+d.getDate()+'日';
 }
 function loadCollapsedGroups(){try{var raw=safeGetStorage(COLLAPSE_KEY);if(raw)runtime.collapsedGroups=JSON.parse(raw)||{}}catch(e){runtime.collapsedGroups={}}}
 function saveCollapsedGroups(){safeSetStorage(COLLAPSE_KEY,JSON.stringify(runtime.collapsedGroups))}
-function loadCoMeCollapsed(){try{var raw=safeGetStorage(CO_ME_KEY);if(raw==='0')runtime.coMeCollapsed=false;else runtime.coMeCollapsed=true}catch(e){runtime.coMeCollapsed=true}}
-function saveCoMeCollapsed(){safeSetStorage(CO_ME_KEY,runtime.coMeCollapsed?'1':'0')}
 function getInputMode(){var session=getCurrentSession();return session.inputMode==='coach'?'coach':'chat'}
 function setInputMode(mode){
 var session=getCurrentSession();
@@ -873,14 +873,6 @@ var mode=getInputMode();
 dom.itabChat.classList.toggle('active',mode==='chat');
 dom.itabCoach.classList.toggle('active',mode==='coach');
 dom.sendBtn.classList.toggle('coach-mode',mode==='coach');
-if(dom.coMeSection){
-if(mode==='coach'){
-dom.coMeSection.style.display='block';
-refreshCoMeCtx();
-}else{
-dom.coMeSection.style.display='none';
-}
-}
 }
 function updateComposerPlaceholder(){
 var inputMode=getInputMode();
@@ -1231,7 +1223,6 @@ else{state.defaultProvider=PROVIDER_ORDER.find(function(p){return state.apiKeys[
 }
 function renderAll(){
 renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();renderApiForm();renderProfilePanel();renderStyleWeightUI();renderBackupPanel();applyCollapse();
-applyCoMeCollapse();
 }
 function renderHeader(){
 var session=getCurrentSession();
@@ -1275,7 +1266,7 @@ var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
 if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 优化语言<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
@@ -1317,7 +1308,7 @@ var inputMode=getInputMode();
 if(runtime.loading){
 dom.suggestions.classList.add('show');
 dom.sList.innerHTML='';
-if(inputMode==='coach'){dom.sTitleText.textContent='优化中...'}else{dom.sTitleText.textContent=mode==='real'?'正在想你可以怎么说...':'生成中...'}
+if(inputMode==='coach'){dom.sTitleText.textContent='教练正在分析...'}else{dom.sTitleText.textContent=mode==='real'?'正在想你可以怎么说...':'生成中...'}
 dom.sTitleTip.style.display='none';
 dom.sTitleSpinner.style.display='inline-block';
 dom.sRefresh.style.display='flex';
@@ -1332,7 +1323,7 @@ if(inputMode==='coach'){
 var coach=runtime.coachResult;
 if(!coach||!coach.versions||!coach.versions.length){dom.suggestions.classList.remove('show');dom.sList.innerHTML='';dom.sRefresh.style.display='none';return}
 dom.suggestions.classList.add('show');
-dom.sTitleText.textContent='✍️ 优化语言';
+dom.sTitleText.textContent='🧠 表达教练';
 dom.sTitleTip.textContent='点文字直接用，✎ 改一下也行';
 dom.sTitleTip.style.display='inline';
 dom.sList.innerHTML=renderCoachCard(coach);
@@ -1521,7 +1512,7 @@ var decayHintHtml='';
 var halfLife=getHalfLife();
 if(halfLife>0&&samples.length>0){decayHintHtml='<div class="pp-decay-hint">⏱️ 时间衰减开启 · 半衰期 '+halfLife+' 天 · 越新样本权重越高</div>'}
 if(samples.length===0){
-dom.profilePanel.innerHTML=taRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">0 条样本</div></div><div class="pp-empty">还没有学习样本。<br>· 在「优化语言」里用 <b>📝 记录我实际发出去的话</b><br>· 或 <b>✎</b> 修改 AI 的建议后复制<br>AI 会按对方分别学习，越用越像你。</div>';
+dom.profilePanel.innerHTML=taRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">0 条样本</div></div><div class="pp-empty">还没有学习样本。<br>· 用 <b>✍️</b> 记录你说过的话<br>· 或 <b>✎</b> 修改 AI 的建议后复制<br>AI 会按对方分别学习，越用越像你。</div>';
 return;
 }
 if(samples.length<3){
@@ -1563,7 +1554,7 @@ if(totalCount>0&&recentCount/totalCount>=.6&&totalCount>=3){badge+='<span class=
 }
 return '<div class="pp-scene"><div class="ctx">'+badge+esc(sc.name)+'（'+sc.count+'次）</div>'+sc.examples.map(function(e){return '<div class="res">对方"…" → 我"'+esc(e.me)+'"</div>'}).join('')+'</div>';
 }).join('')+'</div>';
-}else{scenesHtml='<div class="pp-empty">记录样本时带上对方原话，AI 就能分析出你的场景反应模式</div>'}
+}else{scenesHtml='<div class="pp-empty">用 ✍️ 记录时带上对方原话，AI 就能分析出你的场景反应模式</div>'}
 dom.profilePanel.innerHTML=taRowHtml+classifyRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">'+samples.length+' 条样本 · 全局</div></div><div class="pp-section"><div class="pp-sec-title">语言特征</div>'+langHtml+'</div><div class="pp-section"><div class="pp-sec-title">场景反应</div>'+scenesHtml+'</div><div class="pp-actions"><button class="pp-btn-clear" data-action="clear">🗑️ 清空样本</button><button class="pp-btn-view" data-action="view">👁️ 查看全部</button><button class="pp-btn-classify" data-action="reclassify">🤖 重新分类</button></div>';
 bindProfileActions();
 }
@@ -1902,32 +1893,21 @@ var msgs=(session||getCurrentSession()).messages||[];
 for(var i=msgs.length-1;i>=0;i--){if(msgs[i].role==='ta')return msgs[i].text}
 return '';
 }
-// ==================== 优化语言模式 - 记录我实际说的话 ====================
-function refreshCoMeCtx(){
-if(!dom.coMeCtx)return;
+function openMeInput(){
+dom.meInputArea.value='';
 var session=getCurrentSession();
 var lastTa=getLastTaText(session);
 var isReal=(session.mode||'chat')==='real';
-if(lastTa){
-dom.coMeCtx.style.display='block';
-dom.coMeCtx.innerHTML='<span class="pv-who">对方刚说：</span>'+esc(lastTa.length>60?lastTa.slice(0,60)+'…':lastTa);
-}else{
-dom.coMeCtx.style.display='none';
+if(lastTa){dom.meInputCtx.style.display='block';dom.meInputCtx.innerHTML='<span class="pv-who">对方刚说：</span>'+esc(lastTa.length>60?lastTa.slice(0,60)+'…':lastTa)}
+else{dom.meInputCtx.style.display='none'}
+dom.meInputArea.placeholder=isReal?'你刚才对他说了什么...':'粘贴或输入你实际发出去的内容...';
+dom.meInputMask.classList.add('show');
+dom.meInputPanel.classList.add('show');
+setTimeout(function(){try{dom.meInputArea.focus()}catch(e){}},120);
 }
-dom.coMeArea.placeholder=isReal?'你刚才对他说了什么...':'粘贴或输入你实际发出去的内容...';
-}
-function applyCoMeCollapse(){
-if(!dom.coMeSection)return;
-dom.coMeSection.classList.toggle('collapsed',runtime.coMeCollapsed);
-}
-function toggleCoMe(){
-runtime.coMeCollapsed=!runtime.coMeCollapsed;
-saveCoMeCollapsed();
-applyCoMeCollapse();
-if(!runtime.coMeCollapsed){refreshCoMeCtx();setTimeout(function(){try{dom.coMeArea.focus()}catch(e){}},80)}
-}
-function saveCoMeInput(){
-var text=dom.coMeArea.value.trim();
+function closeMeInput(){dom.meInputMask.classList.remove('show');dom.meInputPanel.classList.remove('show')}
+function saveMeInput(){
+var text=dom.meInputArea.value.trim();
 if(!text){toast('请输入内容',1200,'error');return}
 var session=getCurrentSession();
 var lastTa=getLastTaText(session);
@@ -1939,9 +1919,8 @@ clearReplyFor(session.id);
 runtime.loading=false;
 closeSpeakPanel();
 if(!isDup)addStyleSample(text,lastTa,taName);
-save();
+save();closeMeInput();
 renderMessages();renderSuggestions();renderHeader();
-dom.coMeArea.value='';
 var tail=taName?'（'+taName+'）':'';
 if(isDup){toast('✅ 已记录'+tail+'（样本已存在，未重复学习）',1800,'success')}
 else{toast('✅ 已记录'+tail+' · 样本 '+state.styleSamples.length+' 条',1600,'success')}
@@ -2297,8 +2276,8 @@ if(versions.length===0){var textFB0=coachTextFallback(content,myDraft);if(textFB
 return{draft:myDraft,heard:String(parsed.heard||'').trim(),need:String(parsed.need||'').trim(),versions:versions,tip:String(parsed.tip||'').trim()};
 }
 var textFB=coachTextFallback(content,myDraft);
-if(textFB){console.warn('优化语言 AI 未按格式返回，已用文本兜底：',content);return textFB}
-console.warn('优化语言 AI 返回完全无法解析：',content);
+if(textFB){console.warn('教练模式 AI 未按格式返回，已用文本兜底：',content);return textFB}
+console.warn('教练模式 AI 返回完全无法解析：',content);
 throw new Error('AI 这次没答好，请点「换一批」再试');
 }
 async function handleSend(){
@@ -2313,7 +2292,7 @@ var session=getCurrentSession();
 var requestSessionId=session.id;
 var originalInput=text;
 if(inputMode==='coach'){
-if(!text){toast('优化语言模式需要先输入你想说的话',1500,'error');return}
+if(!text){toast('教练模式需要先输入你想说的话',1500,'error');return}
 dom.input.value='';
 clearReplyFor(requestSessionId);
 runtime.loading=true;
@@ -2367,7 +2346,7 @@ var requestSessionId=session.id;
 if(inputMode==='coach'){
 var cachedC=suggestionCache[requestSessionId];
 var draft=cachedC&&cachedC.coach&&cachedC.coach.draft;
-if(!draft){toast('优化语言模式请重新输入你想说的话',2200,'info');return}
+if(!draft){toast('教练模式请重新输入你想说的话',2200,'info');return}
 var usedApiC=runtime.imageBase64?getImageApi():getDefaultApi();
 if(runtime.imageBase64&&!usedApiC){toast('没有已启用的图片 API',2500,'error');return}
 if(!usedApiC){toast('没有已启用的 API，请去设置里检查',2200,'error');openSettings();return}
@@ -2642,13 +2621,6 @@ dom.input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDef
 dom.sRefresh.addEventListener('click',regenerateSuggestions);
 dom.itabChat.addEventListener('click',function(){setInputMode('chat')});
 dom.itabCoach.addEventListener('click',function(){setInputMode('coach')});
-if(dom.coMeHead){dom.coMeHead.addEventListener('click',toggleCoMe)}
-if(dom.coMeSave){dom.coMeSave.addEventListener('click',saveCoMeInput)}
-if(dom.coMeArea){
-dom.coMeArea.addEventListener('keydown',function(e){
-if(isRealEnter(e)&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveCoMeInput()}
-});
-}
 if(dom.weightSeg){dom.weightSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);state.styleWeight.halfLifeDays=val;save();renderStyleWeightUI();updateProfileCache();renderProfilePanel();var msg;if(val===0)msg='已关闭时间衰减';else msg='时间衰减：半衰期 '+val+' 天';toast(msg,1400,'success')})})}
 dom.modeBtn.addEventListener('click',function(){
 var session=getCurrentSession();
@@ -2679,6 +2651,11 @@ dom.speakCopy.addEventListener('click',function(){var val=runtime.currentSpeakTe
 dom.speakPlay.addEventListener('click',function(){var val=runtime.currentSpeakText;if(!val)return;speakText(val)});
 dom.speakSaid.addEventListener('click',confirmSpeakSaid);
 dom.speakPanel.addEventListener('click',function(e){if(e.target===dom.speakPanel)closeSpeakPanel()});
+dom.meBtn.addEventListener('click',openMeInput);
+dom.meInputMask.addEventListener('click',closeMeInput);
+dom.meInputCancel.addEventListener('click',closeMeInput);
+dom.meInputSave.addEventListener('click',saveMeInput);
+dom.meInputArea.addEventListener('keydown',function(e){if(isRealEnter(e)&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveMeInput()}else if(e.key==='Escape'){e.preventDefault();closeMeInput()}});
 dom.closeSamples.addEventListener('click',closeSamplesModal);
 dom.closePersonality.addEventListener('click',closePersonalityPanel);
 dom.personalityCloseBtn.addEventListener('click',closePersonalityPanel);
@@ -2719,6 +2696,7 @@ else if(dom.profileDialog.classList.contains('show'))closeProfileDialog();
 else if(dom.speakPanel.classList.contains('show'))closeSpeakPanel();
 else if(dom.samplesModal.classList.contains('show'))closeSamplesModal();
 else if(dom.personalityPanel.classList.contains('show'))closePersonalityPanel();
+else if(dom.meInputPanel.classList.contains('show'))closeMeInput();
 else if(dom.sheet.classList.contains('show'))closeActionSheet();
 else if(dom.exportDialog.classList.contains('show'))closeExportDialog();
 else if(dom.importDialog.classList.contains('show'))closeImportDialog();
@@ -2733,7 +2711,6 @@ if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoic
 function init(){
 bindDomRefs();
 loadCollapsedGroups();
-loadCoMeCollapsed();
 var loaded=load();
 if(!loaded)createSession(true,'chat');
 if(state.sessions.length===0)createSession(true,'chat');
