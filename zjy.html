@@ -2192,7 +2192,7 @@ var role=m.role==='ta'?'user':'assistant';
 if(isLast&&m.role==='ta'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(m.text)||'请描述图片'},{type:'image_url',image_url:{url:imageData}}]})}
 else{messages.push({role:role,content:cleanUnicode(m.text)})}
 });
-var body={model:model,messages:messages,temperature:1.05,max_tokens:800};
+var body={model:model,messages:messages,temperature:1.0,max_tokens:800};
 if(pConf.jsonMode&&!imageData)body.response_format={type:'json_object'};
 var content=await rawChatRequest(apiEntry,body,60000);
 var parsed=extractJSON(content);
