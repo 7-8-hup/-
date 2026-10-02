@@ -2373,6 +2373,43 @@ var hint2=runtime.imageBase64?'（图片和文字已保留，可直接重试）'
 toast('❌ '+err.message+hint2,3500,'error');
 }finally{dom.sendBtn.disabled=false}
 }
+var hint=runtime.imageBase64?'（图片和文字已保留，可重试）':'（已恢复输入，可重试）';
+toast('❌ '+err.message+hint,3500,'error');
+}finally{dom.sendBtn.disabled=false}
+return;
+}
+var finalText=text||'请描述这张图片';
+var pushedMsg={role:'ta',text:finalText};
+session.messages.push(pushedMsg);
+session.updatedAt=Date.now();
+dom.input.value='';
+clearReplyFor(requestSessionId);
+save();renderMessages();renderHeader();
+runtime.loading=true;
+renderSuggestions();
+dom.sendBtn.disabled=true;
+try{
+var result=await callAI(usedApi,session);
+if(getCurrentSession().id!==requestSessionId){setReplyFor(requestSessionId,{type:'chat',suggestions:result.suggestions||[],avoid:[]});runtime.loading=false;save();if(runtime.imageBase64)clearImage();return}
+runtime.loading=false;
+setReplyFor(requestSessionId,{type:'chat',suggestions:result.suggestions||[],avoid:[]});
+save();renderSuggestions();
+if(runtime.imageBase64)clearImage();
+if(switchedForImage){toast('📷 已用 '+PROVIDERS[usedApi.provider].name+' 识别图片',1500,'success')}
+}catch(err){
+runtime.loading=false;
+var origin=state.sessions.find(function(s){return s.id===requestSessionId});
+if(origin){var idx=origin.messages.indexOf(pushedMsg);if(idx>=0){origin.messages.splice(idx,1);origin.updatedAt=Date.now()}}
+clearReplyFor(requestSessionId);
+save();
+if(getCurrentSession().id===requestSessionId){
+if(text){dom.input.value=text}
+renderMessages();renderSuggestions();
+}
+var hint2=runtime.imageBase64?'（图片和文字已保留，可直接重试）':'（已恢复输入，可直接重试）';
+toast('❌ '+err.message+hint2,3500,'error');
+}finally{dom.sendBtn.disabled=false}
+}
 var inputMode=getInputMode();
 var usedApi,switchedForImage=false;
 if(runtime.imageBase64){usedApi=getImageApi();if(!usedApi){toast('没有已启用的图片 API',3000,'error');return}var def=getDefaultApi();if(def&&def.provider!==usedApi.provider)switchedForImage=true}
