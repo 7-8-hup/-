@@ -746,7 +746,7 @@ dom.toast.classList.add('show');
 runtime.toastTimer=setTimeout(function(){dom.toast.classList.remove('show')},dur);
 }
 var saveDebounceTimer=null;
-function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}
+function saveNow(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){console.warn('保存失败',e);if(e&&(e.name==='QuotaExceededError'||e.code===22)){var now=Date.now();if(now-runtime.quotaWarnedAt>30000){runtime.quotaWarnedAt=now;toast('⚠️ 本地存储已满，请导出备份后清理旧对话',4000,'error')}}}}}
 function save(){if(saveDebounceTimer){clearTimeout(saveDebounceTimer);saveDebounceTimer=null}saveNow()}
 function saveDebounced(){if(saveDebounceTimer)clearTimeout(saveDebounceTimer);saveDebounceTimer=setTimeout(function(){saveDebounceTimer=null;saveNow()},300)}
 function migrateState(d){
