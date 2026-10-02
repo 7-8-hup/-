@@ -1348,7 +1348,7 @@ html+='<div class="s-card" data-idx="'+i+'"><div class="s-text" data-idx="'+i+'"
 dom.sList.innerHTML=html;
 dom.sList.scrollTop=0;
 dom.sRefresh.style.display='flex';
-dom.sList.querySelectorAll('.s-text').forEach(function(el){...
+dom.sList.querySelectorAll('.s-text').forEach(function(el){el.addEventListener('click',function(){var idx=parseInt(el.dataset.idx);if(mode==='real')openSpeakPanel(idx);else enterEditMode(idx)})});
 dom.sList.querySelectorAll('.s-edit').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();enterEditMode(parseInt(btn.dataset.idx))})});
 }
 function renderCoachCard(coach){
