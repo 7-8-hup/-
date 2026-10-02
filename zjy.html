@@ -484,6 +484,9 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .pp-btn-reanalyze:disabled{opacity:.5;cursor:not-allowed}
 .pp-btn-close2{border:1.5px solid #ebebf0;background:#fff;color:#666}
 .pp-btn-close2:hover{background:#f5f5f7}
+.pp-btn-clear2{border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626}
+.pp-btn-clear2:hover{background:#fee2e2}
+.pp-btn-clear2{flex:.7!important}
 /* ==== 新增功能样式 ==== */
 .img-preview #extractBtn{border:1.5px solid #7c5cff;background:#faf8ff;color:#5b3dd6;font-size:12px;font-family:inherit;font-weight:600;padding:7px 10px;border-radius:10px;cursor:pointer;line-height:1.2;flex-shrink:0}
 .img-preview #extractBtn:hover{background:#f0ecff}
@@ -493,8 +496,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .backup-snapshot{font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;padding:9px 12px;border-radius:10px;margin-bottom:12px;line-height:1.6;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .backup-snapshot button{border:none;background:#d97706;color:#fff;font-family:inherit;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer}
 .backup-snapshot button:hover{background:#b45309}
-.icon-btn.recording{background:#fee2e2;color:#dc2626;animation:micPulse 1s ease-in-out infinite}
-@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
 .api-test-btn{font-size:11px;padding:3px 9px;border-radius:8px;border:1px solid #ebebf0;background:#fff;color:#666;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0;transition:all .15s}
 .api-test-btn:hover{border-color:#7c5cff;color:#7c5cff}
 .api-test-btn.ok{border-color:#10b981;color:#059669;background:#ecfdf5}
@@ -535,7 +536,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="composer">
 <button class="icon-btn" id="modeBtn" title="切换模式" aria-label="切换">💬</button>
 <button class="icon-btn" id="imageBtn" aria-label="图片">📷</button>
-<button class="icon-btn" id="micBtn" title="语音输入" aria-label="语音输入" style="display:none">🎤</button>
 <input type="text" id="input" placeholder="对方说了什么..." autocomplete="off">
 <button class="me-btn" id="meBtn" title="记录我发的内容" aria-label="我发了">✍️</button>
 <button class="send-btn" id="sendBtn" aria-label="发送">↑</button>
@@ -727,6 +727,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="hint" style="padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">💡 档案按「对方昵称」共享，同一个人的所有会话都会用上，并随提示词一起发给 AI。</div>
 </div>
 <div class="pp-actions2">
+<button class="pp-btn-clear2" id="personClearBtn">🗑️ 清空</button>
 <button class="pp-btn-close2" id="personCloseBtn">关闭</button>
 <button class="pp-btn-reanalyze" id="personSaveBtn">💾 保存</button>
 </div>
@@ -830,7 +831,7 @@ function createEmptyState(){
 return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personProfiles:{},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
-var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''},pendingExtract:null,personPanelName:'',toneTimer:null,recognition:null,recording:false,undo:null,snapshotInfo:null,testState:{}};
+var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''},pendingExtract:null,personPanelName:'',toneTimer:null,undo:null,snapshotInfo:null,testState:{}};
 var suggestionCache={};
 function syncRuntimeFromCache(sid){
 var c=suggestionCache[sid];
@@ -848,7 +849,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','micBtn','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
+var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personClearBtn','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type,action){
@@ -907,7 +908,7 @@ runtime.toneTimer=setTimeout(function(){
 runtime.toneTimer=null;
 if(runtime.loading)return;
 if(!runtime.suggestions||runtime.suggestions.length===0)return;
-regenerateSuggestions();
+regenerateSuggestions({reason:'tone'});
 },500);
 }
 var saveDebounceTimer=null;
@@ -1778,7 +1779,7 @@ if(tags2.indexOf(sc.key)>=0){totalCount++;if(s.timestamp&&(now-s.timestamp)<7*86
 });
 if(totalCount>0&&recentCount/totalCount>=.6&&totalCount>=3){badge+='<span class="fresh-badge">近期活跃</span>'}
 }
-return '<div class="pp-scene"><div class="ctx">'+badge+esc(sc.name)+'（'+sc.count+'次）</div>'+sc.examples.map(function(e){return '<div class="res">对方"…" → 我"'+esc(e.me)+'"</div>'}).join('')+'</div>';
+return '<div class="pp-scene"><div class="ctx">'+badge+esc(sc.name)+'（'+sc.count+'次）</div>'+sc.examples.map(function(e){return '<div class="res">对方"'+esc(clip(e.ta,16))+'" → 我"'+esc(clip(e.me,16))+'"</div>'}).join('')+'</div>';
 }).join('')+'</div>';
 }else{scenesHtml='<div class="pp-empty">用 ✍️ 记录时带上对方原话，AI 就能分析出你的场景反应模式</div>'}
 dom.profilePanel.innerHTML=taRowHtml+classifyRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">'+samples.length+' 条样本 · 全局</div></div><div class="pp-section"><div class="pp-sec-title">语言特征</div>'+langHtml+'</div><div class="pp-section"><div class="pp-sec-title">场景反应</div>'+scenesHtml+'</div><div class="pp-actions"><button class="pp-btn-clear" data-action="clear">🗑️ 清空样本</button><button class="pp-btn-view" data-action="view">👁️ 查看全部</button><button class="pp-btn-classify" data-action="reclassify">🤖 重新分类</button></div>';
@@ -2051,7 +2052,6 @@ state.currentSessionId=id;
 syncRuntimeFromCache(id);
 runtime.loading=false;
 if(runtime.imageBase64)clearImage();
-stopSpeech();
 closeSpeakPanel();
 updateProfileCache();save();
 renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();
@@ -2083,6 +2083,15 @@ dom.profileDialog.classList.add('show');
 setTimeout(function(){try{dom.pdTaName.focus()}catch(e){}},120);
 }
 function closeProfileDialog(){dom.profileDialogMask.classList.remove('show');dom.profileDialog.classList.remove('show')}
+function renamePersonData(from,to){
+if(!from||!to||from===to)return 0;
+var moved=0;
+var p=state.personProfiles[from];
+if(p&&!state.personProfiles[to]){state.personProfiles[to]=p;delete state.personProfiles[from]}
+(state.styleSamples||[]).forEach(function(s){if((s.taName||'')===from){s.taName=to;moved++}});
+if(state.personalityCache[from]&&!state.personalityCache[to]){state.personalityCache[to]=state.personalityCache[from];delete state.personalityCache[from]}
+return moved;
+}
 function saveProfileDialog(){
 var session=getCurrentSession();
 if(!session)return;
@@ -2090,9 +2099,14 @@ var oldTaName=session.taName||'';
 var newTaName=dom.pdTaName.value.trim();
 var newStatus=dom.pdStatus.value.trim();
 var changed=(newTaName!==oldTaName)||(newStatus!==(session.status||''));
+var migrate=false;
+if(oldTaName&&newTaName&&oldTaName!==newTaName){
+try{migrate=confirm('把「'+oldTaName+'」的档案 / 学习样本 / 性格分析一起转到「'+newTaName+'」？\n（其它仍叫「'+oldTaName+'」的会话不会改名）')}catch(e){migrate=true}
+}
 session.taName=newTaName;
 session.status=newStatus;
 if(changed)session.updatedAt=Date.now();
+var movedSamples=migrate?renamePersonData(oldTaName,newTaName):0;
 if(newTaName!==oldTaName)updateProfileCache();
 save();closeProfileDialog();
 renderStatusBar();renderHeader();renderSessionList();
@@ -2100,8 +2114,9 @@ if(!changed)return;
 if(newTaName){
 var sameNameSessions=state.sessions.filter(function(s){return s.id!==session.id&&(s.taName||'')===newTaName});
 var taSampleCount=state.styleSamples.filter(function(s){return(s.taName||'')===newTaName}).length;
-if(sameNameSessions.length>0){toast('✅ 已保存 · 与「'+newTaName+'」相关的会话共 '+(sameNameSessions.length+1)+' 个，学习样本自动共享（'+taSampleCount+' 条）',3200,'success')}
-else{toast('已保存',1000,'success')}
+var movedHint=movedSamples>0?('，已转移 '+movedSamples+' 条样本'):'';
+if(sameNameSessions.length>0){toast('✅ 已保存 · 与「'+newTaName+'」相关的会话共 '+(sameNameSessions.length+1)+' 个，学习样本自动共享（'+taSampleCount+' 条'+movedHint+'）',3200,'success')}
+else{toast(movedSamples>0?('✅ 已保存，档案与 '+movedSamples+' 条样本已转到「'+newTaName+'」'):'已保存',1800,'success')}
 }else{toast('已保存',1000,'success')}
 }
 function openActionSheet(idx){
@@ -2602,8 +2617,10 @@ var hint2=runtime.imageBase64?'（图片仍保留，可重试）':'';
 toast('❌ '+err.message+hint2,3500,'error');
 }finally{dom.sendBtn.disabled=false}
 }
-async function regenerateSuggestions(){
+async function regenerateSuggestions(opts){
+opts=opts||{};
 if(runtime.loading)return;
+var toneToast=opts.reason==='tone'?'🎚️ 已按新语气重出一批':'✅ 已换一批';
 var inputMode=getInputMode();
 var session=getCurrentSession();
 var requestSessionId=session.id;
@@ -2629,7 +2646,7 @@ runtime.loading=false;
 setReplyFor(requestSessionId,{type:'coach',coach:coachResult,suggestions:[]});
 save();renderSuggestions();
 fallbackToast(outcomeC2);
-toast('✅ 已换一批',1200,'success');
+toast(toneToast,1200,'success');
 }catch(err){runtime.loading=false;renderSuggestions();toast('❌ '+err.message,3500,'error')}
 return;
 }
@@ -2655,7 +2672,7 @@ runtime.loading=false;
 setReplyFor(requestSessionId,{type:'chat',suggestions:result.suggestions||[],avoid:newAvoid});
 save();renderSuggestions();
 fallbackToast(outcome2);
-toast('✅ 已换一批',1200,'success');
+toast(toneToast,1200,'success');
 }catch(err){runtime.loading=false;renderSuggestions();toast('❌ '+err.message,3500,'error')}
 }
 function clearStyleSamples(){
@@ -2714,7 +2731,16 @@ updateProfileCache();save();renderProfilePanel();renderBackupPanel();openSamples
 toast('已删除该样本',1200,'success');
 }
 function closeSamplesModal(){dom.samplesModal.classList.remove('show')}
-async function analyzeMood(){
+function clip(s,n){s=String(s==null?'':s);return s.length>n?s.slice(0,n)+'…':s}
+function textsHash(list,orderSensitive){
+var arr=(list||[]).slice();
+if(!orderSensitive)arr.sort();
+var s=arr.join('\u0001');
+var h=5381;
+for(var i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0}
+return h.toString(36)+'_'+s.length;
+}
+async function analyzeMood(force){
 if(runtime.analysisRunning)return;
 var session=getCurrentSession();
 var taName=cleanUnicode(session.taName||'');
@@ -2733,6 +2759,13 @@ collected++;
 }
 texts.reverse();
 if(texts.length<2){toast('当前对话里对方的话太少（至少 2 条）',2200,'error');return}
+var moodHash=textsHash(texts,true);
+// 内容没变就不重复花钱：直接展示上次的结果，想刷新点「重新分析」
+if(!force&&session.mood&&session.moodHash===moodHash){
+openPersonalityPanel('mood',taName);
+toast('💭 对话没变化，显示上次的分析结果（点「重新分析」可刷新）',2400,'info');
+return;
+}
 var api=getDefaultApi();
 if(!api){toast('需要先在设置里配置 API',2200,'error');openSettings();return}
 runtime.analysisRunning=true;
@@ -2744,12 +2777,13 @@ try{
 var result=await callAnalysisAPI(api,'mood',taName,texts);
 session.mood=result;
 session.moodUpdatedAt=Date.now();
+session.moodHash=moodHash;
 save();
 runtime.analysisRunning=false;
 renderPersonalityPanel(Object.assign({},result,{_updatedAt:session.moodUpdatedAt}));
 }catch(err){runtime.analysisRunning=false;renderPersonalityPanel({error:err.message})}
 }
-async function analyzePersonalityByName(taName){
+async function analyzePersonalityByName(taName,force){
 if(runtime.analysisRunning)return;
 taName=cleanUnicode(taName||'');
 if(!taName){toast('未命名分组无法分析，请先给会话设置对方昵称',2400,'error');return}
@@ -2774,6 +2808,13 @@ if(sampled[sampled.length-1]!==texts[texts.length-1]){sampled[sampled.length-1]=
 texts=sampled;
 }
 var api=getDefaultApi();
+var personaHash=textsHash(texts,false);
+var cachedP=state.personalityCache&&state.personalityCache[taName];
+if(!force&&cachedP&&cachedP.data&&cachedP.hash===personaHash){
+openPersonalityPanel('personality',taName);
+toast('🧠 对方说的话没有变化，显示上次的分析结果（点「重新分析」可刷新）',2600,'info');
+return;
+}
 if(!api){toast('需要先在设置里配置 API',2200,'error');openSettings();return}
 runtime.analysisRunning=true;
 runtime.analysisMode='personality';
@@ -2783,7 +2824,7 @@ openPersonalityPanel('personality',taName);
 try{
 var result=await callAnalysisAPI(api,'personality',taName,texts);
 if(!state.personalityCache)state.personalityCache={};
-state.personalityCache[taName]={data:result,updatedAt:Date.now()};
+state.personalityCache[taName]={data:result,updatedAt:Date.now(),hash:personaHash};
 save();
 runtime.analysisRunning=false;
 renderPersonalityPanel(Object.assign({},result,{_updatedAt:state.personalityCache[taName].updatedAt}));
@@ -2797,10 +2838,19 @@ if(!key)throw new Error('API Key 无效');
 var model=state.apiModels[apiEntry.provider]||pConf.model;
 if(apiEntry.provider==='doubao'&&!model)throw new Error('豆包需要填接入点 ID');
 var label=taName||'对方';
-var genderInfo='';
+var profBits=[];
 var tg=getTaGender(taName);
-if(tg==='male')genderInfo='（对方是男生）';
-else if(tg==='female')genderInfo='（对方是女生）';
+if(tg==='male')profBits.push('对方是男生');
+else if(tg==='female')profBits.push('对方是女生');
+var prof=getPersonProfile(cleanUnicode(taName||''));
+if(prof){
+if(prof.relation&&prof.relation!=='未知')profBits.push('我们的关系：'+prof.relation);
+if(prof.call)profBits.push('我平时称呼 TA：'+prof.call);
+if(prof.likes)profBits.push('TA 在意/喜欢的：'+prof.likes);
+if(prof.taboos)profBits.push('TA 的雷区：'+prof.taboos);
+if(prof.note)profBits.push('其它备注：'+prof.note);
+}
+var genderInfo=profBits.length>0?('（'+profBits.join('；')+'）'):'';
 var systemPrompt;
 if(mode==='mood'){
 systemPrompt='你是情绪分析师。下面是「'+label+'」'+genderInfo+'最近对我说的话（共 '+texts.length+' 条，按时间顺序，最后一条是最新的）。\n'+
@@ -2875,7 +2925,7 @@ function openPersonPanel(taName){
 var name=cleanUnicode(taName||'');
 if(!name){toast('请先在对话信息里设置对方昵称',2200,'error');return}
 runtime.personPanelName=name;
-var p=ensurePersonProfile(name);
+var p=getPersonProfile(name)||{gender:'',relation:'',call:'',likes:'',taboos:'',note:''};
 dom.personTitle.textContent='📇 '+name+' 的档案';
 renderPersonRelationSeg(p.relation||'');
 setGenderSeg(dom.personGenderSeg2,p.gender||'');
@@ -2913,6 +2963,18 @@ save();
 closePersonPanel();
 renderSessionList();renderStatusBar();
 toast('✅ 已保存「'+name+'」的档案',1600,'success');
+}
+function clearPersonPanel(){
+var name=runtime.personPanelName;
+if(!name)return;
+var go=true;
+try{go=confirm('清空「'+name+'」的档案？会话消息和学习样本不受影响。')}catch(e){go=true}
+if(!go)return;
+delete state.personProfiles[name];
+save();
+closePersonPanel();
+renderSessionList();renderStatusBar();
+toast('已清空「'+name+'」的档案',1600,'success');
 }
 /* ================= API 测试 ================= */
 async function testApiProvider(pid,btn){
@@ -2973,7 +3035,7 @@ toast('🔁 '+PROVIDERS[outcome.from.provider].name+' 没成功，已自动改�
 }
 /* ================= 截图提取对话 ================= */
 async function extractConversation(){
-if(runtime.loading)return;
+if(runtime.loading){toast('正在生成中，等这批出完再识别截图',2000,'info');return}
 if(!runtime.imageBase64){toast('先选一张聊天截图',1800,'error');return}
 var entry=getImageApi();
 if(!entry){toast('没有支持图片的 API，请去设置里配置',2600,'error');openSettings();return}
@@ -3060,66 +3122,16 @@ toast('✅ 已写入 '+job.messages.length+' 条消息',1800,'success');
 var last=job.messages[job.messages.length-1];
 if(state.currentSessionId===session.id&&last&&last.role==='ta')regenerateSuggestions();
 }
-/* ================= 语音输入 ================= */
-function setupSpeech(){
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR)return false;
-dom.micBtn.style.display='inline-flex';
-return true;
-}
-function stopSpeech(){
-if(runtime.recognition){try{runtime.recognition.stop()}catch(e){}}
-}
-function toggleSpeech(){
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){toast('这个浏览器不支持语音输入',2400,'error');return}
-if(runtime.recording&&runtime.recognition){stopSpeech();return}
-var rec=new SR();
-rec.lang='zh-CN';
-rec.continuous=false;
-rec.interimResults=true;
-rec.maxAlternatives=1;
-var base=dom.input.value.trim();
-var finalText='';
-runtime.recognition=rec;
-runtime.recording=true;
-dom.micBtn.classList.add('recording');
-dom.micBtn.textContent='⏹';
-rec.onresult=function(e){
-var interim='';
-for(var i=e.resultIndex;i<e.results.length;i++){
-var r=e.results[i];
-if(r.isFinal)finalText+=r[0].transcript;
-else interim+=r[0].transcript;
-}
-dom.input.value=(base?base+' ':'')+finalText+interim;
-};
-rec.onerror=function(e){
-var map={ 'not-allowed':'麦克风权限被拒绝','service-not-allowed':'浏览器不允许语音识别','audio-capture':'没有找到麦克风','network':'语音识别需要联网','no-speech':'没听到声音','aborted':'' };
-var msg=map[e.error]!==undefined?map[e.error]:('语音识别失败：'+e.error);
-if(msg)toast('🎤 '+msg,2600,'error');
-};
-rec.onend=function(){
-runtime.recording=false;
-runtime.recognition=null;
-dom.micBtn.classList.remove('recording');
-dom.micBtn.textContent='🎤';
-if(finalText)dom.input.focus();
-};
-try{rec.start()}
-catch(e){
-runtime.recording=false;runtime.recognition=null;
-dom.micBtn.classList.remove('recording');dom.micBtn.textContent='🎤';
-toast('语音输入启动失败',2200,'error');
-}
-}
 /* ================= 撤销 / 导入前快照 ================= */
 function pushUndo(restoreFn){runtime.undo={restore:restoreFn,at:Date.now()}}
 function undoLast(){
 var u=runtime.undo;
-runtime.undo=null;
 if(!u||typeof u.restore!=='function'){toast('没有可撤销的操作',1500);return}
-try{u.restore();toast('↩️ 已撤销',1600,'success')}
+try{
+u.restore();
+runtime.undo=null;
+toast('↩️ 已撤销',1600,'success');
+}
 catch(e){console.warn('撤销失败',e);toast('撤销失败：'+e.message,2600,'error')}
 }
 function saveSnapshot(reason){
@@ -3163,6 +3175,9 @@ try{o=JSON.parse(raw)}catch(e){}
 if(!o||!o.data){toast('快照已损坏',2200,'error');return}
 var normalized=normalizeRawState(o.data);
 if(!normalized){toast('快照数据异常，无法恢复',2400,'error');return}
+var go=true;
+try{go=confirm('用快照覆盖当前的所有对话和设置？（当前数据会先自动存成新快照）')}catch(e){go=true}
+if(!go)return;
 try{localStorage.setItem(SNAPSHOT_KEY,JSON.stringify({at:Date.now(),reason:'恢复前自动备份',data:state}))}catch(e){}
 state=normalized;
 suggestionCache={};
@@ -3193,14 +3208,13 @@ openProfileDialog();
 });
 dom.sendBtn.addEventListener('click',handleSend);
 dom.input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();handleSend()}});
-dom.sRefresh.addEventListener('click',regenerateSuggestions);
+dom.sRefresh.addEventListener('click',function(){regenerateSuggestions()});
 dom.itabChat.addEventListener('click',function(){setInputMode('chat')});
 dom.itabCoach.addEventListener('click',function(){setInputMode('coach')});
 dom.extractBtn.addEventListener('click',extractConversation);
 dom.extractCancel.addEventListener('click',closeExtractDialog);
 dom.extractDialogMask.addEventListener('click',closeExtractDialog);
 dom.extractConfirm.addEventListener('click',confirmExtract);
-dom.micBtn.addEventListener('click',toggleSpeech);
 dom.pdProfileBtn.addEventListener('click',function(){
 var s=getCurrentSession();
 var name=((s&&s.taName)||'').trim();
@@ -3211,6 +3225,7 @@ openPersonPanel(name);
 dom.closePerson.addEventListener('click',closePersonPanel);
 dom.personCloseBtn.addEventListener('click',closePersonPanel);
 dom.personSaveBtn.addEventListener('click',savePersonPanel);
+dom.personClearBtn.addEventListener('click',clearPersonPanel);
 bindGenderSeg(dom.personGenderSeg2);
 if(dom.weightSeg){dom.weightSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);state.styleWeight.halfLifeDays=val;save();renderStyleWeightUI();updateProfileCache();renderProfilePanel();var msg;if(val===0)msg='已关闭时间衰减';else msg='时间衰减：半衰期 '+val+' 天';toast(msg,1400,'success')})})}
 dom.modeBtn.addEventListener('click',function(){
@@ -3250,7 +3265,7 @@ dom.meInputArea.addEventListener('keydown',function(e){if(isRealEnter(e)&&(e.ctr
 dom.closeSamples.addEventListener('click',closeSamplesModal);
 dom.closePersonality.addEventListener('click',closePersonalityPanel);
 dom.personalityCloseBtn.addEventListener('click',closePersonalityPanel);
-dom.personalityReanalyze.addEventListener('click',function(){if(runtime.analysisRunning)return;if(runtime.analysisMode==='mood')analyzeMood();else analyzePersonalityByName(runtime.analysisTaName)});
+dom.personalityReanalyze.addEventListener('click',function(){if(runtime.analysisRunning)return;if(runtime.analysisMode==='mood')analyzeMood(true);else analyzePersonalityByName(runtime.analysisTaName,true)});
 dom.sheetMask.addEventListener('click',closeActionSheet);
 dom.sheetCancel.addEventListener('click',closeActionSheet);
 dom.sheetDelete.addEventListener('click',deletePendingMessage);
@@ -3280,6 +3295,9 @@ dom.renameCancel.addEventListener('click',closeRenameDialog);
 dom.renameSave.addEventListener('click',saveRenameDialog);
 dom.renameInput.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDefault();saveRenameDialog()}else if(e.key==='Escape'){e.preventDefault();closeRenameDialog()}});
 document.addEventListener('keydown',function(e){
+var tag=(e.target&&e.target.tagName)||'';
+var typing=tag==='INPUT'||tag==='TEXTAREA'||!!(e.target&&e.target.isContentEditable);
+if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&(e.key==='z'||e.key==='Z')&&!typing&&runtime.undo){e.preventDefault();undoLast();return}
 if(e.key==='Escape'){
 if(dom.sessionMenu.classList.contains('show'))closeSessionMenu();
 else if(dom.renameDialog.classList.contains('show'))closeRenameDialog();
@@ -3310,7 +3328,6 @@ if(state.sessions.length===0)createSession(true,'chat');
 updateProfileCache();
 renderAll();
 bindEvents();
-setupSpeech();
 var hasAnyApi=PROVIDER_ORDER.some(function(p){return state.apiKeys[p]});
 if(!hasAnyApi){
 var guided=safeGetStorage(STORAGE_KEY+'_guided');
