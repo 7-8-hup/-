@@ -53,6 +53,24 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .s-refresh:active{transform:scale(.98)}
 .s-refresh:disabled{opacity:.55;cursor:not-allowed}
 .s-refresh:disabled:hover{border-color:#d8d8e3;background:#fff}
+.co-me-section{margin-top:4px;border:1.5px dashed #c7b8ff;background:#fafaff;border-radius:12px;overflow:hidden}
+.co-me-head{display:flex;align-items:center;gap:6px;padding:10px 14px;cursor:pointer;user-select:none;transition:background .15s;font-size:13px;color:#5b21b6;font-weight:600}
+.co-me-head:hover{background:#f5f2ff}
+.co-me-head .co-me-icon{font-size:14px;line-height:1}
+.co-me-head .co-me-title{flex:1;min-width:0}
+.co-me-head .co-me-hint{font-size:11px;color:#999;font-weight:400}
+.co-me-head .co-me-arrow{font-size:10px;color:#999;transition:transform .2s;display:inline-block}
+.co-me-section.collapsed .co-me-arrow{transform:rotate(-90deg)}
+.co-me-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px;transition:max-height .25s ease,padding .25s ease,opacity .2s ease;max-height:500px;opacity:1}
+.co-me-section.collapsed .co-me-body{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden;pointer-events:none}
+.co-me-ctx{font-size:12px;color:#666;background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;max-height:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;border:1px solid #ebebf0}
+.co-me-ctx .pv-who{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px}
+.co-me-area{width:100%;min-height:80px;max-height:200px;padding:10px 12px;border:1.5px solid #ebebf0;border-radius:10px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fff;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;transition:border-color .15s}
+.co-me-area:focus{border-color:#7c5cff}
+.co-me-area::placeholder{color:#bbb}
+.co-me-save{height:40px;border:none;background:#7c5cff;color:#fff;font-size:14px;font-family:inherit;border-radius:10px;cursor:pointer;font-weight:600;transition:background .15s}
+.co-me-save:hover{background:#6a4ae6}
+.co-me-save:active{transform:scale(.99)}
 .coach-card{background:#fafaff;border:1.5px solid #e0d7ff;border-radius:14px;overflow:hidden}
 .coach-raw-hint{padding:9px 14px;background:#fffbeb;border-bottom:1px solid #fef3c7;font-size:11.5px;color:#92400e;line-height:1.4;display:flex;align-items:center;gap:6px}
 .coach-insight{padding:14px 16px;background:linear-gradient(135deg,#f5f2ff,#faf8ff);border-bottom:1px solid #ece5ff}
@@ -119,9 +137,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .send-btn:active:not(:disabled){transform:scale(.95)}
 .send-btn.coach-mode{background:#10b981}
 .send-btn.coach-mode:hover{background:#059669}
-.me-btn{width:36px;height:36px;border-radius:50%;border:none;background:#d1fae5;color:#059669;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-weight:600;line-height:1}
-.me-btn:hover{background:#a7f3d0}
-.me-btn:active{transform:scale(.95)}
 .img-preview{padding:0 16px 8px;display:none;align-items:center;gap:8px;flex-shrink:0}
 .img-preview.show{display:flex}
 .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px}
@@ -138,23 +153,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .action-sheet .btn-item:hover{background:#f5f5f7}
 .action-sheet .btn-item.danger{color:#dc2626}
 .action-sheet .btn-item.cancel{color:#666;font-weight:400}
-.me-input-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
-.me-input-mask.show{opacity:1;pointer-events:auto}
-.me-input-panel{position:fixed;left:0;right:0;bottom:0;z-index:501;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box}
-.me-input-panel.show{transform:translateY(0)}
-.me-input-inner{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,.1);padding:16px}
-.me-input-title{font-size:13px;font-weight:600;color:#059669;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.me-input-title .hint{font-size:11px;color:#999;font-weight:400}
-.me-input-ctx{font-size:12px;color:#666;background:#f5f5f7;border-radius:8px;padding:8px 10px;margin-bottom:10px;line-height:1.5;max-height:60px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.me-input-ctx .pv-who{font-weight:600;color:#7c5cff;font-size:11px;margin-right:4px}
-.me-input-area{width:100%;min-height:88px;max-height:200px;padding:12px 14px;border:1.5px solid #ebebf0;border-radius:12px;font-size:15px;font-family:inherit;color:#1a1a1a;background:#fff;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;transition:border-color .15s}
-.me-input-area:focus{border-color:#10b981}
-.me-input-area::placeholder{color:#bbb}
-.me-input-actions{display:flex;gap:8px;margin-top:12px}
-.me-btn-cancel{flex:1;height:44px;border:1.5px solid #ebebf0;background:#fff;color:#666;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:500}
-.me-btn-cancel:hover{background:#f5f5f7}
-.me-btn-save{flex:2;height:44px;border:none;background:#10b981;color:#fff;font-size:15px;font-family:inherit;border-radius:12px;cursor:pointer;font-weight:600}
-.me-btn-save:hover{background:#059669}
 .profile-dialog-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:502;opacity:0;pointer-events:none;transition:opacity .2s}
 .profile-dialog-mask.show{opacity:1;pointer-events:auto}
 .profile-dialog{position:fixed;left:0;right:0;bottom:0;z-index:503;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;box-sizing:border-box}
@@ -218,6 +216,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .session-group-title .sg-count{background:#ebebf0;color:#666;padding:0 6px;border-radius:8px;font-size:10px;font-weight:700;line-height:16px}
 .session-group-title .sg-pin{color:#d97706;font-size:11px}
 .session-group-title .sg-arrow{transition:transform .2s;display:inline-block;font-size:10px;color:#999;margin-left:auto}
+.session-group-title .sg-brain{border:none;background:transparent;color:#7c5cff;font-size:13px;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;flex-shrink:0;margin-left:2px;font-family:inherit}
+.session-group-title .sg-brain:hover{background:#ede9fe}
+.session-group-title .sg-gender{border:none;background:transparent;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;margin-left:2px;font-family:inherit;color:#bbb}
+.session-group-title .sg-gender.male{color:#3b82f6;background:#eff6ff}
+.session-group-title .sg-gender.female{color:#ec4899;background:#fdf2f8}
+.session-group-title .sg-gender:hover{background:#f5f5f7}
+.session-group-title .sg-gender.male:hover{background:#dbeafe}
+.session-group-title .sg-gender.female:hover{background:#fce7f3}
 .session-group.collapsed .sg-arrow{transform:rotate(-90deg)}
 .session-group.collapsed .session-item{display:none}
 .session-group + .session-group{margin-top:4px}
@@ -277,6 +283,12 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 .weight-seg button:hover{background:#fafafc}
 .weight-seg button.active{background:#7c5cff;color:#fff;font-weight:600}
 .weight-seg button.active:hover{background:#6a4ae6}
+.gender-seg{display:flex;gap:0;border:1.5px solid #ebebf0;border-radius:11px;overflow:hidden}
+.gender-seg button{flex:1;padding:10px 6px;border:none;background:#fff;font-size:13px;font-family:inherit;color:#666;cursor:pointer;transition:all .15s;font-weight:500;line-height:1.2}
+.gender-seg button:not(:last-child){border-right:1px solid #ebebf0}
+.gender-seg button:hover{background:#fafafc}
+.gender-seg button.active{background:#7c5cff;color:#fff;font-weight:600}
+.gender-seg button.active:hover{background:#6a4ae6}
 .collapse-card{border:1.5px solid #e2e8f0;border-radius:14px;margin-bottom:16px;background:#fff;overflow:hidden;transition:border-color .15s,box-shadow .15s}
 .collapse-card.expanded{box-shadow:0 2px 12px rgba(124,58,237,.08)}
 .collapse-card.api-theme{border-color:#ddd6fe;background:#fbfaff}
@@ -470,11 +482,24 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="s-title"><span id="sTitleText">回复建议</span><span class="tip" id="sTitleTip">点文字改一下再复制，别照抄</span><span id="sTitleSpinner" style="display:none" class="spinner"></span></div>
 <div id="sList"></div>
 <button class="s-refresh" id="sRefresh"><span>🔄</span><span>换一批</span></button>
+<div class="co-me-section collapsed" id="coMeSection" style="display:none">
+<div class="co-me-head" id="coMeHead">
+<span class="co-me-icon">📝</span>
+<span class="co-me-title">记录我实际发出去的话</span>
+<span class="co-me-hint">让 AI 学你</span>
+<span class="co-me-arrow">▼</span>
+</div>
+<div class="co-me-body">
+<div class="co-me-ctx" id="coMeCtx" style="display:none"></div>
+<textarea id="coMeArea" class="co-me-area" placeholder="粘贴或输入你实际发出去的内容..." maxlength="500"></textarea>
+<button class="co-me-save" id="coMeSave">✍️ 记录并学习</button>
+</div>
+</div>
 </section>
 <div class="status-bar empty" id="statusBar"></div>
 <div class="input-tabs" id="inputTabs">
 <button class="itab active" data-imode="chat" id="itabChat"><span class="itab-icon">💬</span><span class="itab-text">对方说了什么</span></button>
-<button class="itab" data-imode="coach" id="itabCoach"><span class="itab-icon">✍️</span><span class="itab-text">帮我改得更好</span></button>
+<button class="itab" data-imode="coach" id="itabCoach"><span class="itab-icon">✍️</span><span class="itab-text">优化语言</span></button>
 </div>
 <div class="img-preview" id="imgPreview">
 <img id="previewImg" alt="">
@@ -484,7 +509,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <button class="icon-btn" id="modeBtn" title="切换模式" aria-label="切换">💬</button>
 <button class="icon-btn" id="imageBtn" aria-label="图片">📷</button>
 <input type="text" id="input" placeholder="对方说了什么..." autocomplete="off">
-<button class="me-btn" id="meBtn" title="记录我发的内容" aria-label="我发了">✍️</button>
 <button class="send-btn" id="sendBtn" aria-label="发送">↑</button>
 </div>
 <input type="file" id="fileInput" accept="image/*" style="display:none">
@@ -493,7 +517,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="profile-dialog" id="profileDialog">
 <div class="profile-dialog-inner">
 <div class="profile-dialog-title">✏️ 对话信息 <span class="hint">仅对当前对话生效</span></div>
-<div class="profile-field"><label>对方昵称</label><input type="text" id="pdTaName" placeholder="例如：小明、老婆、张总" maxlength="30" autocomplete="off"></div>
+<div class="profile-field"><label>对方昵称</label><input type="text" id="pdTaName" placeholder="例如：小明、老婆、张总" maxlength="30" autocomplete="off"><div class="sub-hint">设置昵称后，可在左侧对话列表点击分组标题上的小图标设置性别</div></div>
 <div class="profile-field"><label>对方状态 / 情境（可选）</label><input type="text" id="pdStatus" placeholder="例如：刚加班完很累，心情不好" maxlength="200" autocomplete="off"><div class="sub-hint">告诉 AI 对方现在什么状态，能让回复更贴合</div></div>
 <div class="profile-dialog-actions">
 <button class="profile-btn-cancel" id="pdCancel">取消</button>
@@ -517,18 +541,6 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="preview" id="sheetPreview"></div>
 <button class="btn-item danger" id="sheetDelete">🗑️ 删除这条消息</button>
 <button class="btn-item cancel" id="sheetCancel">取消</button>
-</div>
-</div>
-<div class="me-input-mask" id="meInputMask"></div>
-<div class="me-input-panel" id="meInputPanel">
-<div class="me-input-inner">
-<div class="me-input-title">✍️ 记录我发的内容 <span class="hint">（让 AI 学会你的表达）</span></div>
-<div class="me-input-ctx" id="meInputCtx" style="display:none"></div>
-<textarea id="meInputArea" class="me-input-area" placeholder="粘贴或输入你实际发出去的内容..." maxlength="500"></textarea>
-<div class="me-input-actions">
-<button class="me-btn-cancel" id="meInputCancel">取消</button>
-<button class="me-btn-save" id="meInputSave">记录</button>
-</div>
 </div>
 </div>
 <div class="drawer-mask" id="drawerMask"></div>
@@ -583,13 +595,14 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="collapse-head" data-toggle="style"><span class="ch-icon">🎭</span><span class="ch-title">我的资料</span><span class="ch-chev">▶</span></div>
 <div class="collapse-body"><div class="collapse-body-inner">
 <div class="field" style="margin-bottom:16px;"><label>我的昵称</label><input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off"></div>
+<div class="field" style="margin-bottom:16px;"><label>我的性别（可选）</label><div class="gender-seg" id="myGenderSeg"><button type="button" data-val="">不填</button><button type="button" data-val="male">男</button><button type="button" data-val="female">女</button></div></div>
 <div class="field" style="margin-bottom:16px;"><label>补充说明（可选）</label><textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea></div>
 <div class="field" style="margin-bottom:0;">
 <label>样本时间衰减</label>
 <div class="weight-seg" id="weightSeg"><button data-val="0">关闭</button><button data-val="90">温和</button><button data-val="30">标准</button><button data-val="14">激进</button></div>
 <div class="sub-hint" id="weightHint">半衰期 30 天：30 天前的样本权重减半，让 AI 更贴近你现在的说话方式</div>
 </div>
-<div class="hint" style="margin-top:10px;padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">💡 对方昵称和情境是<b>每个对话独立</b>的，请在对话页面上方黄色栏里设置。</div>
+<div class="hint" style="margin-top:10px;padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">💡 对方昵称和情境在对话页面设置；对方性别在左侧对话列表点击分组标题的小图标设置（按人名全局生效）。</div>
 </div></div>
 </div>
 <div class="collapse-card backup-theme" id="cardBackup">
@@ -647,7 +660,7 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <script>
 (function(){
 'use strict';
-var SCHEMA_VERSION=8,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=20,COLLAPSE_KEY='chat_collapse_v1';
+var SCHEMA_VERSION=11,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=20,MAX_ANALYZE_TEXTS=500,COLLAPSE_KEY='chat_collapse_v1',CO_ME_KEY='chat_co_me_v1';
 function cleanUnicode(str){
 if(typeof str!=='string')return '';
 var result='';
@@ -690,11 +703,16 @@ function sanitizeKey(s){return String(s==null?'':s).replace(/[\u200B-\u200D\uFEF
 function safeGetStorage(key){try{return localStorage.getItem(key)}catch(e){return null}}
 function safeSetStorage(key,val){try{localStorage.setItem(key,val);return true}catch(e){return false}}
 function isRealEnter(e){return e.key==='Enter'&&!e.isComposing&&e.keyCode!==229}
+function setGenderSeg(el,val){if(!el)return;el.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b.dataset.val===(val||''))})}
+function getGenderSeg(el){if(!el)return '';var active=el.querySelector('button.active');return active?active.dataset.val:''}
+function bindGenderSeg(el){if(!el)return;el.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){el.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});b.classList.add('active')})})}
+function getTaGender(taName){if(!taName)return '';return state.personGenderCache[taName]||''}
+function setTaGender(taName,gender){if(!taName)return;if(gender==='male'||gender==='female'){state.personGenderCache[taName]=gender}else{delete state.personGenderCache[taName]}}
 function createEmptyState(){
-return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},uiOpen:{api:false,style:false,backup:false}};
+return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personGenderCache:{},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
-var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
+var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},coMeCollapsed:true,analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''}};
 var suggestionCache={};
 function syncRuntimeFromCache(sid){
 var c=suggestionCache[sid];
@@ -712,7 +730,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze'];
+var ids=['messages','suggestions','sList','sTitleText','sTitleTip','sTitleSpinner','sRefresh','coMeSection','coMeHead','coMeCtx','coMeArea','coMeSave','imgPreview','previewImg','removeImg','imageBtn','fileInput','modeBtn','input','sendBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','samplesModal','samplesBody','closeSamples','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type){
@@ -735,6 +753,9 @@ if(v<5){if(!d.styleWeight||typeof d.styleWeight!=='object'){d.styleWeight={halfL
 if(v<6){d.schemaVersion=6;v=6}
 if(v<7){d.schemaVersion=7;v=7}
 if(v<8){d.schemaVersion=8;v=8}
+if(v<9){d.schemaVersion=9;v=9}
+if(v<10){d.schemaVersion=10;v=10}
+if(v<11){d.schemaVersion=11;v=11}
 return d;
 }
 function normalizeRawState(d){
@@ -744,7 +765,7 @@ d=migrateState(d);
 var out=createEmptyState();
 if(Array.isArray(d.sessions)){
 out.sessions=d.sessions.filter(function(s){return s&&typeof s==='object'}).map(function(s){
-return{id:typeof s.id==='string'?s.id:genId(),messages:Array.isArray(s.messages)?s.messages.filter(function(m){return m&&typeof m==='object'}):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),personality:(s.personality&&typeof s.personality==='object')?s.personality:null,personalityUpdatedAt:typeof s.personalityUpdatedAt==='number'?s.personalityUpdatedAt:0,mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0};
+return{id:typeof s.id==='string'?s.id:genId(),messages:Array.isArray(s.messages)?s.messages.filter(function(m){return m&&typeof m==='object'}):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0};
 });
 }
 out.currentSessionId=typeof d.currentSessionId==='string'?d.currentSessionId:'';
@@ -753,6 +774,7 @@ if(d.apiModels&&typeof d.apiModels==='object'){PROVIDER_ORDER.forEach(function(p
 if(d.apiEnabled&&typeof d.apiEnabled==='object'){PROVIDER_ORDER.forEach(function(pid){if(typeof d.apiEnabled[pid]==='boolean')out.apiEnabled[pid]=d.apiEnabled[pid]})}
 out.defaultProvider=(typeof d.defaultProvider==='string'&&PROVIDER_ORDER.indexOf(d.defaultProvider)>=0)?d.defaultProvider:'';
 out.myName=typeof d.myName==='string'?d.myName:'';
+out.myGender=(d.myGender==='male'||d.myGender==='female')?d.myGender:'';
 out.myStyle=typeof d.myStyle==='string'?d.myStyle:'';
 if(d.styleWeight&&typeof d.styleWeight==='object'){out.styleWeight={halfLifeDays:typeof d.styleWeight.halfLifeDays==='number'?d.styleWeight.halfLifeDays:30}}
 if(Array.isArray(d.styleSamples)){
@@ -760,7 +782,21 @@ out.styleSamples=d.styleSamples.filter(function(s){return s&&typeof s==='object'
 return{myText:s.myText,taText:typeof s.taText==='string'?s.taText:'',taName:typeof s.taName==='string'?s.taName:'',timestamp:typeof s.timestamp==='number'?s.timestamp:Date.now(),tags:Array.isArray(s.tags)?s.tags.filter(function(t){return typeof t==='string'}):[],tagsVersion:typeof s.tagsVersion==='number'?s.tagsVersion:0};
 }).slice(-200);
 }
+if(d.personalityCache&&typeof d.personalityCache==='object'){out.personalityCache=d.personalityCache}
+if(d.personGenderCache&&typeof d.personGenderCache==='object'){
+Object.keys(d.personGenderCache).forEach(function(k){
+var v=d.personGenderCache[k];
+if(v==='male'||v==='female')out.personGenderCache[k]=v;
+});
+}
 if(d.uiOpen&&typeof d.uiOpen==='object'){out.uiOpen={api:!!d.uiOpen.api,style:!!d.uiOpen.style,backup:!!d.uiOpen.backup}}
+if(Array.isArray(d.sessions)){
+d.sessions.forEach(function(s){
+if(s&&s.taName&&(s.taGender==='male'||s.taGender==='female')&&!out.personGenderCache[s.taName]){
+out.personGenderCache[s.taName]=s.taGender;
+}
+});
+}
 return out;
 }catch(e){console.warn('数据规范化失败',e);return null}
 }
@@ -780,7 +816,7 @@ return true;
 function createSession(switchTo,mode){
 if(switchTo===undefined)switchTo=true;
 if(!mode)mode='chat';
-var session={id:genId(),messages:[],status:'',taName:'',title:'',pinned:false,mode:mode,inputMode:'chat',createdAt:Date.now(),updatedAt:Date.now(),personality:null,personalityUpdatedAt:0,mood:null,moodUpdatedAt:0};
+var session={id:genId(),messages:[],status:'',taName:'',title:'',pinned:false,mode:mode,inputMode:'chat',createdAt:Date.now(),updatedAt:Date.now(),mood:null,moodUpdatedAt:0};
 state.sessions.unshift(session);
 if(switchTo)state.currentSessionId=session.id;
 return session;
@@ -822,6 +858,8 @@ return(d.getMonth()+1)+'月'+d.getDate()+'日';
 }
 function loadCollapsedGroups(){try{var raw=safeGetStorage(COLLAPSE_KEY);if(raw)runtime.collapsedGroups=JSON.parse(raw)||{}}catch(e){runtime.collapsedGroups={}}}
 function saveCollapsedGroups(){safeSetStorage(COLLAPSE_KEY,JSON.stringify(runtime.collapsedGroups))}
+function loadCoMeCollapsed(){try{var raw=safeGetStorage(CO_ME_KEY);if(raw==='0')runtime.coMeCollapsed=false;else runtime.coMeCollapsed=true}catch(e){runtime.coMeCollapsed=true}}
+function saveCoMeCollapsed(){safeSetStorage(CO_ME_KEY,runtime.coMeCollapsed?'1':'0')}
 function getInputMode(){var session=getCurrentSession();return session.inputMode==='coach'?'coach':'chat'}
 function setInputMode(mode){
 var session=getCurrentSession();
@@ -835,6 +873,14 @@ var mode=getInputMode();
 dom.itabChat.classList.toggle('active',mode==='chat');
 dom.itabCoach.classList.toggle('active',mode==='coach');
 dom.sendBtn.classList.toggle('coach-mode',mode==='coach');
+if(dom.coMeSection){
+if(mode==='coach'){
+dom.coMeSection.style.display='block';
+refreshCoMeCtx();
+}else{
+dom.coMeSection.style.display='none';
+}
+}
 }
 function updateComposerPlaceholder(){
 var inputMode=getInputMode();
@@ -1160,8 +1206,19 @@ state.styleSamples.forEach(function(s){seen[(s.myText||'')+'\u0001'+(s.taText||'
 incoming.styleSamples.forEach(function(s){var key=(s.myText||'')+'\u0001'+(s.taText||'')+'\u0001'+(s.timestamp||0);if(!seen[key]){state.styleSamples.push(s);seen[key]=true}});
 if(state.styleSamples.length>200)state.styleSamples=state.styleSamples.slice(-200);
 if(!state.myName&&incoming.myName)state.myName=incoming.myName;
+if(!state.myGender&&incoming.myGender)state.myGender=incoming.myGender;
 if(!state.myStyle&&incoming.myStyle)state.myStyle=incoming.myStyle;
 if(state.styleWeight.halfLifeDays===30&&incoming.styleWeight&&typeof incoming.styleWeight.halfLifeDays==='number'){state.styleWeight.halfLifeDays=incoming.styleWeight.halfLifeDays}
+if(incoming.personalityCache&&typeof incoming.personalityCache==='object'){
+Object.keys(incoming.personalityCache).forEach(function(k){
+if(!state.personalityCache[k])state.personalityCache[k]=incoming.personalityCache[k];
+});
+}
+if(incoming.personGenderCache&&typeof incoming.personGenderCache==='object'){
+Object.keys(incoming.personGenderCache).forEach(function(k){
+if(!state.personGenderCache[k])state.personGenderCache[k]=incoming.personGenderCache[k];
+});
+}
 PROVIDER_ORDER.forEach(function(pid){
 if(localKeys[pid]){state.apiKeys[pid]=localKeys[pid];state.apiModels[pid]=localModels[pid]||'';state.apiEnabled[pid]=localEnabled[pid]!==false}
 else if(incoming.apiKeys[pid]){state.apiKeys[pid]=incoming.apiKeys[pid];state.apiModels[pid]=incoming.apiModels[pid]||'';state.apiEnabled[pid]=incoming.apiEnabled[pid]!==false}
@@ -1174,6 +1231,7 @@ else{state.defaultProvider=PROVIDER_ORDER.find(function(p){return state.apiKeys[
 }
 function renderAll(){
 renderHeader();renderStatusBar();renderMessages();renderSuggestions();updateModeBtn();updateInputTabs();updateComposerPlaceholder();renderApiForm();renderProfilePanel();renderStyleWeightUI();renderBackupPanel();applyCollapse();
+applyCoMeCollapse();
 }
 function renderHeader(){
 var session=getCurrentSession();
@@ -1188,18 +1246,17 @@ var session=getCurrentSession();
 var taName=session.taName||'';
 var status=session.status||'';
 var moodBtn='<button class="status-act" data-act="mood" aria-label="当前心理" title="分析对方当前心理">💭</button>';
-var brainBtn='<button class="status-act" data-act="brain" aria-label="性格分析" title="分析对方性格（汇总所有会话）">🧠</button>';
 if(taName||status){
 dom.statusBar.classList.remove('empty');
 var inner='<span class="status-icon">📌</span><div class="status-content">';
 if(taName)inner+='<span class="ta-name">'+esc(taName)+'</span>';
 if(taName&&status)inner+='<span class="sep">·</span>';
 if(status)inner+='<span class="status-text">'+esc(status)+'</span>';
-inner+='</div>'+moodBtn+brainBtn+'<button class="status-edit" aria-label="编辑">✎</button>';
+inner+='</div>'+moodBtn+'<button class="status-edit" aria-label="编辑">✎</button>';
 dom.statusBar.innerHTML=inner;
 }else{
 dom.statusBar.classList.add('empty');
-dom.statusBar.innerHTML='<span class="status-icon">📌</span><div class="status-content"><span class="status-text placeholder">点这里设置对方昵称和情境</span></div>'+moodBtn+brainBtn+'<button class="status-edit" aria-label="编辑">✎</button>';
+dom.statusBar.innerHTML='<span class="status-icon">📌</span><div class="status-content"><span class="status-text placeholder">点这里设置对方昵称和情境</span></div>'+moodBtn+'<button class="status-edit" aria-label="编辑">✎</button>';
 }
 }
 function updateModeBtn(){
@@ -1218,7 +1275,7 @@ var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
 if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 优化语言<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
@@ -1260,7 +1317,7 @@ var inputMode=getInputMode();
 if(runtime.loading){
 dom.suggestions.classList.add('show');
 dom.sList.innerHTML='';
-if(inputMode==='coach'){dom.sTitleText.textContent='教练正在分析...'}else{dom.sTitleText.textContent=mode==='real'?'正在想你可以怎么说...':'生成中...'}
+if(inputMode==='coach'){dom.sTitleText.textContent='优化中...'}else{dom.sTitleText.textContent=mode==='real'?'正在想你可以怎么说...':'生成中...'}
 dom.sTitleTip.style.display='none';
 dom.sTitleSpinner.style.display='inline-block';
 dom.sRefresh.style.display='flex';
@@ -1275,7 +1332,7 @@ if(inputMode==='coach'){
 var coach=runtime.coachResult;
 if(!coach||!coach.versions||!coach.versions.length){dom.suggestions.classList.remove('show');dom.sList.innerHTML='';dom.sRefresh.style.display='none';return}
 dom.suggestions.classList.add('show');
-dom.sTitleText.textContent='🧠 表达教练';
+dom.sTitleText.textContent='✍️ 优化语言';
 dom.sTitleTip.textContent='点文字直接用，✎ 改一下也行';
 dom.sTitleTip.style.display='inline';
 dom.sList.innerHTML=renderCoachCard(coach);
@@ -1464,7 +1521,7 @@ var decayHintHtml='';
 var halfLife=getHalfLife();
 if(halfLife>0&&samples.length>0){decayHintHtml='<div class="pp-decay-hint">⏱️ 时间衰减开启 · 半衰期 '+halfLife+' 天 · 越新样本权重越高</div>'}
 if(samples.length===0){
-dom.profilePanel.innerHTML=taRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">0 条样本</div></div><div class="pp-empty">还没有学习样本。<br>· 用 <b>✍️</b> 记录你说过的话<br>· 或 <b>✎</b> 修改 AI 的建议后复制<br>AI 会按对方分别学习，越用越像你。</div>';
+dom.profilePanel.innerHTML=taRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">0 条样本</div></div><div class="pp-empty">还没有学习样本。<br>· 在「优化语言」里用 <b>📝 记录我实际发出去的话</b><br>· 或 <b>✎</b> 修改 AI 的建议后复制<br>AI 会按对方分别学习，越用越像你。</div>';
 return;
 }
 if(samples.length<3){
@@ -1506,7 +1563,7 @@ if(totalCount>0&&recentCount/totalCount>=.6&&totalCount>=3){badge+='<span class=
 }
 return '<div class="pp-scene"><div class="ctx">'+badge+esc(sc.name)+'（'+sc.count+'次）</div>'+sc.examples.map(function(e){return '<div class="res">对方"…" → 我"'+esc(e.me)+'"</div>'}).join('')+'</div>';
 }).join('')+'</div>';
-}else{scenesHtml='<div class="pp-empty">用 ✍️ 记录时带上对方原话，AI 就能分析出你的场景反应模式</div>'}
+}else{scenesHtml='<div class="pp-empty">记录样本时带上对方原话，AI 就能分析出你的场景反应模式</div>'}
 dom.profilePanel.innerHTML=taRowHtml+classifyRowHtml+decayHintHtml+'<div class="pp-head"><div class="pp-title">🧬 我的综合画像</div><div class="pp-count">'+samples.length+' 条样本 · 全局</div></div><div class="pp-section"><div class="pp-sec-title">语言特征</div>'+langHtml+'</div><div class="pp-section"><div class="pp-sec-title">场景反应</div>'+scenesHtml+'</div><div class="pp-actions"><button class="pp-btn-clear" data-action="clear">🗑️ 清空样本</button><button class="pp-btn-view" data-action="view">👁️ 查看全部</button><button class="pp-btn-classify" data-action="reclassify">🤖 重新分类</button></div>';
 bindProfileActions();
 }
@@ -1525,12 +1582,14 @@ function toggleCollapse(key){state.uiOpen[key]=!state.uiOpen[key];save();applyCo
 function openSettings(){
 dom.settings.classList.add('show');
 dom.myName.value=state.myName;
+setGenderSeg(dom.myGenderSeg,state.myGender||'');
 dom.myStyle.value=state.myStyle;
 renderProfilePanel();renderApiForm();renderStyleWeightUI();renderBackupPanel();applyCollapse();
 scheduleClassification();
 }
 function closeSettings(){
 state.myName=dom.myName.value.trim();
+state.myGender=getGenderSeg(dom.myGenderSeg);
 state.myStyle=dom.myStyle.value.trim();
 save();
 dom.settings.classList.remove('show');
@@ -1569,7 +1628,15 @@ groupList.forEach(function(g){
 var groupKey=g.isUnnamed?UNNAMED:g.name;
 var collapsed=!!runtime.collapsedGroups[groupKey];
 html+='<div class="session-group'+(collapsed?' collapsed':'')+'" data-group="'+esc(groupKey)+'">';
-if(showTitles){html+='<div class="session-group-title" data-grouptoggle="'+esc(groupKey)+'">'+(g.isUnnamed?'未命名':esc(g.name))+'<span class="sg-count">'+g.sessions.length+'</span>'+(g.hasPinned?'<span class="sg-pin">📌</span>':'')+'<span class="sg-arrow">▼</span></div>'}
+if(showTitles){
+var gender=getTaGender(g.name);
+var genderIcon=gender==='male'?'♂':(gender==='female'?'♀':'⚪');
+var genderCls='sg-gender'+(gender==='male'?' male':(gender==='female'?' female':''));
+var genderTitle=gender==='male'?'对方是男生（点击切换）':(gender==='female'?'对方是女生（点击切换）':'未设置性别（点击切换）');
+var genderBtn=g.isUnnamed?'':'<button class="'+genderCls+'" data-gender="'+esc(g.name)+'" title="'+genderTitle+'">'+genderIcon+'</button>';
+var brainBtn=g.isUnnamed?'':'<button class="sg-brain" data-brain="'+esc(g.name)+'" title="分析「'+esc(g.name)+'」的性格">🧠</button>';
+html+='<div class="session-group-title" data-grouptoggle="'+esc(groupKey)+'">'+(g.isUnnamed?'未命名':esc(g.name))+'<span class="sg-count">'+g.sessions.length+'</span>'+(g.hasPinned?'<span class="sg-pin">📌</span>':'')+genderBtn+brainBtn+'<span class="sg-arrow">▼</span></div>';
+}
 g.sessions.forEach(function(s){html+=renderSessionItemHtml(s,isMulti)});
 html+='</div>';
 });
@@ -1580,12 +1647,33 @@ item.addEventListener('click',function(e){if(e.target.closest('.session-more'))r
 dom.sessionList.querySelectorAll('.session-more').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();openSessionMenu(btn.dataset.more,btn)})});
 dom.sessionList.querySelectorAll('[data-grouptoggle]').forEach(function(el){
 el.addEventListener('click',function(e){
+if(e.target.closest('.sg-brain'))return;
+if(e.target.closest('.sg-gender'))return;
 e.stopPropagation();
 var key=el.dataset.grouptoggle;
 runtime.collapsedGroups[key]=!runtime.collapsedGroups[key];
 saveCollapsedGroups();
 var groupEl=el.closest('.session-group');
 if(groupEl)groupEl.classList.toggle('collapsed',runtime.collapsedGroups[key]);
+});
+});
+dom.sessionList.querySelectorAll('.sg-brain').forEach(function(btn){
+btn.addEventListener('click',function(e){
+e.stopPropagation();
+analyzePersonalityByName(btn.dataset.brain);
+});
+});
+dom.sessionList.querySelectorAll('.sg-gender').forEach(function(btn){
+btn.addEventListener('click',function(e){
+e.stopPropagation();
+var name=btn.dataset.gender;
+var cur=getTaGender(name);
+var next=cur===''?'male':(cur==='male'?'female':'');
+setTaGender(name,next);
+save();
+renderSessionList();
+var msg=next==='male'?'「'+name+'」设为男':(next==='female'?'「'+name+'」设为女':'「'+name+'」性别已清除');
+toast(msg,1200,'success');
 });
 });
 }
@@ -1763,8 +1851,7 @@ session.taName=newTaName;
 session.status=newStatus;
 if(changed)session.updatedAt=Date.now();
 if(newTaName!==oldTaName)updateProfileCache();
-save();
-closeProfileDialog();
+save();closeProfileDialog();
 renderStatusBar();renderHeader();renderSessionList();
 if(!changed)return;
 if(newTaName){
@@ -1815,21 +1902,32 @@ var msgs=(session||getCurrentSession()).messages||[];
 for(var i=msgs.length-1;i>=0;i--){if(msgs[i].role==='ta')return msgs[i].text}
 return '';
 }
-function openMeInput(){
-dom.meInputArea.value='';
+// ==================== 优化语言模式 - 记录我实际说的话 ====================
+function refreshCoMeCtx(){
+if(!dom.coMeCtx)return;
 var session=getCurrentSession();
 var lastTa=getLastTaText(session);
 var isReal=(session.mode||'chat')==='real';
-if(lastTa){dom.meInputCtx.style.display='block';dom.meInputCtx.innerHTML='<span class="pv-who">对方刚说：</span>'+esc(lastTa.length>60?lastTa.slice(0,60)+'…':lastTa)}
-else{dom.meInputCtx.style.display='none'}
-dom.meInputArea.placeholder=isReal?'你刚才对他说了什么...':'粘贴或输入你实际发出去的内容...';
-dom.meInputMask.classList.add('show');
-dom.meInputPanel.classList.add('show');
-setTimeout(function(){try{dom.meInputArea.focus()}catch(e){}},120);
+if(lastTa){
+dom.coMeCtx.style.display='block';
+dom.coMeCtx.innerHTML='<span class="pv-who">对方刚说：</span>'+esc(lastTa.length>60?lastTa.slice(0,60)+'…':lastTa);
+}else{
+dom.coMeCtx.style.display='none';
 }
-function closeMeInput(){dom.meInputMask.classList.remove('show');dom.meInputPanel.classList.remove('show')}
-function saveMeInput(){
-var text=dom.meInputArea.value.trim();
+dom.coMeArea.placeholder=isReal?'你刚才对他说了什么...':'粘贴或输入你实际发出去的内容...';
+}
+function applyCoMeCollapse(){
+if(!dom.coMeSection)return;
+dom.coMeSection.classList.toggle('collapsed',runtime.coMeCollapsed);
+}
+function toggleCoMe(){
+runtime.coMeCollapsed=!runtime.coMeCollapsed;
+saveCoMeCollapsed();
+applyCoMeCollapse();
+if(!runtime.coMeCollapsed){refreshCoMeCtx();setTimeout(function(){try{dom.coMeArea.focus()}catch(e){}},80)}
+}
+function saveCoMeInput(){
+var text=dom.coMeArea.value.trim();
 if(!text){toast('请输入内容',1200,'error');return}
 var session=getCurrentSession();
 var lastTa=getLastTaText(session);
@@ -1841,8 +1939,9 @@ clearReplyFor(session.id);
 runtime.loading=false;
 closeSpeakPanel();
 if(!isDup)addStyleSample(text,lastTa,taName);
-save();closeMeInput();
+save();
 renderMessages();renderSuggestions();renderHeader();
+dom.coMeArea.value='';
 var tail=taName?'（'+taName+'）':'';
 if(isDup){toast('✅ 已记录'+tail+'（样本已存在，未重复学习）',1800,'success')}
 else{toast('✅ 已记录'+tail+' · 样本 '+state.styleSamples.length+' 条',1600,'success')}
@@ -2085,6 +2184,13 @@ var recentSamples=pool.slice().sort(function(a,b){return(b.timestamp||0)-(a.time
 var recentText=recentSamples.length>0?'\n【我最近真实说过的话】\n'+recentSamples.map(function(s){return '  · '+s.myText}).join('\n'):'';
 var statusLine=session.status?'\n【当前情境】'+cleanUnicode(session.status):'';
 var extraStyle=state.myStyle?'\n【我自己的补充说明】\n'+cleanUnicode(state.myStyle):'';
+var taGender=getTaGender(sessionTaName);
+var genderLines=[];
+if(taGender==='male')genderLines.push('对方是男生');
+else if(taGender==='female')genderLines.push('对方是女生');
+if(state.myGender==='male')genderLines.push('我是男生');
+else if(state.myGender==='female')genderLines.push('我是女生');
+var genderBlock=genderLines.length>0?('\n【基本信息】'+genderLines.join('，')+'。'):'';
 var ta=sessionTaName?'对方（'+sessionTaName+'）':'对方';
 var sampleCount;
 if(hasEnoughTaPool){sampleCount='（来自我和'+sessionTaName+'对话的样本，共 '+pool.length+' 条）'}
@@ -2093,7 +2199,7 @@ else{sampleCount='（来自我所有对话的样本，共 '+state.styleSamples.l
 var modeBlock=isReal?'\n【这是现实对话】\n你和'+ta+'正在面对面聊天，不是打字。\n对方刚说了句话，你需要给出 3 句"你可以直接开口说"的话。\n⚠️ 因为是当面说的，必须：\n- 极度口语化，一开口就能说出来\n- 不要太长（不超过 25 字，越短越好）\n- 句子结构简单，不用"其实""但是""因为"这种转折\n- 可以用语气词、停顿词（诶、那个、就、嗯）\n- 就像你平时张嘴说话的样子，不书面':'\n【这是线上打字聊天】\n你和'+ta+'在用微信等聊天软件打字。';
 var avoidBlock='';
 if(opts.avoid&&opts.avoid.length>0){avoidBlock='\n═══════════════════════════════\n【重要：避免重复】\n═══════════════════════════════\n上一批给的建议是：\n'+opts.avoid.map(function(t,i){return '  '+(i+1)+'. "'+String(t).replace(/"/g,'”')+'"'}).join('\n')+'\n⚠️ 这一批必须完全换掉：\n· 每一条都不能和上面任何一条意思相近\n· 不能只是换个说法、换个语气词\n· 必须换角度、换态度、换话题切入点\n· 如果上一批都是"短句"，这次至少有 1-2 条要更长、更具体\n· 如果上一批都是"敷衍/中性"，这次要更主动、更具体\n'}
-var systemPrompt='你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。\n现在你和'+ta+'正在聊天，你要以【我】的身份回复 3 条候选。\n'+historyBlock+'\n═══════════════════════════════\n【我说话的整体画像】'+sampleCount+'\n═══════════════════════════════\n'+(profileText||'（样本较少，按普通年轻人聊天风格）')+'\n'+recentText+'\n'+extraStyle+statusLine+'\n'+modeBlock+'\n═══════════════════════════════\n【核心原则】\n═══════════════════════════════\n① 先读【最近的完整对话历史】，理解上下文，再动笔。\n② 你不是"参考"上面的画像，你"就是"写出那些句子的人。\n复制这个人的整个语言 DNA —— 包括 TA 的怪癖、不完美。\n③ 长度照搬 —— 画像里平均几字就几字\n④ 标点照搬 —— 不打句号就别打；用空格断句就用空格\n⑤ 开头/结尾照搬 —— 常用什么开头结尾，就用什么\n⑥ 语气词照搬 —— 只用画像里出现过的\n⑦ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回\n⑧ 允许不完美 —— 半句、答非所问、跳话题、一个字回复\n═══════════════════════════════\n【绝对禁止 —— 出现一处就露馅】\n═══════════════════════════════\n❌ 忽略对话历史，只看【当前情境】就瞎回\n❌ 3 条建议互相重复或换汤不换药\n❌ "听起来你…" "我感觉你…" "我理解…"（心理咨询师腔）\n❌ "首先""其次""总的来说""总之""不过话说回来""其实吧"\n❌ "既…又…" "不是…而是…" 这种排比\n❌ 完整的书面长句\n❌ 空泛安慰："会好的""加油""一切都会过去""你值得更好"\n❌ 完美的共情、得体、面面俱到\n❌ 总结、升华、讲道理、给建议\n❌ 每句都以句号结尾\n═══════════════════════════════\n【3 条建议的方向】\n═══════════════════════════════\n1. 【短】超短，像画像里最短的那几条\n2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个\n3. 【展开】问个问题，或说件具体的事\n⚠️ 硬性要求：\n· 必须输出 3 条，即使对方只发一个字也要给满 3 条。\n· 3 条必须明显不同：开头不同、语气不同、长度不同。\n· 3 条都要"读完就能直接发出去"，不能是"嗯""？"这种半成品。\n'+(statusLine?'⚠️ 结合【当前情境】，但不要提"情境"两个字。\n':'')+avoidBlock+'输出纯 JSON，无其他内容，第一个字符是 {：\n{"suggestions":[{"text":"...","style":"短"},{"text":"...","style":"情绪"},{"text":"...","style":"展开"}]}';
+var systemPrompt='你就是【我本人】。不是 AI 助手，不是聊天高手，不是心理咨询师。\n现在你和'+ta+'正在聊天，你要以【我】的身份回复 3 条候选。\n'+historyBlock+'\n═══════════════════════════════\n【我说话的整体画像】'+sampleCount+'\n═══════════════════════════════\n'+(profileText||'（样本较少，按普通年轻人聊天风格）')+'\n'+recentText+'\n'+extraStyle+genderBlock+statusLine+'\n'+modeBlock+'\n═══════════════════════════════\n【核心原则】\n═══════════════════════════════\n① 先读【最近的完整对话历史】，理解上下文，再动笔。\n② 你不是"参考"上面的画像，你"就是"写出那些句子的人。\n复制这个人的整个语言 DNA —— 包括 TA 的怪癖、不完美。\n③ 长度照搬 —— 画像里平均几字就几字\n④ 标点照搬 —— 不打句号就别打；用空格断句就用空格\n⑤ 开头/结尾照搬 —— 常用什么开头结尾，就用什么\n⑥ 语气词照搬 —— 只用画像里出现过的\n⑦ 场景反应照搬 —— 对方说类似话时，我历史怎么回，就怎么回\n⑧ 允许不完美 —— 半句、答非所问、跳话题、一个字回复\n═══════════════════════════════\n【绝对禁止 —— 出现一处就露馅】\n═══════════════════════════════\n❌ 忽略对话历史，只看【当前情境】就瞎回\n❌ 3 条建议互相重复或换汤不换药\n❌ "听起来你…" "我感觉你…" "我理解…"（心理咨询师腔）\n❌ "首先""其次""总的来说""总之""不过话说回来""其实吧"\n❌ "既…又…" "不是…而是…" 这种排比\n❌ 完整的书面长句\n❌ 空泛安慰："会好的""加油""一切都会过去""你值得更好"\n❌ 完美的共情、得体、面面俱到\n❌ 总结、升华、讲道理、给建议\n❌ 每句都以句号结尾\n═══════════════════════════════\n【3 条建议的方向】\n═══════════════════════════════\n1. 【短】超短，像画像里最短的那几条\n2. 【情绪】带态度、带梗、调侃/抱怨/阴阳/撒娇 任选一个\n3. 【展开】问个问题，或说件具体的事\n⚠️ 硬性要求：\n· 必须输出 3 条，即使对方只发一个字也要给满 3 条。\n· 3 条必须明显不同：开头不同、语气不同、长度不同。\n· 3 条都要"读完就能直接发出去"，不能是"嗯""？"这种半成品。\n'+(statusLine?'⚠️ 结合【当前情境】，但不要提"情境"两个字。\n':'')+avoidBlock+'输出纯 JSON，无其他内容，第一个字符是 {：\n{"suggestions":[{"text":"...","style":"短"},{"text":"...","style":"情绪"},{"text":"...","style":"展开"}]}';
 var messages=[{role:'system',content:systemPrompt}];
 historyMessages.forEach(function(m,i,arr){
 var isLast=i===arr.length-1;
@@ -2139,6 +2245,13 @@ var historyLines=historyMessages.map(function(m){var who=m.role==='ta'?(sessionT
 var historyBlock=historyLines?'【最近的完整对话历史】'+(historyTruncated?'（仅展示最近 '+MAX_HISTORY_MESSAGES+' 条）':'')+'\n───────────────────────────────\n'+historyLines+'\n───────────────────────────────':'（这是对话的开始，还没有历史消息）';
 var statusLine=session.status?'\n【当前情境】'+cleanUnicode(session.status):'';
 var extraStyle=state.myStyle?'\n【我自己的补充说明】\n'+cleanUnicode(state.myStyle):'';
+var taGender=getTaGender(sessionTaName);
+var genderLines=[];
+if(taGender==='male')genderLines.push('对方是男生');
+else if(taGender==='female')genderLines.push('对方是女生');
+if(state.myGender==='male')genderLines.push('我是男生');
+else if(state.myGender==='female')genderLines.push('我是女生');
+var genderBlock=genderLines.length>0?('\n【基本信息】'+genderLines.join('，')+'。'):'';
 var langProfile=runtime.taLangProfile||runtime.langProfile;
 var sceneProfile=runtime.taSceneProfile||runtime.sceneProfile;
 var profileText=profileToPrompt(langProfile,sceneProfile);
@@ -2148,7 +2261,7 @@ var systemPrompt=
 '你是【我本人】的表达教练。\n对方（'+ta+'）刚才跟我说了话，我已经想好一句要回的话，但不确定这么说好不好。\n请站在"让对方听着更舒服"的角度，帮我分析，并给我几个更好的版本。\n\n'+
 historyBlock+'\n'+
 '【我本来想说的】\n"'+myDraft+'"\n'+
-statusLine+'\n'+extraStyle+'\n\n'+
+statusLine+'\n'+extraStyle+genderBlock+'\n\n'+
 '═══════════════════════════════\n【你的任务】\n═══════════════════════════════\n'+
 '1. 【对方听到的感受】heard\n   站在对方角度，我这句话传过去，对方大概率会有什么感觉？\n   不评价对错，只说真实的感受。\n   例如："听起来像责备"、"有点像命令"、"感觉你在讨好"。\n   30-50 字，只描述感受，不啰嗦。\n\n'+
 '2. 【我其实想说的】need\n   把我没说出口的真实需求点出来。\n   例如："你其实是想说：我在意你，想被回应"。\n   20-40 字。\n\n'+
@@ -2184,8 +2297,8 @@ if(versions.length===0){var textFB0=coachTextFallback(content,myDraft);if(textFB
 return{draft:myDraft,heard:String(parsed.heard||'').trim(),need:String(parsed.need||'').trim(),versions:versions,tip:String(parsed.tip||'').trim()};
 }
 var textFB=coachTextFallback(content,myDraft);
-if(textFB){console.warn('教练模式 AI 未按格式返回，已用文本兜底：',content);return textFB}
-console.warn('教练模式 AI 返回完全无法解析：',content);
+if(textFB){console.warn('优化语言 AI 未按格式返回，已用文本兜底：',content);return textFB}
+console.warn('优化语言 AI 返回完全无法解析：',content);
 throw new Error('AI 这次没答好，请点「换一批」再试');
 }
 async function handleSend(){
@@ -2200,7 +2313,7 @@ var session=getCurrentSession();
 var requestSessionId=session.id;
 var originalInput=text;
 if(inputMode==='coach'){
-if(!text){toast('教练模式需要先输入你想说的话',1500,'error');return}
+if(!text){toast('优化语言模式需要先输入你想说的话',1500,'error');return}
 dom.input.value='';
 clearReplyFor(requestSessionId);
 runtime.loading=true;
@@ -2254,7 +2367,7 @@ var requestSessionId=session.id;
 if(inputMode==='coach'){
 var cachedC=suggestionCache[requestSessionId];
 var draft=cachedC&&cachedC.coach&&cachedC.coach.draft;
-if(!draft){toast('教练模式请重新输入你想说的话',2200,'info');return}
+if(!draft){toast('优化语言模式请重新输入你想说的话',2200,'info');return}
 var usedApiC=runtime.imageBase64?getImageApi():getDefaultApi();
 if(runtime.imageBase64&&!usedApiC){toast('没有已启用的图片 API',2500,'error');return}
 if(!usedApiC){toast('没有已启用的 API，请去设置里检查',2200,'error');openSettings();return}
@@ -2354,82 +2467,80 @@ updateProfileCache();save();renderProfilePanel();renderBackupPanel();openSamples
 toast('已删除该样本',1200,'success');
 }
 function closeSamplesModal(){dom.samplesModal.classList.remove('show')}
-// ==================== 分析（性格 / 当前心理） ====================
-async function runAnalysis(mode){
+async function analyzeMood(){
 if(runtime.analysisRunning)return;
 var session=getCurrentSession();
 var taName=cleanUnicode(session.taName||'');
 var texts=[];
 var seen={};
-function addText(t){
-t=cleanUnicode(t).trim();
-if(!t||seen[t])return;
-seen[t]=true;
-texts.push(t);
-}
-if(mode==='mood'){
-// 当前心理：只看当前会话最近 30 条对方消息
 var msgs=session.messages||[];
 var collected=0;
 for(var i=msgs.length-1;i>=0&&collected<30;i--){
 var m=msgs[i];
 if(m.role!=='ta'||!m.text)continue;
-addText(m.text);
+var t=cleanUnicode(m.text).trim();
+if(!t||seen[t])continue;
+seen[t]=true;
+texts.push(t);
 collected++;
 }
+texts.reverse();
 if(texts.length<2){toast('当前对话里对方的话太少（至少 2 条）',2200,'error');return}
-    }else{
-      // 性格分析：汇总所有同名会话的对方消息
-      var collectFrom=function(s){
-        (s.messages||[]).forEach(function(m){
-          if(m.role!=='ta'||!m.text)return;
-          addText(m.text);
-        });
-      };
-      collectFrom(session);
-      if(taName){
-        state.sessions.forEach(function(s){
-          if(s.id===session.id)return;
-          if((s.taName||'')!==taName)return;
-          collectFrom(s);
-        });
-      }
-      if(texts.length<3){toast('对方说的话太少（至少 3 条），无法分析。设置对方昵称后可跨会话汇总',2600,'error');return}
-    }
-    // 上限 500 条。超了就从全部消息里均匀采样，保留时间跨度
-    var MAX_ANALYZE = 500;
-    if(texts.length>MAX_ANALYZE){
-      var step = texts.length / MAX_ANALYZE;
-      var sampled = [];
-      for(var j=0;j<MAX_ANALYZE;j++){
-        sampled.push(texts[Math.floor(j*step)]);
-      }
-      // 确保最后一条（最新的）一定包含
-      if(sampled[sampled.length-1]!==texts[texts.length-1]){
-        sampled[sampled.length-1]=texts[texts.length-1];
-      }
-      texts = sampled;
-    }
-if(texts.length<3){toast('对方说的话太少（至少 3 条），无法分析。设置对方昵称后可跨会话汇总',2600,'error');return}
-}
-if(texts.length>200)texts=texts.slice(-200);
 var api=getDefaultApi();
 if(!api){toast('需要先在设置里配置 API',2200,'error');openSettings();return}
 runtime.analysisRunning=true;
-runtime.analysisMode=mode;
+runtime.analysisMode='mood';
+runtime.analysisTaName=taName;
 renderPersonalityPanel({loading:true});
-openPersonalityPanel(mode);
+openPersonalityPanel('mood',taName);
 try{
-var result=await callAnalysisAPI(api,mode,taName,texts);
-if(mode==='mood'){session.mood=result;session.moodUpdatedAt=Date.now()}
-else{session.personality=result;session.personalityUpdatedAt=Date.now()}
+var result=await callAnalysisAPI(api,'mood',taName,texts);
+session.mood=result;
+session.moodUpdatedAt=Date.now();
 save();
 runtime.analysisRunning=false;
-renderPersonalityPanel(Object.assign({},result,{_updatedAt:mode==='mood'?session.moodUpdatedAt:session.personalityUpdatedAt}));
-}catch(err){
-runtime.analysisRunning=false;
-renderPersonalityPanel({error:err.message});
+renderPersonalityPanel(Object.assign({},result,{_updatedAt:session.moodUpdatedAt}));
+}catch(err){runtime.analysisRunning=false;renderPersonalityPanel({error:err.message})}
 }
+async function analyzePersonalityByName(taName){
+if(runtime.analysisRunning)return;
+taName=cleanUnicode(taName||'');
+if(!taName){toast('未命名分组无法分析，请先给会话设置对方昵称',2400,'error');return}
+var texts=[];
+var seen={};
+state.sessions.forEach(function(s){
+if((s.taName||'')!==taName)return;
+(s.messages||[]).forEach(function(m){
+if(m.role!=='ta'||!m.text)return;
+var t=cleanUnicode(m.text).trim();
+if(!t||seen[t])return;
+seen[t]=true;
+texts.push(t);
+});
+});
+if(texts.length<3){toast('「'+taName+'」说的话太少（至少 3 条），无法分析',2400,'error');return}
+if(texts.length>MAX_ANALYZE_TEXTS){
+var step=texts.length/MAX_ANALYZE_TEXTS;
+var sampled=[];
+for(var j=0;j<MAX_ANALYZE_TEXTS;j++){sampled.push(texts[Math.floor(j*step)])}
+if(sampled[sampled.length-1]!==texts[texts.length-1]){sampled[sampled.length-1]=texts[texts.length-1]}
+texts=sampled;
+}
+var api=getDefaultApi();
+if(!api){toast('需要先在设置里配置 API',2200,'error');openSettings();return}
+runtime.analysisRunning=true;
+runtime.analysisMode='personality';
+runtime.analysisTaName=taName;
+renderPersonalityPanel({loading:true});
+openPersonalityPanel('personality',taName);
+try{
+var result=await callAnalysisAPI(api,'personality',taName,texts);
+if(!state.personalityCache)state.personalityCache={};
+state.personalityCache[taName]={data:result,updatedAt:Date.now()};
+save();
+runtime.analysisRunning=false;
+renderPersonalityPanel(Object.assign({},result,{_updatedAt:state.personalityCache[taName].updatedAt}));
+}catch(err){runtime.analysisRunning=false;renderPersonalityPanel({error:err.message})}
 }
 async function callAnalysisAPI(apiEntry,mode,taName,texts){
 var pConf=PROVIDERS[apiEntry.provider];
@@ -2439,9 +2550,13 @@ if(!key)throw new Error('API Key 无效');
 var model=state.apiModels[apiEntry.provider]||pConf.model;
 if(apiEntry.provider==='doubao'&&!model)throw new Error('豆包需要填接入点 ID');
 var label=taName||'对方';
+var genderInfo='';
+var tg=getTaGender(taName);
+if(tg==='male')genderInfo='（对方是男生）';
+else if(tg==='female')genderInfo='（对方是女生）';
 var systemPrompt;
 if(mode==='mood'){
-systemPrompt='你是情绪分析师。下面是「'+label+'」最近对我说的话（共 '+texts.length+' 条，按时间顺序，最后一条是最新的）。\n'+
+systemPrompt='你是情绪分析师。下面是「'+label+'」'+genderInfo+'最近对我说的话（共 '+texts.length+' 条，按时间顺序，最后一条是最新的）。\n'+
 '请分析他/她此刻的心理状态：\n\n'+
 '1. 当前情绪：现在大概什么情绪（开心/烦躁/平静/焦虑/低落/亢奋/敷衍...），并给出理由\n'+
 '2. 关注点：他/她此刻在意什么、想聊什么话题\n'+
@@ -2453,7 +2568,7 @@ systemPrompt='你是情绪分析师。下面是「'+label+'」最近对我说的
 '⚠️ 严格按 JSON 输出，第一个字符是 {：\n'+
 '{"emotion":"...","focus":"...","subtext":"...","want":"...","advice":"..."}';
 }else{
-systemPrompt='你是行为心理分析师。下面是「'+label+'」对我说过的所有话（共 '+texts.length+' 条，跨多个对话汇总）。\n'+
+systemPrompt='你是行为心理分析师。下面是「'+label+'」'+genderInfo+'对我说过的所有话（共 '+texts.length+' 条，跨多个对话汇总）。\n'+
 '请仔细阅读后，从这几个维度分析这个人的性格特点：\n\n'+
 '1. 情绪基调：他/她和我聊天时的整体情绪倾向（例如：热情、克制、幽默、易焦虑、情绪化、偏理性）\n'+
 '2. 说话风格：常用词、句式、长度、标点、表情习惯\n'+
@@ -2479,13 +2594,15 @@ return{emotion:String(parsed.emotion||'').trim(),focus:String(parsed.focus||'').
 }
 return{tone:String(parsed.tone||'').trim(),style:String(parsed.style||'').trim(),thinking:String(parsed.thinking||'').trim(),relationship:String(parsed.relationship||'').trim(),needs:String(parsed.needs||'').trim(),keywords:Array.isArray(parsed.keywords)?parsed.keywords.slice(0,5).filter(function(k){return typeof k==='string'&&k.trim()}):[],advice:String(parsed.advice||'').trim()};
 }
-function openPersonalityPanel(mode){
+function openPersonalityPanel(mode,taName){
 runtime.analysisMode=mode||runtime.analysisMode||'personality';
+runtime.analysisTaName=taName!==undefined?taName:(runtime.analysisTaName||'');
 var session=getCurrentSession();
-dom.personalityTitle.textContent=runtime.analysisMode==='mood'?'💭 对方当前心理':'🧠 对方性格分析';
+dom.personalityTitle.textContent=runtime.analysisMode==='mood'?'💭 对方当前心理':('🧠 '+(runtime.analysisTaName||'对方')+' 的性格分析');
 if(!runtime.analysisRunning){
-var data=runtime.analysisMode==='mood'?session.mood:session.personality;
-var updatedAt=runtime.analysisMode==='mood'?session.moodUpdatedAt:session.personalityUpdatedAt;
+var data,updatedAt;
+if(runtime.analysisMode==='mood'){data=session.mood;updatedAt=session.moodUpdatedAt}
+else{var cache=state.personalityCache&&state.personalityCache[runtime.analysisTaName];data=cache?cache.data:null;updatedAt=cache?cache.updatedAt:0}
 if(data){var copy=Object.assign({},data);copy._updatedAt=updatedAt;renderPersonalityPanel(copy)}
 else{renderPersonalityPanel(null)}
 }
@@ -2507,6 +2624,7 @@ if(data._updatedAt){html+='<div style="text-align:center;font-size:11px;color:#b
 dom.personalityBody.innerHTML=html;
 }
 function bindEvents(){
+bindGenderSeg(dom.myGenderSeg);
 dom.settingsBtn.addEventListener('click',openSettings);
 dom.closeSettings.addEventListener('click',closeSettings);
 dom.drawerBtn.addEventListener('click',openDrawer);
@@ -2516,12 +2634,7 @@ dom.newChatOnlineBtn.addEventListener('click',function(){handleNewChat('chat')})
 dom.newChatRealBtn.addEventListener('click',function(){handleNewChat('real')});
 dom.statusBar.addEventListener('click',function(e){
 var t=e.target.closest('.status-act');
-if(t){
-e.stopPropagation();
-if(t.dataset.act==='mood')runAnalysis('mood');
-else if(t.dataset.act==='brain')runAnalysis('personality');
-return;
-}
+if(t&&t.dataset.act==='mood'){e.stopPropagation();analyzeMood();return}
 openProfileDialog();
 });
 dom.sendBtn.addEventListener('click',handleSend);
@@ -2529,6 +2642,13 @@ dom.input.addEventListener('keydown',function(e){if(isRealEnter(e)){e.preventDef
 dom.sRefresh.addEventListener('click',regenerateSuggestions);
 dom.itabChat.addEventListener('click',function(){setInputMode('chat')});
 dom.itabCoach.addEventListener('click',function(){setInputMode('coach')});
+if(dom.coMeHead){dom.coMeHead.addEventListener('click',toggleCoMe)}
+if(dom.coMeSave){dom.coMeSave.addEventListener('click',saveCoMeInput)}
+if(dom.coMeArea){
+dom.coMeArea.addEventListener('keydown',function(e){
+if(isRealEnter(e)&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveCoMeInput()}
+});
+}
 if(dom.weightSeg){dom.weightSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);state.styleWeight.halfLifeDays=val;save();renderStyleWeightUI();updateProfileCache();renderProfilePanel();var msg;if(val===0)msg='已关闭时间衰减';else msg='时间衰减：半衰期 '+val+' 天';toast(msg,1400,'success')})})}
 dom.modeBtn.addEventListener('click',function(){
 var session=getCurrentSession();
@@ -2559,15 +2679,10 @@ dom.speakCopy.addEventListener('click',function(){var val=runtime.currentSpeakTe
 dom.speakPlay.addEventListener('click',function(){var val=runtime.currentSpeakText;if(!val)return;speakText(val)});
 dom.speakSaid.addEventListener('click',confirmSpeakSaid);
 dom.speakPanel.addEventListener('click',function(e){if(e.target===dom.speakPanel)closeSpeakPanel()});
-dom.meBtn.addEventListener('click',openMeInput);
-dom.meInputMask.addEventListener('click',closeMeInput);
-dom.meInputCancel.addEventListener('click',closeMeInput);
-dom.meInputSave.addEventListener('click',saveMeInput);
-dom.meInputArea.addEventListener('keydown',function(e){if(isRealEnter(e)&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveMeInput()}else if(e.key==='Escape'){e.preventDefault();closeMeInput()}});
 dom.closeSamples.addEventListener('click',closeSamplesModal);
 dom.closePersonality.addEventListener('click',closePersonalityPanel);
 dom.personalityCloseBtn.addEventListener('click',closePersonalityPanel);
-dom.personalityReanalyze.addEventListener('click',function(){if(runtime.analysisRunning)return;runAnalysis(runtime.analysisMode||'personality')});
+dom.personalityReanalyze.addEventListener('click',function(){if(runtime.analysisRunning)return;if(runtime.analysisMode==='mood')analyzeMood();else analyzePersonalityByName(runtime.analysisTaName)});
 dom.sheetMask.addEventListener('click',closeActionSheet);
 dom.sheetCancel.addEventListener('click',closeActionSheet);
 dom.sheetDelete.addEventListener('click',deletePendingMessage);
@@ -2604,7 +2719,6 @@ else if(dom.profileDialog.classList.contains('show'))closeProfileDialog();
 else if(dom.speakPanel.classList.contains('show'))closeSpeakPanel();
 else if(dom.samplesModal.classList.contains('show'))closeSamplesModal();
 else if(dom.personalityPanel.classList.contains('show'))closePersonalityPanel();
-else if(dom.meInputPanel.classList.contains('show'))closeMeInput();
 else if(dom.sheet.classList.contains('show'))closeActionSheet();
 else if(dom.exportDialog.classList.contains('show'))closeExportDialog();
 else if(dom.importDialog.classList.contains('show'))closeImportDialog();
@@ -2619,6 +2733,7 @@ if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoic
 function init(){
 bindDomRefs();
 loadCollapsedGroups();
+loadCoMeCollapsed();
 var loaded=load();
 if(!loaded)createSession(true,'chat');
 if(state.sessions.length===0)createSession(true,'chat');
