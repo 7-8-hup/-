@@ -637,18 +637,30 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <div class="field" style="margin-bottom:16px;"><label>我的昵称</label><input type="text" id="myName" placeholder="让 AI 更懂你" autocomplete="off"></div>
 <div class="field" style="margin-bottom:16px;"><label>我的性别（可选）</label><div class="gender-seg" id="myGenderSeg"><button type="button" data-val="">不填</button><button type="button" data-val="male">男</button><button type="button" data-val="female">女</button></div></div>
 <div class="field" style="margin-bottom:16px;"><label>补充说明（可选）</label><textarea id="myStyle" placeholder="如果画像不对，可以在这里补充" maxlength="300"></textarea></div>
-<div class="field" style="margin-bottom:0;">
+<div class="field" style="margin-bottom:16px;">
 <label>样本时间衰减</label>
 <div class="weight-seg" id="weightSeg"><button data-val="0">关闭</button><button data-val="90">温和</button><button data-val="30">标准</button><button data-val="14">激进</button></div>
 <div class="sub-hint" id="weightHint">半衰期 30 天：30 天前的样本权重减半，让 AI 更贴近你现在的说话方式</div>
 </div>
-<div class="hint" style="margin-top:10px;padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">💡 对方昵称和情境在对话页面设置；对方性别在左侧对话列表点击分组标题的小图标设置（按人名全局生效）。</div>
+<div class="field" style="margin-bottom:16px;">
+<label>上下文长度（每次发给 AI 的最近消息条数）</label>
+<div class="weight-seg" id="ctxSeg"><button data-val="20">20 条</button><button data-val="40">40 条</button><button data-val="80">80 条</button></div>
+<div class="sub-hint" id="ctxHint">条数越多越能接住上下文，但每次请求更贵（默认 40 条）</div>
+</div>
+<div class="field" style="margin-bottom:0;">
+<label>样本注入（每次带上几条"我说过的话"）</label>
+<div class="weight-seg" id="sampSeg"><button data-val="12">12 条</button><button data-val="24">24 条</button><button data-val="40">40 条</button></div>
+<div class="sub-hint" id="sampHint">像不像你主要靠这个，条数越多越准，也更贵（默认 24 条）</div>
+</div>
+<div class="hint" style="margin-top:10px;padding:8px 10px;background:#eef2ff;border-radius:8px;color:#3730a3;font-size:11px;line-height:1.5;">📚 学习样本按「对方昵称」分别保留，每人最多 <b id="capPerPerson">200</b> 条、总共最多 <b id="capTotal">1000</b> 条；超了就丢最旧的。</div>
+<div class="hint" style="margin-top:8px;padding:8px 10px;background:#fff7ed;border-radius:8px;color:#c2410c;font-size:11px;line-height:1.5;">💡 对方昵称和情境在对话页面设置；性别、关系、雷区在左侧对话列表点人名后的 📇 设置（按人名全局生效）。</div>
 </div></div>
 </div>
 <div class="collapse-card backup-theme" id="cardBackup">
 <div class="collapse-head" data-toggle="backup"><span class="ch-icon">💾</span><span class="ch-title">数据备份</span><span class="ch-badge info" id="backupHeadBadge">本地</span><span class="ch-chev">▶</span></div>
 <div class="collapse-body"><div class="collapse-body-inner">
 <div class="backup-info">📦 当前 <b id="backupSessionCount">0</b> 个对话 · <b id="backupSampleCount">0</b> 条样本</div>
+<div class="backup-info" style="background:#eef2ff;color:#3730a3;">💾 本地占用 <b id="storageUsed">-</b> · 浏览器上限约 5 MB（快照另算）</div>
 <div class="backup-snapshot" id="backupSnapshot" style="display:none"></div>
 <div class="backup-actions">
 <button class="btn-backup-export" id="exportBtn">⬇️ 导出 JSON</button>
@@ -734,7 +746,10 @@ main{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column
 <script>
 (function(){
 'use strict';
-var SCHEMA_VERSION=11,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=20,MAX_ANALYZE_TEXTS=500,COLLAPSE_KEY='chat_collapse_v1',SNAPSHOT_KEY='chat_clean_v2_snapshot';
+var SCHEMA_VERSION=11,TAGS_VERSION=1,APP_ID='chat-assistant',MAX_HISTORY_MESSAGES=40,MAX_ANALYZE_TEXTS=800,COLLAPSE_KEY='chat_collapse_v1',SNAPSHOT_KEY='chat_clean_v2_snapshot';
+// 学习 / 分析容量上限：样本改成"按人分别算"，避免多个人互相挤
+var MAX_SAMPLES_PER_PERSON=200,MAX_SAMPLES_TOTAL=1000,SAMPLE_INJECT_DEFAULT=24,MOOD_SAMPLE_MAX=60,SCENE_SHOW=8,IMPORT_MAX_MB=50;
+var HISTORY_OPTIONS=[20,40,80],SAMPLE_OPTIONS=[12,24,40];
 var RELATION_TAGS=['未知','朋友','暧昧','情侣','家人','同事','客户'];
 var TONE_PRESETS=[
 {key:'short',label:'更短',rule:'每条都要比画像里更短：能 6 个字说完就别用 10 个字，宁可少说'},
@@ -827,7 +842,7 @@ if(lines.length===0)return '';
 return '\n═══════════════════════════════\n【这一批的语气要求（优先级高于上面的画像）】\n═══════════════════════════════\n'+lines.join('\n')+'\n⚠️ 3 条建议都要满足这些要求，但仍要保持我的说话风格和长度习惯。\n';
 }
 function createEmptyState(){
-return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personProfiles:{},uiOpen:{api:false,style:false,backup:false}};
+return{schemaVersion:SCHEMA_VERSION,sessions:[],currentSessionId:'',apiKeys:{deepseek:'',zhipu:'',doubao:''},apiModels:{deepseek:'',zhipu:'',doubao:''},apiEnabled:{deepseek:true,zhipu:true,doubao:true},defaultProvider:'',myName:'',myGender:'',myStyle:'',styleSamples:[],styleWeight:{halfLifeDays:30},personalityCache:{},personProfiles:{},context:{history:40,samples:24},uiOpen:{api:false,style:false,backup:false}};
 }
 var state=createEmptyState();
 var runtime={imageBase64:null,loading:false,pendingDeleteIdx:-1,currentSpeakIdx:-1,currentSpeakText:'',suggestions:[],avoidSuggestions:[],coachResult:null,langProfile:null,sceneProfile:null,taLangProfile:null,taSceneProfile:null,toastTimer:null,quotaWarnedAt:0,cachedVoices:null,clearArmed:false,clearArmedTimer:null,collapsedGroups:{},analysisRunning:false,analysisMode:'personality',analysisTaName:'',sessionMenu:{targetId:''},renameTargetId:'',multiSelect:{active:false,selected:{}},classifyState:{running:false,pending:0,lastError:null,lastSuccessAt:0},pendingImport:{payload:null,fileName:''},pendingExtract:null,personPanelName:'',toneTimer:null,undo:null,snapshotInfo:null,testState:{}};
@@ -848,7 +863,7 @@ if(sid===state.currentSessionId)syncRuntimeFromCache(sid);
 function clearReplyFor(sid){delete suggestionCache[sid];if(sid===state.currentSessionId)syncRuntimeFromCache(sid)}
 var dom={};
 function bindDomRefs(){
-var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','dropHint','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personClearBtn','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
+var ids=['messages','suggestions','sList','toneRow','sTitleText','sTitleTip','sTitleSpinner','sRefresh','imgPreview','previewImg','removeImg','extractBtn','extractDialog','extractDialogMask','extractBody','extractCancel','extractConfirm','imageBtn','fileInput','input','sendBtn','meBtn','headerTitle','statusBar','drawerBtn','drawer','drawerMask','newChatBtn','newChatOnlineBtn','newChatRealBtn','sessionList','settingsBtn','settings','closeSettings','apiForm','myName','myGenderSeg','myStyle','profilePanel','toast','sheet','sheetMask','sheetPreview','sheetDelete','sheetCancel','meInputMask','meInputPanel','meInputArea','meInputCtx','meInputCancel','meInputSave','samplesModal','samplesBody','closeSamples','dropHint','speakPanel','speakText','speakClose','speakCopy','speakPlay','speakSaid','apiHeadBadge','cardApi','cardStyle','profileDialog','profileDialogMask','pdTaName','pdStatus','pdCancel','pdSave','pdProfileBtn','weightSeg','weightHint','ctxSeg','ctxHint','sampSeg','sampHint','capPerPerson','capTotal','storageUsed','multiToolbar','mtSelectAll','mtInfo','mtDelete','mtCancel','newChatRow','sessionMenu','sessionMenuMask','pinLabel','renameMask','renameDialog','renameInput','renameCancel','renameSave','cardBackup','backupHeadBadge','backupSessionCount','backupSampleCount','backupSnapshot','exportBtn','importBtn','exportDialogMask','exportDialog','exportCancel','exportConfirm','importDialogMask','importDialog','importInfo','importCancel','importConfirm','importFileInput','inputTabs','itabChat','itabCoach','personalityPanel','personalityBody','personalityTitle','closePersonality','personalityCloseBtn','personalityReanalyze','personPanel','personBody','personClearBtn','personTitle','closePerson','personCloseBtn','personSaveBtn','personRelationSeg','personGenderSeg2','personCall','personLikes','personTaboos','personNote'];
 ids.forEach(function(id){dom[id]=document.getElementById(id)});
 }
 function toast(msg,dur,type,action){
@@ -966,9 +981,10 @@ if(d.styleWeight&&typeof d.styleWeight==='object'){out.styleWeight={halfLifeDays
 if(Array.isArray(d.styleSamples)){
 out.styleSamples=d.styleSamples.filter(function(s){return s&&typeof s==='object'&&typeof s.myText==='string'}).map(function(s){
 return{myText:s.myText,taText:typeof s.taText==='string'?s.taText:'',taName:typeof s.taName==='string'?s.taName:'',timestamp:typeof s.timestamp==='number'?s.timestamp:Date.now(),tags:Array.isArray(s.tags)?s.tags.filter(function(t){return typeof t==='string'}):[],tagsVersion:typeof s.tagsVersion==='number'?s.tagsVersion:0};
-}).slice(-200);
+}).slice(-MAX_SAMPLES_TOTAL);
 }
 if(d.personalityCache&&typeof d.personalityCache==='object'){out.personalityCache=d.personalityCache}
+if(d.context&&typeof d.context==='object'){out.context={history:HISTORY_OPTIONS.indexOf(d.context.history)>=0?d.context.history:MAX_HISTORY_MESSAGES,samples:SAMPLE_OPTIONS.indexOf(d.context.samples)>=0?d.context.samples:SAMPLE_INJECT_DEFAULT}}
 if(d.personProfiles&&typeof d.personProfiles==='object'){
 Object.keys(d.personProfiles).forEach(function(k){
 if(!k||typeof k!=='string')return;
@@ -1005,6 +1021,7 @@ var d=JSON.parse(raw);
 var normalized=normalizeRawState(d);
 if(!normalized)return false;
 state=normalized;
+pruneSamples();
 if(state.sessions.length===0)createSession(false,'chat');
 if(!state.currentSessionId||!state.sessions.find(function(s){return s.id===state.currentSessionId})){state.currentSessionId=state.sessions[0].id}
 return true;
@@ -1144,7 +1161,7 @@ return Object.keys(sceneMap).map(function(tag){
 var entry=sceneMap[tag];
 var arr=entry.samples.slice().sort(function(a,b){return(b.timestamp||0)-(a.timestamp||0)});
 return{key:tag,name:tag,count:entry.rawCount,weightSum:entry.weightSum,fromAI:entry.fromAI,examples:arr.slice(0,2).map(function(s){return{ta:s.taText,me:s.myText}})};
-}).filter(function(sc){return sc.count>=2}).sort(function(a,b){return b.weightSum-a.weightSum}).slice(0,6);
+}).filter(function(sc){return sc.count>=2}).sort(function(a,b){return b.weightSum-a.weightSum}).slice(0,SCENE_SHOW);
 }
 function profileToPrompt(langProfile,scenes){
 var parts=[];
@@ -1185,10 +1202,33 @@ runtime.langProfile=analyzeLangStyle(state.styleSamples,'');
 runtime.sceneProfile=analyzeScenes(state.styleSamples,'');
 if(curTaName){runtime.taLangProfile=analyzeLangStyle(state.styleSamples,curTaName);runtime.taSceneProfile=analyzeScenes(state.styleSamples,curTaName)}else{runtime.taLangProfile=null;runtime.taSceneProfile=null}
 }
+function getHistoryLimit(){
+var c=state.context||{};
+return HISTORY_OPTIONS.indexOf(c.history)>=0?c.history:MAX_HISTORY_MESSAGES;
+}
+function getSampleInject(){
+var c=state.context||{};
+return SAMPLE_OPTIONS.indexOf(c.samples)>=0?c.samples:SAMPLE_INJECT_DEFAULT;
+}
+// 样本按"人"分别限额，再保总量：多聊几个人也不会互相挤掉
+function pruneSampleList(list){
+var arr=(list||[]).slice();
+var byName={};
+arr.forEach(function(s){var k=(s&&s.taName)||'';if(!byName[k])byName[k]=[];byName[k].push(s)});
+var keep=[];
+Object.keys(byName).forEach(function(k){
+var group=byName[k].slice().sort(function(a,b){return(a.timestamp||0)-(b.timestamp||0)});
+keep=keep.concat(group.slice(-MAX_SAMPLES_PER_PERSON));
+});
+keep.sort(function(a,b){return(a.timestamp||0)-(b.timestamp||0)});
+if(keep.length>MAX_SAMPLES_TOTAL)keep=keep.slice(-MAX_SAMPLES_TOTAL);
+return keep;
+}
+function pruneSamples(){state.styleSamples=pruneSampleList(state.styleSamples)}
 function addStyleSample(myText,taText,taName){
 if(!myText||!myText.trim())return;
 state.styleSamples.push({myText:myText.trim(),taText:(taText||'').trim(),taName:(taName||'').trim(),timestamp:Date.now(),tags:[],tagsVersion:0});
-if(state.styleSamples.length>200)state.styleSamples=state.styleSamples.slice(-200);
+pruneSamples();
 updateProfileCache();
 scheduleClassification();
 }
@@ -1298,6 +1338,12 @@ function renderBackupPanel(){
 if(dom.backupSessionCount)dom.backupSessionCount.textContent=state.sessions.length;
 if(dom.backupSampleCount)dom.backupSampleCount.textContent=state.styleSamples.length;
 if(dom.backupHeadBadge){var n=state.sessions.length;dom.backupHeadBadge.textContent=n>0?n+' 会话':'本地';dom.backupHeadBadge.className='ch-badge '+(n>0?'ok':'info')}
+if(dom.storageUsed){
+var used=0;
+try{used=(safeGetStorage(STORAGE_KEY)||'').length+(safeGetStorage(SNAPSHOT_KEY)||'').length}catch(e){}
+var usedMb=used/1024/1024;
+dom.storageUsed.textContent=usedMb<0.1?(Math.max(1,Math.round(used/1024))+' KB'):(usedMb.toFixed(2)+' MB');
+}
 renderSnapshotRow();
 }
 function openExportDialog(){
@@ -1333,7 +1379,7 @@ toast('✅ 已导出 '+fname,2400,'success');
 function openImportFileDialog(){dom.importFileInput.value='';dom.importFileInput.click()}
 function handleImportFile(file){
 if(!file)return;
-if(file.size>20*1024*1024){toast('文件过大（>20MB）',2200,'error');return}
+if(file.size>IMPORT_MAX_MB*1024*1024){toast('文件过大（>'+IMPORT_MAX_MB+'MB）',2200,'error');return}
 var reader=new FileReader();
 reader.onload=function(e){
 var parsed;
@@ -1378,7 +1424,7 @@ var localModels=JSON.parse(JSON.stringify(state.apiModels));
 var localEnabled=JSON.parse(JSON.stringify(state.apiEnabled));
 var localDefaultProvider=state.defaultProvider;
 var beforeImport=JSON.parse(JSON.stringify(state));
-saveSnapshot(mode==='replace'?'覆盖导入前':'合并导入前');
+if(!saveSnapshot(mode==='replace'?'覆盖导入前':'合并导入前')){toast('⚠️ 本地空间不足，这次没存下导入前快照（建议先导出备份再导入）',3600,'error')}
 if(mode==='replace'){
 var newState=normalized;
 PROVIDER_ORDER.forEach(function(p){if(localKeys[p]){newState.apiKeys[p]=localKeys[p];newState.apiModels[p]=localModels[p]||'';newState.apiEnabled[p]=localEnabled[p]!==false}});
@@ -1410,7 +1456,7 @@ else if((s.updatedAt||0)>(cur.updatedAt||0)){var idx=state.sessions.indexOf(cur)
 var seen={};
 state.styleSamples.forEach(function(s){seen[(s.myText||'')+'\u0001'+(s.taText||'')+'\u0001'+(s.timestamp||0)]=true});
 incoming.styleSamples.forEach(function(s){var key=(s.myText||'')+'\u0001'+(s.taText||'')+'\u0001'+(s.timestamp||0);if(!seen[key]){state.styleSamples.push(s);seen[key]=true}});
-if(state.styleSamples.length>200)state.styleSamples=state.styleSamples.slice(-200);
+pruneSamples();
 if(!state.myName&&incoming.myName)state.myName=incoming.myName;
 if(!state.myGender&&incoming.myGender)state.myGender=incoming.myGender;
 if(!state.myStyle&&incoming.myStyle)state.myStyle=incoming.myStyle;
@@ -1709,6 +1755,12 @@ var def=getDefaultApi();
 if(def){var p=PROVIDERS[def.provider];var extra=enabledList.length-1;setHeadBadge(dom.apiHeadBadge,p.icon+' '+p.name+(extra>0?' +'+extra:''),'ok')}else{setHeadBadge(dom.apiHeadBadge,'未配置','info')}
 }
 function setHeadBadge(el,text,cls){if(!el)return;el.textContent=text;el.className='ch-badge '+cls}
+function renderContextUI(){
+if(dom.ctxSeg)dom.ctxSeg.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',parseInt(b.dataset.val)===getHistoryLimit())});
+if(dom.sampSeg)dom.sampSeg.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',parseInt(b.dataset.val)===getSampleInject())});
+if(dom.capPerPerson)dom.capPerPerson.textContent=MAX_SAMPLES_PER_PERSON;
+if(dom.capTotal)dom.capTotal.textContent=MAX_SAMPLES_TOTAL;
+}
 function renderStyleWeightUI(){
 if(!dom.weightSeg)return;
 var halfLife=getHalfLife();
@@ -1772,7 +1824,7 @@ if(lang.commonEndings.length>0)tags.push({text:'常以"'+lang.commonEndings.slic
 var langHtml=tags.length>0?'<div class="pp-tags">'+tags.map(function(t){return '<span class="pp-tag'+(t.highlight?' highlight':'')+'">'+esc(t.text)+'</span>'}).join('')+'</div>':'<div class="pp-empty">样本不足</div>';
 var scenesHtml='';
 if(scenes.length>0){
-scenesHtml='<div class="pp-scenes">'+scenes.slice(0,6).map(function(sc){
+scenesHtml='<div class="pp-scenes">'+scenes.slice(0,SCENE_SHOW).map(function(sc){
 var badge=sc.fromAI?'<span class="ai-badge">AI</span>':'';
 var now=Date.now();
 if(sc.weightSum>0){
@@ -1809,7 +1861,7 @@ dom.settings.classList.add('show');
 dom.myName.value=state.myName;
 setGenderSeg(dom.myGenderSeg,state.myGender||'');
 dom.myStyle.value=state.myStyle;
-renderProfilePanel();renderApiForm();renderStyleWeightUI();renderBackupPanel();renderSnapshotRow();applyCollapse();
+renderProfilePanel();renderApiForm();renderStyleWeightUI();renderContextUI();renderBackupPanel();renderSnapshotRow();applyCollapse();
 scheduleClassification();
 }
 function closeSettings(){
@@ -2156,7 +2208,7 @@ renderMessages();renderSuggestions();renderHeader();renderBackupPanel();
 pushUndo(function(){
 session.messages.splice(Math.min(idx,session.messages.length),0,removedMsg);
 removedSamples.forEach(function(s){state.styleSamples.push(s)});
-if(state.styleSamples.length>200)state.styleSamples=state.styleSamples.slice(-200);
+pruneSamples();
 session.updatedAt=Date.now();
 updateProfileCache();
 save();
@@ -2517,18 +2569,19 @@ else{throw new Error(pConf.name+' 不支持图片')}
 var isReal=(session.mode||'chat')==='real';
 var sessionTaName=cleanUnicode(session.taName||'');
 var allMessages=session.messages||[];
-var historyMessages=allMessages.length>MAX_HISTORY_MESSAGES?allMessages.slice(-MAX_HISTORY_MESSAGES):allMessages;
-var historyTruncated=allMessages.length>MAX_HISTORY_MESSAGES;
+var hLimit=getHistoryLimit();
+var historyMessages=allMessages.length>hLimit?allMessages.slice(-hLimit):allMessages;
+var historyTruncated=allMessages.length>hLimit;
 var historyLines=historyMessages.map(function(m){var who=m.role==='ta'?(sessionTaName||'对方'):'我';return who+'：'+cleanUnicode(m.text)}).join('\n');
 var historyBlock='';
-if(historyLines){historyBlock='\n═══════════════════════════════\n【最近的完整对话历史】'+(historyTruncated?'（仅展示最近 '+MAX_HISTORY_MESSAGES+' 条，共 '+allMessages.length+' 条）':'（共 '+allMessages.length+' 条）')+'\n═══════════════════════════════\n⚠️ 下面是你和'+(sessionTaName||'对方')+'真实的聊天记录，请仔细读完再回。\n· 上面一行是"'+(sessionTaName||'对方')+'"，下一行是"我"，一来一回。\n· 先理解：现在聊到哪、什么话题、对方什么语气、我前面说过什么。\n· 你给的建议必须和这段上下文连贯，不能只看"当前情境"就凭空乱回。\n· 如果对方问过某件事、提过某个时间/地点/人物，你的回复要接上。\n───────────────────────────────\n'+historyLines+'\n═══════════════════════════════\n'}
+if(historyLines){historyBlock='\n═══════════════════════════════\n【最近的完整对话历史】'+(historyTruncated?'（仅展示最近 '+hLimit+' 条，共 '+allMessages.length+' 条）':'（共 '+allMessages.length+' 条）')+'\n═══════════════════════════════\n⚠️ 下面是你和'+(sessionTaName||'对方')+'真实的聊天记录，请仔细读完再回。\n· 上面一行是"'+(sessionTaName||'对方')+'"，下一行是"我"，一来一回。\n· 先理解：现在聊到哪、什么话题、对方什么语气、我前面说过什么。\n· 你给的建议必须和这段上下文连贯，不能只看"当前情境"就凭空乱回。\n· 如果对方问过某件事、提过某个时间/地点/人物，你的回复要接上。\n───────────────────────────────\n'+historyLines+'\n═══════════════════════════════\n'}
 var langProfile=runtime.taLangProfile||runtime.langProfile;
 var sceneProfile=runtime.taSceneProfile||runtime.sceneProfile;
 var profileText=profileToPrompt(langProfile,sceneProfile);
 var taPool=sessionTaName?state.styleSamples.filter(function(s){return(s.taName||'')===sessionTaName}):[];
 var hasEnoughTaPool=taPool.length>=3;
 var pool=hasEnoughTaPool?taPool:state.styleSamples.slice();
-var recentSamples=pool.slice().sort(function(a,b){return(b.timestamp||0)-(a.timestamp||0)}).slice(0,12);
+var recentSamples=pool.slice().sort(function(a,b){return(b.timestamp||0)-(a.timestamp||0)}).slice(0,getSampleInject());
 var recentText=recentSamples.length>0?'\n【我最近真实说过的话】\n'+recentSamples.map(function(s){return '  · '+s.myText}).join('\n'):'';
 var statusLine=session.status?'\n【当前情境】'+cleanUnicode(session.status):'';
 var extraStyle=state.myStyle?'\n【我自己的补充说明】\n'+cleanUnicode(state.myStyle):'';
@@ -2585,10 +2638,11 @@ else{throw new Error(pConf.name+' 不支持图片')}
 var sessionTaName=cleanUnicode(session.taName||'');
 var ta=sessionTaName?('对方（'+sessionTaName+'）'):'对方';
 var allMessages=session.messages||[];
-var historyMessages=allMessages.length>MAX_HISTORY_MESSAGES?allMessages.slice(-MAX_HISTORY_MESSAGES):allMessages;
-var historyTruncated=allMessages.length>MAX_HISTORY_MESSAGES;
+var hLimit=getHistoryLimit();
+var historyMessages=allMessages.length>hLimit?allMessages.slice(-hLimit):allMessages;
+var historyTruncated=allMessages.length>hLimit;
 var historyLines=historyMessages.map(function(m){var who=m.role==='ta'?(sessionTaName||'对方'):'我';return who+'：'+cleanUnicode(m.text)}).join('\n');
-var historyBlock=historyLines?'【最近的完整对话历史】'+(historyTruncated?'（仅展示最近 '+MAX_HISTORY_MESSAGES+' 条）':'')+'\n───────────────────────────────\n'+historyLines+'\n───────────────────────────────':'（这是对话的开始，还没有历史消息）';
+var historyBlock=historyLines?'【最近的完整对话历史】'+(historyTruncated?'（仅展示最近 '+hLimit+' 条）':'')+'\n───────────────────────────────\n'+historyLines+'\n───────────────────────────────':'（这是对话的开始，还没有历史消息）';
 var statusLine=session.status?'\n【当前情境】'+cleanUnicode(session.status):'';
 var extraStyle=state.myStyle?'\n【我自己的补充说明】\n'+cleanUnicode(state.myStyle):'';
 var genderBlock=personProfileBlock(sessionTaName);
@@ -2843,7 +2897,7 @@ var texts=[];
 var seen={};
 var msgs=session.messages||[];
 var collected=0;
-for(var i=msgs.length-1;i>=0&&collected<30;i--){
+for(var i=msgs.length-1;i>=0&&collected<MOOD_SAMPLE_MAX;i--){
 var m=msgs[i];
 if(m.role!=='ta'||!m.text)continue;
 var t=cleanUnicode(m.text).trim();
@@ -3325,6 +3379,8 @@ dom.personClearBtn.addEventListener('click',clearPersonPanel);
 bindDragAndDrop();
 bindGenderSeg(dom.personGenderSeg2);
 if(dom.weightSeg){dom.weightSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);state.styleWeight.halfLifeDays=val;save();renderStyleWeightUI();updateProfileCache();renderProfilePanel();var msg;if(val===0)msg='已关闭时间衰减';else msg='时间衰减：半衰期 '+val+' 天';toast(msg,1400,'success')})})}
+if(dom.ctxSeg){dom.ctxSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);if(HISTORY_OPTIONS.indexOf(val)<0)return;state.context.history=val;save();renderContextUI();toast('上下文长度：最近 '+val+' 条消息',1400,'success')})})}
+if(dom.sampSeg){dom.sampSeg.querySelectorAll('button').forEach(function(btn){btn.addEventListener('click',function(){var val=parseInt(btn.dataset.val);if(SAMPLE_OPTIONS.indexOf(val)<0)return;state.context.samples=val;save();renderContextUI();toast('样本注入：'+val+' 条',1400,'success')})})}
 dom.imageBtn.addEventListener('click',function(){dom.fileInput.click()});
 dom.fileInput.addEventListener('change',function(e){if(e.target.files.length)handleImageSelect(e.target.files[0])});
 dom.removeImg.addEventListener('click',clearImage);
