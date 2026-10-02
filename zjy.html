@@ -704,6 +704,8 @@ if(days<0)days=0;
 return Math.pow(.5,days/halfLifeDays);
 }
 function genId(){return 's_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+// 会话 id 会被写进 HTML 属性，导入的备份文件里可能是任意字符串，这里统一校验
+function safeSessionId(v){return(typeof v==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(v))?v:genId()}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function sanitizeKey(s){return String(s==null?'':s).replace(/[\u200B-\u200D\uFEFF]/g,'').trim()}
 function safeGetStorage(key){try{return localStorage.getItem(key)}catch(e){return null}}
@@ -770,7 +772,9 @@ d=migrateState(d);
 var out=createEmptyState();
 if(Array.isArray(d.sessions)){
 out.sessions=d.sessions.filter(function(s){return s&&typeof s==='object'}).map(function(s){
-return{id:typeof s.id==='string'?s.id:genId(),messages:Array.isArray(s.messages)?s.messages.filter(function(m){return m&&typeof m==='object'}):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0};
+return{id:safeSessionId(s.id),messages:Array.isArray(s.messages)?s.messages.filter(function(m){return m&&typeof m==='object'}).map(function(m){
+return{role:m.role==='ta'?'ta':'me',text:typeof m.text==='string'?m.text:(m.text==null?'':String(m.text)),manual:!!m.manual};
+}):[],status:typeof s.status==='string'?s.status:'',taName:typeof s.taName==='string'?s.taName:'',title:typeof s.title==='string'?s.title:'',pinned:!!s.pinned,mode:(s.mode==='real'||s.mode==='chat')?s.mode:'chat',inputMode:(s.inputMode==='coach'||s.inputMode==='chat')?s.inputMode:'chat',createdAt:typeof s.createdAt==='number'?s.createdAt:Date.now(),updatedAt:typeof s.updatedAt==='number'?s.updatedAt:Date.now(),mood:(s.mood&&typeof s.mood==='object')?s.mood:null,moodUpdatedAt:typeof s.moodUpdatedAt==='number'?s.moodUpdatedAt:0};
 });
 }
 out.currentSessionId=typeof d.currentSessionId==='string'?d.currentSessionId:'';
@@ -1001,9 +1005,12 @@ if(state.styleSamples.length>200)state.styleSamples=state.styleSamples.slice(-20
 updateProfileCache();
 scheduleClassification();
 }
+function isSampleClassified(s){
+return !!(s&&Array.isArray(s.tags)&&s.tagsVersion===TAGS_VERSION);
+}
 function countPendingSamples(){
 var n=0;
-(state.styleSamples||[]).forEach(function(s){if(!s||!s.taText||!s.myText)return;if(!Array.isArray(s.tags)||s.tags.length===0||s.tagsVersion!==TAGS_VERSION)n++});
+(state.styleSamples||[]).forEach(function(s){if(!s||!s.taText||!s.myText)return;if(!isSampleClassified(s))n++});
 return n;
 }
 function buildClassifyPrompt(batch){
@@ -1047,8 +1054,9 @@ async function classifySamplesBatch(){
 if(runtime.classifyState.running)return;
 if(!getDefaultApi())return;
 var pending=[];
-(state.styleSamples||[]).forEach(function(s){if(!s||!s.taText||!s.myText)return;if(!Array.isArray(s.tags)||s.tags.length===0||s.tagsVersion!==TAGS_VERSION)pending.push(s)});
+(state.styleSamples||[]).forEach(function(s){if(!s||!s.taText||!s.myText)return;if(!isSampleClassified(s))pending.push(s)});
 if(pending.length===0){runtime.classifyState.pending=0;renderProfilePanel();return}
+var pendingBefore=pending.length;
 var batch=pending.slice(0,20);
 runtime.classifyState.running=true;
 runtime.classifyState.pending=pending.length;
@@ -1066,7 +1074,8 @@ renderProfilePanel();
 var isEditing=dom.sList&&dom.sList.querySelector('.s-card.editing');
 if(!isEditing)renderSuggestions();
 }
-if(runtime.classifyState.pending>0&&!runtime.classifyState.lastError){setTimeout(classifySamplesBatch,800)}
+// 只有本轮确实减少了待分类数量才继续，避免 AI 一直返回空标签时无限重发请求
+if(runtime.classifyState.pending>0&&runtime.classifyState.pending<pendingBefore&&!runtime.classifyState.lastError){setTimeout(classifySamplesBatch,800)}
 }
 function reclassifyAllSamples(){
 if(!getDefaultApi()){toast('需要先在设置里配置 API',2200,'error');return}
@@ -1113,7 +1122,8 @@ dom.exportDialog.classList.add('show');
 function closeExportDialog(){dom.exportDialogMask.classList.remove('show');dom.exportDialog.classList.remove('show')}
 function updateExportOptionStyle(){dom.exportDialog.querySelectorAll('.export-option').forEach(function(opt){var input=opt.querySelector('input');opt.classList.toggle('selected',input.checked)})}
 function doExport(){
-var mode=dom.exportDialog.querySelector('input[name=exportMode]:checked').value;
+var checked=dom.exportDialog.querySelector('input[name=exportMode]:checked');
+var mode=checked?checked.value:'safe';
 var includesCredentials=(mode==='full');
 var dataClone=JSON.parse(JSON.stringify(state));
 if(!includesCredentials){dataClone.apiKeys={deepseek:'',zhipu:'',doubao:''};dataClone.apiModels={deepseek:'',zhipu:'',doubao:''}}
@@ -1171,7 +1181,8 @@ function updateImportOptionStyle(){dom.importDialog.querySelectorAll('.import-op
 function doImport(){
 var payload=runtime.pendingImport.payload;
 if(!payload){closeImportDialog();return}
-var mode=dom.importDialog.querySelector('input[name=importMode]:checked').value;
+var checkedMode=dom.importDialog.querySelector('input[name=importMode]:checked');
+var mode=checkedMode?checkedMode.value:'merge';
 var normalized=normalizeRawState(payload.data);
 if(!normalized){toast('备份数据格式异常',2200,'error');closeImportDialog();return}
 var localKeys=JSON.parse(JSON.stringify(state.apiKeys));
@@ -1269,8 +1280,8 @@ var mode=session.mode||'chat';
 var inputMode=session.inputMode||'chat';
 if(msgs.length===0){
 var coach=inputMode==='coach';
-if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
-else if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+if(coach){dom.messages.innerHTML='<div class="empty">✍️ 表达教练<br>把你想说的话打进去<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 帮你分析、改写、教你更舒服的说法</span></div>'}
+else if(mode==='real'){dom.messages.innerHTML='<div class="empty">🗣️ 现实对话<br>对方刚说了什么？<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">AI 会给你 3 句可以当面说的话</span></div>'}
 else{dom.messages.innerHTML='<div class="empty">输入对方的话<br>获取 3 条回复建议<br><span style="font-size:12px;color:#bbb;margin-top:8px;display:inline-block;">💡 长按消息可删除 · 点击建议可修改</span></div>'}
 return;
 }
@@ -1494,7 +1505,7 @@ var hasApi=!!getDefaultApi();
 var cs=runtime.classifyState;
 var pending=countPendingSamples();
 var classified=0;
-samples.forEach(function(s){if(Array.isArray(s.tags)&&s.tags.length>0&&s.tagsVersion===TAGS_VERSION)classified++});
+samples.forEach(function(s){if(isSampleClassified(s))classified++});
 if(cs.running){return '<div class="pp-classify-row"><span class="pp-classify-icon"><span class="spinner"></span></span><span class="pp-classify-text">🤖 AI 正在分析样本，还有 '+(cs.pending||0)+' 条...</span></div>'}
 if(cs.lastError){return '<div class="pp-classify-row err"><span class="pp-classify-icon">⚠️</span><span class="pp-classify-text">分类失败：'+esc(cs.lastError.substring(0,50))+'</span><button class="pp-classify-btn" data-classify="retry">重试</button></div>'}
 if(!hasApi){
@@ -1688,7 +1699,7 @@ if(hasStatus)metaParts.push('📌 有情境');
 metaParts.push(count>0?count+' 条 · '+formatTime(s.updatedAt):'空对话');
 var meta=metaParts.join(' · ');
 var itemCls='session-item'+(isActive?' active':'')+(isMulti?' multi':'')+(isSelected?' selected':'');
-return '<div class="'+itemCls+'" data-id="'+s.id+'"><div class="s-check">'+(isSelected?'✓':'')+'</div><div class="s-body"><div class="session-title">'+pinIcon+modeTag+esc(title)+'</div><div class="session-meta">'+esc(meta)+'</div></div>'+(isMulti?'':'<button class="session-more" data-more="'+s.id+'" aria-label="更多">⋯</button>')+'</div>';
+return '<div class="'+itemCls+'" data-id="'+esc(s.id)+'"><div class="s-check">'+(isSelected?'✓':'')+'</div><div class="s-body"><div class="session-title">'+pinIcon+modeTag+esc(title)+'</div><div class="session-meta">'+esc(meta)+'</div></div>'+(isMulti?'':'<button class="session-more" data-more="'+esc(s.id)+'" aria-label="更多">⋯</button>')+'</div>';
 }
 function updateMultiToolbar(){
 var ids=Object.keys(runtime.multiSelect.selected);
@@ -2192,6 +2203,9 @@ var role=m.role==='ta'?'user':'assistant';
 if(isLast&&m.role==='ta'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(m.text)||'请描述图片'},{type:'image_url',image_url:{url:imageData}}]})}
 else{messages.push({role:role,content:cleanUnicode(m.text)})}
 });
+// 兼容严格的服务商：首条不能是 assistant（例如我先用 ✍️ 记了自己说的话），末条必须是 user
+if(messages.length>1&&messages[1].role!=='user'){messages.splice(1,0,{role:'user',content:'（下面是我和对方的聊天记录，请先读懂再回复）'})}
+if(messages[messages.length-1].role!=='user'){messages.push({role:'user',content:'（请按上面的要求，给出 3 条我可以直接发出去的回复）'})}
 var body={model:model,messages:messages,temperature:1.0,max_tokens:800};
 if(pConf.jsonMode&&!imageData)body.response_format={type:'json_object'};
 var content=await rawChatRequest(apiEntry,body,60000);
@@ -2271,7 +2285,9 @@ var role=m.role==='ta'?'user':'assistant';
 if(isLast&&m.role==='ta'&&imageData){messages.push({role:'user',content:[{type:'text',text:cleanUnicode(m.text)||'（图片）'},{type:'image_url',image_url:{url:imageData}}]})}
 else{messages.push({role:role,content:cleanUnicode(m.text)})}
 });
+if(messages.length>1&&messages[1].role!=='user'){messages.splice(1,0,{role:'user',content:'（下面是我和对方的聊天记录）'})}
 if(messages.length===1){messages.push({role:'user',content:'（无历史对话，仅分析我想说的话）'})}
+else if(messages[messages.length-1].role!=='user'){messages.push({role:'user',content:'（请按上面的要求，分析我这句话并给出 3 个更好的版本）'})}
 var body={model:model,messages:messages,temperature:.9,max_tokens:900};
 if(pConf.jsonMode&&!imageData)body.response_format={type:'json_object'};
 var content=await rawChatRequest(apiEntry,body,60000);
@@ -2340,6 +2356,8 @@ if(origin){var idx=origin.messages.indexOf(pushedMsg);if(idx>=0){origin.messages
 clearReplyFor(requestSessionId);
 save();
 if(getCurrentSession().id===requestSessionId){renderMessages();renderSuggestions()}
+// 消息已回滚，把用户刚输入的内容放回输入框，避免手输的内容丢失
+if(originalInput&&!dom.input.value)dom.input.value=originalInput;
 var hint2=runtime.imageBase64?'（图片仍保留，可重试）':'';
 toast('❌ '+err.message+hint2,3500,'error');
 }finally{dom.sendBtn.disabled=false}
